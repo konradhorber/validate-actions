@@ -10,6 +10,7 @@
             "request": "launch",
             "program": "actions-api/main.py",
             "console": "integratedTerminal",
+            "justMyCode": false,
             "args": [
                 "resources/node.js.yml"
             ]
