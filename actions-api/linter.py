@@ -1,4 +1,6 @@
 import yaml
+import parser
+import actions_errors.min_requirements as min_requirements
 
 PROBLEM_LEVELS = {
     0: None,
@@ -27,12 +29,16 @@ def run(input):
     content = input.read()
     return _run(content)
     
-
+# TODO think about how to get multiple errors
 def _run(buffer):
     syntax_error = get_syntax_error(buffer)
+    actions_error = get_actions_error(buffer)
 
     if syntax_error:
         yield syntax_error
+    
+    if actions_error:
+        yield actions_error
 
 def get_syntax_error(buffer):
     assert hasattr(buffer, '__getitem__'), \
@@ -46,3 +52,12 @@ def get_syntax_error(buffer):
                               'syntax')
         problem.level = 'error'
         return problem
+
+actions_errors = [min_requirements]
+
+def get_actions_error(buffer):
+    tokens = list(parser.tokenize(buffer))
+    for error in actions_errors:
+        problem = error.check(tokens)
+        if problem:
+            return problem
