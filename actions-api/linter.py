@@ -1,6 +1,6 @@
 import yaml
 import parser
-import actions_errors.min_requirements as min_requirements
+import actions_errors.event_trigger as event_trigger
 
 PROBLEM_LEVELS = {
     0: None,
@@ -53,7 +53,7 @@ def get_syntax_error(buffer):
         problem.level = 'error'
         return problem
 
-actions_errors = [min_requirements]
+actions_errors = [event_trigger]
 
 def get_actions_error(buffer):
     tokens = list(parser.tokenize(buffer))
