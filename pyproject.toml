@@ -14,7 +14,7 @@ dependencies = [
 
 [tool.poetry]
 packages = [
-    { include = "actions-api" }
+    { include = "validate-actions" }
 ]
 
 [tool.poetry.group.dev.dependencies]
