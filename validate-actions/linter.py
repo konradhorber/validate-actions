@@ -46,8 +46,8 @@ def get_syntax_error(buffer):
     try:
         list(yaml.parse(buffer, Loader=yaml.BaseLoader))
     except yaml.error.MarkedYAMLError as e:
-        problem = LintProblem(e.problem_mark.line + 1,
-                              e.problem_mark.column + 1,
+        problem = LintProblem(e.problem_mark.line,
+                              e.problem_mark.column,
                               'syntax error: ' + e.problem,
                               'syntax')
         problem.level = 'error'
