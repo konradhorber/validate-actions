@@ -1,4 +1,6 @@
 import yaml
+import json
+import sys
 import parser
 import actions_errors.event_trigger as event_trigger
 
@@ -57,7 +59,15 @@ actions_errors = [event_trigger]
 
 def get_actions_error(buffer):
     tokens = list(parser.tokenize(buffer))
+
+    try:
+        with open('resources/github-workflow.json') as f:
+            workflow_schema = json.load(f)
+    except OSError as e:
+        print(e, file=sys.stderr)
+        sys.exit(-1)
+
     for error in actions_errors:
-        problem = error.check(tokens)
+        problem = error.check(tokens, workflow_schema)
         if problem:
             return problem
