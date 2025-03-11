@@ -38,6 +38,7 @@ def _run(buffer):
             except jsonschema.exceptions.ValidationError as e:
                 problem_path = "".join(f"{item}:" for item in e.absolute_path)
                 return [LintProblem(problem_path,e.message,e.validator,PROBLEM_LEVELS[2])]
+            return []
     except OSError as e:
         print(e, file=sys.stderr)
         sys.exit(-1)

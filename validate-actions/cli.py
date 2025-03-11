@@ -11,8 +11,7 @@ class Format:
             line += f'\033[31m{problem.level}\033[0m'
         line += max(18 - len(line), 0) * ' '
         line += 'in'
-        line += f'  \033[2m{problem.location}\033[0m'
-        line += max(50 - len(line), 0) * ' '
+        line += f'  \033[2m{problem.location}\033[0m  '
         
         line += problem.desc
         if problem.rule:
