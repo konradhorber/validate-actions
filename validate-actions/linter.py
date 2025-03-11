@@ -1,8 +1,7 @@
 import yaml
 import json
+import jsonschema
 import sys
-import parser
-import actions_errors.event_trigger as event_trigger
 
 PROBLEM_LEVELS = {
     0: None,
@@ -15,7 +14,7 @@ PROBLEM_LEVELS = {
 
 class LintProblem:
     """Represents a linting problem"""
-    def __init__(self, line, column, desc='<no description>', rule=None):
+    def __init__(self, line, column, desc='<no description>', rule=None, level=None):
         #: Line on which the problem was found (starting at 1)
         self.line = line
         #: Column on which the problem was found (starting at 1)
@@ -25,49 +24,21 @@ class LintProblem:
         #: Identifier of the rule that detected the problem
         self.rule = rule
         #: Identifier of the rule that detected the problem
-        self.level = None
+        self.level = level
 
 def run(input):
     content = input.read()
     return _run(content)
     
-# TODO think about how to get multiple errors
 def _run(buffer):
-    syntax_error = get_syntax_error(buffer)
-    actions_error = get_actions_error(buffer)
-
-    if syntax_error:
-        yield syntax_error
-    
-    if actions_error:
-        yield actions_error
-
-def get_syntax_error(buffer):
-    assert hasattr(buffer, '__getitem__'), \
-        '_run() argument must be a buffer, to be parsed multiple times. Not a stream'
     try:
-        list(yaml.parse(buffer, Loader=yaml.BaseLoader))
-    except yaml.error.MarkedYAMLError as e:
-        problem = LintProblem(e.problem_mark.line,
-                              e.problem_mark.column,
-                              'syntax error: ' + e.problem,
-                              'syntax')
-        problem.level = 'error'
-        return problem
-
-actions_errors = [event_trigger]
-
-def get_actions_error(buffer):
-    tokens = list(parser.tokenize(buffer))
-
-    try:
-        with open('resources/github-workflow.json') as f:
-            workflow_schema = json.load(f)
+        with open('resources/github-workflow.json') as json_blueprint:
+            workflow_schema = json.load(json_blueprint)
+            workflow = yaml.load(buffer, Loader=yaml.BaseLoader)
+            try:
+                jsonschema.validate(workflow, workflow_schema)
+            except jsonschema.exceptions.ValidationError as e:
+                return [LintProblem(0,0,e.message,e.validator,PROBLEM_LEVELS[2])]
     except OSError as e:
         print(e, file=sys.stderr)
         sys.exit(-1)
-
-    for error in actions_errors:
-        problem = error.check(tokens, workflow_schema)
-        if problem:
-            return problem
