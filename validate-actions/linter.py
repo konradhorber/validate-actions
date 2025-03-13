@@ -1,5 +1,6 @@
 import yaml
 import parser
+import json
 import rules.event_trigger as event_trigger
 
 PROBLEM_LEVELS = {
@@ -10,6 +11,8 @@ PROBLEM_LEVELS = {
     'warning': 1,
     'error': 2,
 }
+
+SCHEMA_FILE = 'resources/github-workflow.json'
 
 class LintProblem:
     """Represents a linting problem"""
@@ -57,7 +60,12 @@ actions_errors = [event_trigger]
 
 def get_actions_error(buffer):
     tokens = list(parser.tokenize(buffer))
+    schema = get_workflow_schema(SCHEMA_FILE)
     for error in actions_errors:
-        problem = error.check(tokens)
+        problem = error.check(tokens, schema)
         if problem:
             return problem
+        
+def get_workflow_schema(file):
+    with open(file) as f:
+        return json.load(f)
