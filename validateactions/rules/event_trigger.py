@@ -2,7 +2,7 @@ import yaml
 from validateactions.lint_problem import LintProblem
 
 rule = 'event-trigger'
-#TODO write tests
+
 MATCHING_TOKENS = {
     yaml.FlowSequenceStartToken: yaml.FlowSequenceEndToken,
     yaml.BlockSequenceStartToken: yaml.BlockEndToken,
