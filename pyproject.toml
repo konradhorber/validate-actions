@@ -14,11 +14,16 @@ dependencies = [
 
 [tool.poetry]
 packages = [
-    { include = "validate-actions" }
+    { include="validateactions" }
+]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "validateactions"
 ]
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.3.4"
+pytest = "^8.3.5"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
