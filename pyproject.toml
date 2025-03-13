@@ -10,16 +10,20 @@ requires-python = ">=3.12"
 dependencies = [
     "typer (>=0.15.2,<0.16.0)",
     "pyyaml (>=6.0.2,<7.0.0)",
-    "jsonschema (>=4.23.0,<5.0.0)",
 ]
 
 [tool.poetry]
 packages = [
-    { include = "validate-actions" }
+    { include="validateactions" }
+]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "validateactions"
 ]
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.3.4"
+pytest = "^8.3.5"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
