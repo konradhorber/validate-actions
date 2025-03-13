@@ -2,6 +2,7 @@ import yaml
 import parser
 import json
 import rules.event_trigger as event_trigger
+from lint_problem import LintProblem
 
 PROBLEM_LEVELS = {
     0: None,
@@ -13,20 +14,6 @@ PROBLEM_LEVELS = {
 }
 
 SCHEMA_FILE = 'resources/github-workflow.json'
-
-class LintProblem:
-    """Represents a linting problem"""
-    def __init__(self, line, column, desc='<no description>', rule=None):
-        #: Line on which the problem was found (starting at 1)
-        self.line = line
-        #: Column on which the problem was found (starting at 1)
-        self.column = column
-        #: Human-readable description of the problem
-        self.desc = desc
-        #: Identifier of the rule that detected the problem
-        self.rule = rule
-        #: Identifier of the rule that detected the problem
-        self.level = None
 
 def run(input):
     content = input.read()
@@ -49,12 +36,11 @@ def get_syntax_error(buffer):
     try:
         list(yaml.parse(buffer, Loader=yaml.BaseLoader))
     except yaml.error.MarkedYAMLError as e:
-        problem = LintProblem(e.problem_mark.line,
-                              e.problem_mark.column,
-                              'syntax error: ' + e.problem,
-                              'syntax')
-        problem.level = 'error'
-        return problem
+        return LintProblem(e.problem_mark.line,
+                           e.problem_mark.column,
+                           'error',
+                           'syntax error: ' + e.problem,
+                           'syntax')
 
 actions_errors = [event_trigger]
 
