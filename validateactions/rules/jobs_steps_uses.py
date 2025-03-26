@@ -7,18 +7,26 @@ from typing import Iterator
 rule = 'jobs-steps-uses'
 
 def check(tokens, schema):
-    uses_index = find_index_of('uses', yaml.ScalarToken, tokens)
-    if uses_index == -1:
-        return None
-    
-    action_index = uses_index + 2
-    action_slug = tokens[action_index].value
-    yield from not_using_version_spec(action_slug, action_index, tokens)
+    for uses_index in get_uses_indices(tokens):
+        action_index = uses_index + 2
+        action_slug = tokens[action_index].value
+        
+        yield from not_using_version_spec(action_slug, action_index, tokens)
 
-    required_inputs, all_inputs = get_inputs(action_slug)
-    
-    yield from check_required_inputs(action_index, tokens, action_slug, required_inputs)
-    yield from uses_non_defined_input(action_index, tokens, action_slug, all_inputs)
+        required_inputs, all_inputs = get_inputs(action_slug)
+        yield from check_required_inputs(action_index, tokens, action_slug, required_inputs)
+        yield from uses_non_defined_input(action_index, tokens, action_slug, all_inputs)
+
+def get_uses_indices(tokens):
+    index = 0
+    while True:
+        sub_tokens = tokens[index:]
+        found = find_index_of('uses', yaml.ScalarToken, sub_tokens)
+        if found == -1:
+            break
+        index += found
+        yield index
+        index += 1
 
 def not_using_version_spec(
     action_slug: str,
