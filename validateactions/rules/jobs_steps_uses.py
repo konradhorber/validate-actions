@@ -13,16 +13,12 @@ def check(tokens, schema):
     
     action_index = uses_index + 2
     action_slug = tokens[action_index].value
-    # yield not_using_version_spec(action_slug, action_index, tokens) TODO in yield PR, also test
+    yield from not_using_version_spec(action_slug, action_index, tokens)
 
     required_inputs, all_inputs = get_inputs(action_slug)
     
-    problems = []
-    problems.append(check_required_inputs(action_index, tokens, action_slug, required_inputs))
-    problems.append(uses_non_defined_input(action_index, tokens, action_slug, all_inputs))
-    for problem in problems:
-        if problem is not None:
-            return problem
+    yield from check_required_inputs(action_index, tokens, action_slug, required_inputs)
+    yield from uses_non_defined_input(action_index, tokens, action_slug, all_inputs)
 
 def not_using_version_spec(
     action_slug: str,
@@ -60,31 +56,26 @@ def get_inputs(action_slug):
 # region required inputs
 def check_required_inputs(action_index, tokens, action_slug, required_inputs):
     if len(required_inputs) == 0:
-        return None
+        return
     
     with_index = action_index + 2
-    problems = []
-    problems.append(has_no_with(tokens[with_index], action_slug, required_inputs))
-    problems.append(has_wrong_with(tokens, with_index, action_slug, required_inputs))
-
-    for problem in problems:
-        if problem is not None:
-            return problem
+    yield from has_no_with(tokens[with_index], action_slug, required_inputs)
+    yield from has_wrong_with(tokens, with_index, action_slug, required_inputs)
 
 def has_no_with(token, action_slug, required_inputs):
     if (
         isinstance(token, yaml.ScalarToken) 
         and token.value == 'with'
     ):
-        return None
-    return return_missing_inputs_problem(token, action_slug, required_inputs)
+        return
+    yield return_missing_inputs_problem(token, action_slug, required_inputs)
 
 def has_wrong_with(tokens, with_index, action_slug, required_inputs):
     used_inputs = get_used_inputs(tokens, with_index)
     
     for input in required_inputs:
         if input not in used_inputs:
-            return return_missing_inputs_problem(tokens[with_index], action_slug, required_inputs)
+            yield return_missing_inputs_problem(tokens[with_index], action_slug, required_inputs)
 
 def return_missing_inputs_problem(
         token: yaml.Token, 
@@ -102,7 +93,7 @@ def return_missing_inputs_problem(
 
 def uses_non_defined_input(action_index, tokens, action_slug, possible_inputs):
     if len(possible_inputs) == 0:
-        return None
+        return
     
     with_index = action_index + 2
     used_inputs = get_used_inputs(tokens, with_index)
@@ -110,7 +101,7 @@ def uses_non_defined_input(action_index, tokens, action_slug, possible_inputs):
     j = 4
     for input in used_inputs:
         if input not in possible_inputs:
-            return LintProblem(
+            yield LintProblem(
                 tokens[with_index + j + i * 4].start_mark.line,
                 tokens[with_index + j + i * 4].start_mark.column,
                 'error',

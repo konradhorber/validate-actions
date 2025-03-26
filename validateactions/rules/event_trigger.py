@@ -23,11 +23,11 @@ def check(tokens, schema):
         case yaml.ScalarToken:
             return check_single_event(tokens, schema, structure_determining_token_index)
         case yaml.FlowSequenceStartToken:
-            return check_sequence(tokens, schema, structure_determining_token_index, MATCHING_TOKENS[structure])
+            yield from check_sequence(tokens, schema, structure_determining_token_index, MATCHING_TOKENS[structure])
         case yaml.BlockSequenceStartToken:
-            return check_sequence(tokens, schema, structure_determining_token_index, MATCHING_TOKENS[structure])
+            yield from check_sequence(tokens, schema, structure_determining_token_index, MATCHING_TOKENS[structure])
         case yaml.BlockMappingStartToken:
-            return check_mapping(tokens, schema, structure_determining_token_index, MATCHING_TOKENS[structure])
+            yield from check_mapping(tokens, schema, structure_determining_token_index, MATCHING_TOKENS[structure])
         case yaml.FlowMappingStartToken:
             return # TODO
         case _:
@@ -42,12 +42,8 @@ def check(tokens, schema):
     
 def find_on_index(tokens):
     for i, token in enumerate(tokens):
-        if not isinstance(token, yaml.ScalarToken):
-            continue
-        if not token.value == 'on':
-            continue
-        return i
-    return
+        if isinstance(token, yaml.ScalarToken) and token.value == 'on':
+            return i
 
 def check_single_event(tokens, schema, structure_determining_token_index):
     event_index = structure_determining_token_index
@@ -60,12 +56,9 @@ def check_sequence(tokens, schema, structure_determining_token_index, end_token)
     token = tokens[i]
     while (not isinstance(token, end_token)):
         if isinstance(token, yaml.ScalarToken):
-            problem = check_scalar_against_schema(token, schema)
-            if problem:
-                return problem
+            yield check_scalar_against_schema(token, schema)
         i += 1
         token = tokens[i]
-    return None
 
 def check_mapping(tokens, schema, structure_determining_token_index, end_token):
     i = structure_determining_token_index + 1
@@ -74,9 +67,7 @@ def check_mapping(tokens, schema, structure_determining_token_index, end_token):
 
     while (not isinstance(token, end_token)):
         if isinstance(token, yaml.ScalarToken):
-            problem = check_scalar_against_schema(token, schema)
-            if problem:
-                return problem
+            yield check_scalar_against_schema(token, schema)
         elif type(token) in MATCHING_TOKENS.keys():
             brace_type = type(token)
             while (not isinstance(token, MATCHING_TOKENS[brace_type])):
@@ -85,7 +76,6 @@ def check_mapping(tokens, schema, structure_determining_token_index, end_token):
 
         i += 1
         token = tokens[i]
-    return None
 
 def check_scalar_against_schema(token, schema):
     events = parse_events_from_schema(schema)
@@ -100,7 +90,6 @@ def check_scalar_against_schema(token, schema):
             desc,
             rule
         )
-    return
 
 def parse_events_from_schema(schema):
     events = []

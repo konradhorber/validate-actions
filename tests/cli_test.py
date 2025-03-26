@@ -3,13 +3,20 @@ import tempfile
 import os
 
 def test_run():
-    workflow = """
-name: test
-on: psuh
+    workflow = """name: test
+on:
+  pus:
+    branches: [ $default-branch ]
+  pullrequest:
+    branches: [ $default-branch ]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack
+        with:
+          unknown_input: 'test'
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
         with:

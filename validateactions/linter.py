@@ -47,7 +47,7 @@ def get_actions_error(buffer):
     tokens = list(parser.tokenize(buffer))
     schema = get_workflow_schema(SCHEMA_FILE)
     for rule in ACTIONS_ERROR_RULES:
-        yield rule.check(tokens, schema)
+        yield from rule.check(tokens, schema)
         
 def get_workflow_schema(file):
     with open(file) as f:
