@@ -5,6 +5,7 @@ from validateactions import parser
 
 # with
 
+# region required inputs
 def test_required_input_but_no_with():
     workflow = """
 name: test
@@ -18,7 +19,6 @@ jobs:
     tokens = list(parser.tokenize(workflow))
     result = steps_uses.check(tokens, None)
     assert isinstance(result, LintProblem)
-    # assert result is None
 
 def test_required_input_correct_with():
     workflow = """
@@ -103,13 +103,62 @@ jobs:
     result = steps_uses.check(tokens, None)
     assert isinstance(result, LintProblem)
 
-def test_single_event_correct():
-    workflow ="""
-name: test 
-on: push
-"""
-    workflow_tokens = list(parser.tokenize(workflow))
-    result = steps_uses.check(workflow_tokens)
-    assert isinstance(result, LintProblem)
+# endregion required inputs
 
+# region all inputs
+def test_uses_existent_optional_input():
+    workflow = """
+name: test
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v2
+        with: 
+          status: 'test'
+"""
+    tokens = list(parser.tokenize(workflow))
+    result = steps_uses.check(tokens, None)
+    assert result is None
+
+def test_uses_non_existent_input_first():
+    workflow = """
+name: test
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v2
+        with: 
+          wrong_input: 'test'
+          status: 'test'
+"""
+    tokens = list(parser.tokenize(workflow))
+    result = steps_uses.check(tokens, None)
+    assert isinstance(result, LintProblem)
+    assert result.line == 9
+    assert result.desc == "8398a7/action-slack@v2 has unknown input: wrong_input"
+
+def test_uses_non_existent_input_second():
+    workflow = """
+name: test
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v2
+        with: 
+          status: 'test'
+          wrong_input: 'test'
+"""
+    tokens = list(parser.tokenize(workflow))
+    result = steps_uses.check(tokens, None)
+    assert isinstance(result, LintProblem)
+    assert result.line == 10
+    assert result.desc == "8398a7/action-slack@v2 has unknown input: wrong_input"
+
+# endregion all inputs
 
