@@ -4,7 +4,7 @@ from validateactions.rules.support_functions import find_index_of
 import json
 from typing import Iterator
 
-rule = 'steps-uses'
+rule = 'jobs-steps-uses'
 
 def check(tokens, schema):
     uses_index = find_index_of('uses', yaml.ScalarToken, tokens)
