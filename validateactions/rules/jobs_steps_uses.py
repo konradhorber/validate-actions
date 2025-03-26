@@ -18,15 +18,9 @@ def check(tokens, schema):
         yield from uses_non_defined_input(action_index, tokens, action_slug, all_inputs)
 
 def get_uses_indices(tokens):
-    index = 0
-    while True:
-        sub_tokens = tokens[index:]
-        found = find_index_of('uses', yaml.ScalarToken, sub_tokens)
-        if found == -1:
-            break
-        index += found
-        yield index
-        index += 1
+    for i, token in enumerate(tokens):
+        if isinstance(token, yaml.ScalarToken) and token.value == 'uses':
+            yield i
 
 def not_using_version_spec(
     action_slug: str,
