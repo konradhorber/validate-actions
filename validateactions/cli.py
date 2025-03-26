@@ -23,8 +23,10 @@ def run(file):
     except OSError as e:
         print(e, file=sys.stderr)
         sys.exit(-1)
+
+    sorted_problems = sorted(problems, key=lambda x: (x.line, x.column))
     
-    prob_level = show_problems(problems, file)
+    prob_level = show_problems(sorted_problems, file)
 
     if prob_level == validateactions.linter.PROBLEM_LEVELS['error']:
         return_code = 1
