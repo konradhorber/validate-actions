@@ -7,19 +7,19 @@ from typing import Iterator
 rule = 'steps-uses'
 
 def check(tokens, schema):
-    uses_index = find_index_of('uses', yaml.ScalarToken, tokens) # yaml.events.ScalarEvent
+    uses_index = find_index_of('uses', yaml.ScalarToken, tokens)
     if uses_index == -1:
         return None
     
     action_index = uses_index + 2
     action_slug = tokens[action_index].value
-    # yield not_using_version_spec(action_slug, action_index, tokens) TODO
+    # yield not_using_version_spec(action_slug, action_index, tokens) TODO in yield PR, also test
 
     required_inputs, all_inputs = get_inputs(action_slug)
     
     problems = []
     problems.append(check_required_inputs(action_index, tokens, action_slug, required_inputs))
-    problems.append(uses_non_existent_input(action_index, tokens, action_slug, all_inputs))
+    problems.append(uses_non_defined_input(action_index, tokens, action_slug, all_inputs))
     for problem in problems:
         if problem is not None:
             return problem
@@ -37,7 +37,7 @@ def not_using_version_spec(
               'Using specific version of the action is recommended (e.g., @v2)',
               rule
          )
-       
+
 def get_inputs(action_slug):
     with open('resources/popular_actions.json', 'r') as f:
         popular_actions = json.load(f)
@@ -56,7 +56,8 @@ def get_inputs(action_slug):
             else:
                 all_inputs.append(input)
         return required_inputs, all_inputs
-       
+
+# region required inputs
 def check_required_inputs(action_index, tokens, action_slug, required_inputs):
     if len(required_inputs) == 0:
         return None
@@ -97,19 +98,9 @@ def return_missing_inputs_problem(
         f'{action_slug} misses required inputs: {prettyprint_required_inputs}',
         rule
     )
+# endregion required inputs
 
-def get_used_inputs(tokens, with_index):
-    i = with_index + 2
-    while not isinstance(tokens[i], yaml.BlockEndToken):
-        if (
-            isinstance(tokens[i], yaml.KeyToken)
-            and isinstance(tokens[i+1], yaml.ScalarToken)
-        ):
-            yield tokens[i+1].value
-            i += 3
-        i += 1
-
-def uses_non_existent_input(action_index, tokens, action_slug, possible_inputs):
+def uses_non_defined_input(action_index, tokens, action_slug, possible_inputs):
     if len(possible_inputs) == 0:
         return None
     
@@ -126,4 +117,15 @@ def uses_non_existent_input(action_index, tokens, action_slug, possible_inputs):
                 f'{action_slug} has unknown input: {input}',
                 rule
             )
+        i += 1
+
+def get_used_inputs(tokens, with_index):
+    i = with_index + 2
+    while not isinstance(tokens[i], yaml.BlockEndToken):
+        if (
+            isinstance(tokens[i], yaml.KeyToken)
+            and isinstance(tokens[i+1], yaml.ScalarToken)
+        ):
+            yield tokens[i+1].value
+            i += 3
         i += 1
