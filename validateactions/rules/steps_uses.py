@@ -41,11 +41,12 @@ def not_using_version_spec(
 def get_inputs(action_slug):
     with open('resources/popular_actions.json', 'r') as f:
         popular_actions = json.load(f)
-    
-        action_schema = popular_actions[action_slug]
-        if action_schema == None:
-            return None
-        
+
+        try:
+            action_schema = popular_actions[action_slug]
+        except KeyError:
+            return [], []
+
         required_inputs = []
         all_inputs = []
         for input, required in action_schema['inputs'].items():

@@ -4,6 +4,22 @@ from validateactions.lint_problem import LintProblem
 from validateactions import parser
 
 # with
+def test_unknown_action_passes():
+    workflow = """
+name: test
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Slack
+        uses: action/is-unknown@vtest
+        with:
+          unknown_input: 'test'
+"""
+    tokens = list(parser.tokenize(workflow))
+    result = steps_uses.check(tokens, None)
+    assert result is None
+
 
 # region required inputs
 def test_required_input_but_no_with():
