@@ -4,7 +4,7 @@ import json
 import rules
 from lint_problem import LintProblem
 import rules.event_trigger
-import rules.steps_uses
+import validateactions.rules.jobs_steps_uses
 
 PROBLEM_LEVELS = {
     0: None,

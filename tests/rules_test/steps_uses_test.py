@@ -1,4 +1,4 @@
-import validateactions.rules.steps_uses as steps_uses
+import validateactions.rules.jobs_steps_uses as jobs_steps_uses
 import validateactions.parser as parser
 from validateactions.lint_problem import LintProblem
 from validateactions import parser
@@ -17,7 +17,7 @@ jobs:
           unknown_input: 'test'
 """
     tokens = list(parser.tokenize(workflow))
-    result = steps_uses.check(tokens, None)
+    result = jobs_steps_uses.check(tokens, None)
     assert result is None
 
 
@@ -33,7 +33,7 @@ jobs:
         uses: 8398a7/action-slack@v3
 """
     tokens = list(parser.tokenize(workflow))
-    result = steps_uses.check(tokens, None)
+    result = jobs_steps_uses.check(tokens, None)
     assert isinstance(result, LintProblem)
 
 def test_required_input_correct_with():
@@ -49,7 +49,7 @@ jobs:
           status: 'test'
 """
     tokens = list(parser.tokenize(workflow))
-    result = steps_uses.check(tokens, None)
+    result = jobs_steps_uses.check(tokens, None)
     assert result is None
 
 def test_required_input_but_wrong_with_ending_directly():
@@ -65,7 +65,7 @@ jobs:
           fields: 'test'
 """
     tokens = list(parser.tokenize(workflow))
-    result = steps_uses.check(tokens, None)
+    result = jobs_steps_uses.check(tokens, None)
     assert isinstance(result, LintProblem)
     
 def test_required_input_but_wrong_with_block_continues():
@@ -82,7 +82,7 @@ jobs:
       - run: npm install
 """
     tokens = list(parser.tokenize(workflow))
-    result = steps_uses.check(tokens, None)
+    result = jobs_steps_uses.check(tokens, None)
     assert isinstance(result, LintProblem)
 
 def test_required_input_correct_with_multiple_inputs():
@@ -99,7 +99,7 @@ jobs:
           status: 'correct'
 """
     tokens = list(parser.tokenize(workflow))
-    result = steps_uses.check(tokens, None)
+    result = jobs_steps_uses.check(tokens, None)
     assert result is None
 
 def test_required_input_but_wrong_multiple_inputs():
@@ -116,7 +116,7 @@ jobs:
           custom_payload: 'test'
 """
     tokens = list(parser.tokenize(workflow))
-    result = steps_uses.check(tokens, None)
+    result = jobs_steps_uses.check(tokens, None)
     assert isinstance(result, LintProblem)
 
 # endregion required inputs
@@ -135,7 +135,7 @@ jobs:
           status: 'test'
 """
     tokens = list(parser.tokenize(workflow))
-    result = steps_uses.check(tokens, None)
+    result = jobs_steps_uses.check(tokens, None)
     assert result is None
 
 def test_uses_non_existent_input_first():
@@ -152,7 +152,7 @@ jobs:
           status: 'test'
 """
     tokens = list(parser.tokenize(workflow))
-    result = steps_uses.check(tokens, None)
+    result = jobs_steps_uses.check(tokens, None)
     assert isinstance(result, LintProblem)
     assert result.line == 9
     assert result.desc == "8398a7/action-slack@v2 has unknown input: wrong_input"
@@ -171,7 +171,7 @@ jobs:
           wrong_input: 'test'
 """
     tokens = list(parser.tokenize(workflow))
-    result = steps_uses.check(tokens, None)
+    result = jobs_steps_uses.check(tokens, None)
     assert isinstance(result, LintProblem)
     assert result.line == 10
     assert result.desc == "8398a7/action-slack@v2 has unknown input: wrong_input"
