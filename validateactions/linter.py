@@ -1,8 +1,10 @@
 import yaml
 import parser
 import json
-import rules.event_trigger as event_trigger
+import rules
 from lint_problem import LintProblem
+import rules.event_trigger
+import validateactions.rules.jobs_steps_uses
 
 PROBLEM_LEVELS = {
     0: None,
@@ -42,13 +44,16 @@ def get_syntax_error(buffer):
                            'syntax error: ' + e.problem,
                            'syntax')
 
-actions_errors = [event_trigger]
+ACTIONS_ERROR_RULES = [
+    rules.event_trigger,
+    rules.steps_uses
+    ]
 
 def get_actions_error(buffer):
     tokens = list(parser.tokenize(buffer))
     schema = get_workflow_schema(SCHEMA_FILE)
-    for error in actions_errors:
-        problem = error.check(tokens, schema)
+    for rule in ACTIONS_ERROR_RULES:
+        problem = rule.check(tokens, schema)
         if problem:
             return problem
         

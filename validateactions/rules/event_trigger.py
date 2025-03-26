@@ -1,5 +1,6 @@
 import yaml
 from validateactions.lint_problem import LintProblem
+from validateactions.rules.support_functions import find_index_of
 
 rule = 'event-trigger'
 
@@ -11,7 +12,7 @@ MATCHING_TOKENS = {
 }
 
 def check(tokens, schema):
-    on_index = find_on_index(tokens)
+    on_index = find_index_of('on', yaml.ScalarToken, tokens)
     if not on_index:
         return LintProblem(0, 0, 'error', 'No on token found', rule)
 

@@ -1,0 +1,5403 @@
+{
+    "8398a7/action-slack@v1": {
+        "inputs": {
+            "type": false,
+            "payload": false,
+            "failedMention": false,
+            "text": false
+        },
+        "outputs": []
+    },
+    "8398a7/action-slack@v2": {
+        "inputs": {
+            "status": false,
+            "payload": false,
+            "mention": false,
+            "only_mention_fail": false,
+            "author_name": false,
+            "text": false,
+            "username": false,
+            "icon_emoji": false,
+            "icon_url": false,
+            "channel": false
+        },
+        "outputs": []
+    },
+    "8398a7/action-slack@v3": {
+        "inputs": {
+            "status": true,
+            "fields": false,
+            "custom_payload": false,
+            "mention": false,
+            "if_mention": false,
+            "author_name": false,
+            "text": false,
+            "username": false,
+            "icon_emoji": false,
+            "icon_url": false,
+            "channel": false,
+            "job_name": false,
+            "github_token": false,
+            "github_base_url": false
+        },
+        "outputs": []
+    },
+    "Azure/container-scan@v0": {
+        "inputs": {
+            "image-name": true,
+            "severity-threshold": false,
+            "username": false,
+            "password": false,
+            "token": true,
+            "trivy-version": false,
+            "run-quality-checks": false
+        },
+        "outputs": [
+            "scan-report-path",
+            "check-run-url"
+        ]
+    },
+    "Azure/functions-action@v1": {
+        "inputs": {
+            "app-name": true,
+            "package": false,
+            "slot-name": false,
+            "publish-profile": false,
+            "respect-pom-xml": false,
+            "respect-funcignore": false,
+            "scm-do-build-during-deployment": false,
+            "enable-oryx-build": false,
+            "sku": false,
+            "remote-build": false
+        },
+        "outputs": [
+            "app-url",
+            "package-url"
+        ]
+    },
+    "EnricoMi/publish-unit-test-result-action@v1": {
+        "inputs": {
+            "github_token": false,
+            "github_retries": false,
+            "commit": false,
+            "check_name": false,
+            "comment_title": false,
+            "comment_mode": false,
+            "fail_on": false,
+            "files": true,
+            "time_unit": false,
+            "report_individual_runs": false,
+            "deduplicate_classes_by_file_name": false,
+            "ignore_runs": false,
+            "hide_comments": false,
+            "comment_on_pr": false,
+            "job_summary": false,
+            "compare_to_earlier_commit": false,
+            "pull_request_build": false,
+            "event_file": false,
+            "event_name": false,
+            "test_changes_limit": false,
+            "check_run_annotations": false,
+            "check_run_annotations_branch": false,
+            "seconds_between_github_reads": false,
+            "seconds_between_github_writes": false,
+            "json_file": false,
+            "json_thousands_separator": false
+        },
+        "outputs": [
+            "json"
+        ]
+    },
+    "EnricoMi/publish-unit-test-result-action@v2": {
+        "inputs": {
+            "github_token": false,
+            "github_token_actor": false,
+            "github_retries": false,
+            "commit": false,
+            "check_name": false,
+            "comment_title": false,
+            "comment_mode": false,
+            "fail_on": false,
+            "action_fail": false,
+            "action_fail_on_inconclusive": false,
+            "files": false,
+            "junit_files": false,
+            "nunit_files": false,
+            "xunit_files": false,
+            "trx_files": false,
+            "time_unit": false,
+            "test_file_prefix": false,
+            "report_individual_runs": false,
+            "report_suite_logs": false,
+            "deduplicate_classes_by_file_name": false,
+            "large_files": false,
+            "ignore_runs": false,
+            "check_run": false,
+            "job_summary": false,
+            "compare_to_earlier_commit": false,
+            "pull_request_build": false,
+            "event_file": false,
+            "event_name": false,
+            "test_changes_limit": false,
+            "check_run_annotations": false,
+            "check_run_annotations_branch": false,
+            "seconds_between_github_reads": false,
+            "seconds_between_github_writes": false,
+            "secondary_rate_limit_wait_seconds": false,
+            "json_file": false,
+            "json_thousands_separator": false,
+            "json_suite_details": false,
+            "json_test_case_results": false,
+            "search_pull_requests": false
+        },
+        "outputs": [
+            "json"
+        ]
+    },
+    "JamesIves/github-pages-deploy-action@releases/v3": {
+        "inputs": {
+            "SSH": false,
+            "ACCESS_TOKEN": false,
+            "GITHUB_TOKEN": false,
+            "BRANCH": true,
+            "FOLDER": true,
+            "TARGET_FOLDER": false,
+            "BASE_BRANCH": false,
+            "COMMIT_MESSAGE": false,
+            "CLEAN": false,
+            "CLEAN_EXCLUDE": false,
+            "GIT_CONFIG_NAME": false,
+            "GIT_CONFIG_EMAIL": false,
+            "REPOSITORY_NAME": false,
+            "WORKSPACE": false,
+            "SINGLE_COMMIT": false,
+            "LFS": false,
+            "SILENT": false,
+            "PRESERVE": false
+        },
+        "outputs": [
+            "DEPLOYMENT_STATUS"
+        ]
+    },
+    "JamesIves/github-pages-deploy-action@v4": {
+        "inputs": {
+            "ssh-key": false,
+            "token": false,
+            "branch": false,
+            "folder": true,
+            "target-folder": false,
+            "commit-message": false,
+            "clean": false,
+            "clean-exclude": false,
+            "dry-run": false,
+            "force": false,
+            "git-config-name": false,
+            "git-config-email": false,
+            "repository-name": false,
+            "tag": false,
+            "single-commit": false,
+            "silent": false,
+            "attempt-limit": false
+        },
+        "outputs": [
+            "deployment-status"
+        ]
+    },
+    "ReactiveCircus/android-emulator-runner@v1": {
+        "inputs": {
+            "api-level": true,
+            "target": false,
+            "arch": false,
+            "profile": false,
+            "headless": false,
+            "disable-animations": false,
+            "script": true
+        },
+        "outputs": []
+    },
+    "ReactiveCircus/android-emulator-runner@v2": {
+        "inputs": {
+            "api-level": true,
+            "target": false,
+            "arch": false,
+            "profile": false,
+            "cores": false,
+            "ram-size": false,
+            "heap-size": false,
+            "sdcard-path-or-size": false,
+            "disk-size": false,
+            "avd-name": false,
+            "force-avd-creation": false,
+            "emulator-boot-timeout": false,
+            "emulator-port": false,
+            "emulator-options": false,
+            "disable-animations": false,
+            "disable-spellchecker": false,
+            "disable-linux-hw-accel": false,
+            "enable-hw-keyboard": false,
+            "emulator-build": false,
+            "working-directory": false,
+            "ndk": false,
+            "cmake": false,
+            "channel": false,
+            "script": true,
+            "pre-emulator-launch-script": false
+        },
+        "outputs": []
+    },
+    "Swatinem/rust-cache@v1": {
+        "inputs": {
+            "key": false,
+            "sharedKey": false,
+            "working-directory": false,
+            "target-dir": false,
+            "cache-on-failure": false
+        },
+        "outputs": [
+            "cache-hit"
+        ]
+    },
+    "Swatinem/rust-cache@v2": {
+        "inputs": {
+            "prefix-key": false,
+            "shared-key": false,
+            "key": false,
+            "env-vars": false,
+            "workspaces": false,
+            "cache-directories": false,
+            "cache-targets": false,
+            "cache-on-failure": false,
+            "cache-all-crates": false,
+            "save-if": false,
+            "cache-provider": false,
+            "cache-bin": false,
+            "lookup-only": false
+        },
+        "outputs": [
+            "cache-hit"
+        ]
+    },
+    "actions-cool/issues-helper@v1": {
+        "inputs": {
+            "actions": false,
+            "token": false,
+            "issue-number": false,
+            "comment-id": false,
+            "body": false,
+            "title": false,
+            "assignees": false,
+            "labels": false,
+            "state": false,
+            "update-mode": false,
+            "contents": false,
+            "direction": false,
+            "comment-auth": false,
+            "body-includes": false,
+            "title-includes": false,
+            "issue-creator": false,
+            "issue-assignee": false,
+            "issue-mentioned": false,
+            "issue-state": false,
+            "inactive-day": false,
+            "inactive-label": false
+        },
+        "outputs": [
+            "issue-number",
+            "comment-id",
+            "comments"
+        ]
+    },
+    "actions-cool/issues-helper@v2": {
+        "inputs": {
+            "actions": false,
+            "token": false,
+            "repo": false,
+            "issue-number": false,
+            "comment-id": false,
+            "body": false,
+            "title": false,
+            "assignees": false,
+            "random-to": false,
+            "labels": false,
+            "label-name": false,
+            "label-color": false,
+            "label-desc": false,
+            "state": false,
+            "update-mode": false,
+            "contents": false,
+            "direction": false,
+            "comment-auth": false,
+            "out-comments": false,
+            "assignee-includes": false,
+            "body-includes": false,
+            "title-excludes": false,
+            "title-includes": false,
+            "issue-creator": false,
+            "issue-assignee": false,
+            "issue-mentioned": false,
+            "issue-contents": false,
+            "issue-state": false,
+            "inactive-day": false,
+            "lock-reason": false,
+            "inactive-label": false,
+            "exclude-labels": false,
+            "duplicate-command": false,
+            "duplicate-labels": false,
+            "require-permission": false,
+            "remove-labels": false,
+            "close-issue": false,
+            "count-lables": false,
+            "count-comments": false
+        },
+        "outputs": [
+            "issue-number",
+            "comment-id",
+            "comments",
+            "check-result"
+        ]
+    },
+    "actions-cool/issues-helper@v3": {
+        "inputs": {
+            "actions": false,
+            "token": false,
+            "repo": false,
+            "issue-number": false,
+            "comment-id": false,
+            "body": false,
+            "title": false,
+            "assignees": false,
+            "random-to": false,
+            "close-reason": false,
+            "labels": false,
+            "label-name": false,
+            "label-color": false,
+            "label-desc": false,
+            "state": false,
+            "update-mode": false,
+            "emoji": false,
+            "direction": false,
+            "comment-auth": false,
+            "assignee-includes": false,
+            "body-includes": false,
+            "title-excludes": false,
+            "title-includes": false,
+            "issue-creator": false,
+            "issue-assignee": false,
+            "issue-mentioned": false,
+            "issue-emoji": false,
+            "issue-state": false,
+            "inactive-day": false,
+            "inactive-mode": false,
+            "lock-reason": false,
+            "inactive-label": false,
+            "exclude-labels": false,
+            "assign-command": false,
+            "duplicate-command": false,
+            "duplicate-labels": false,
+            "require-permission": false,
+            "remove-labels": false,
+            "close-issue": false
+        },
+        "outputs": [
+            "issue-number",
+            "issue-title",
+            "issue-body",
+            "issue-labels",
+            "issue-assignees",
+            "issue-state",
+            "comment-id",
+            "comments",
+            "issues",
+            "check-result"
+        ]
+    },
+    "actions-rs/audit-check@v1": {
+        "inputs": {
+            "token": true
+        },
+        "outputs": []
+    },
+    "actions-rs/cargo@v1": {
+        "inputs": {
+            "command": true,
+            "toolchain": false,
+            "args": false,
+            "use-cross": false
+        },
+        "outputs": []
+    },
+    "actions-rs/clippy-check@v1": {
+        "inputs": {
+            "token": true,
+            "toolchain": false,
+            "args": false,
+            "use-cross": false,
+            "name": false
+        },
+        "outputs": []
+    },
+    "actions-rs/toolchain@v1": {
+        "inputs": {
+            "toolchain": false,
+            "target": false,
+            "default": false,
+            "override": false,
+            "profile": false,
+            "components": false
+        },
+        "outputs": [
+            "rustc",
+            "rustc_hash",
+            "cargo",
+            "rustup"
+        ]
+    },
+    "dtolnay/rust-toolchain@stable": {
+        "inputs": {
+            "toolchain": false,
+            "targets": false,
+            "target": false,
+            "components": false
+        },
+        "outputs": [
+            "cachekey",
+            "name"
+        ]
+    },
+    "dtolnay/rust-toolchain@beta": {
+        "inputs": {
+            "toolchain": false,
+            "targets": false,
+            "target": false,
+            "components": false
+        },
+        "outputs": [
+            "cachekey",
+            "name"
+        ]
+    },
+    "dtolnay/rust-toolchain@nightly": {
+        "inputs": {
+            "toolchain": false,
+            "targets": false,
+            "target": false,
+            "components": false
+        },
+        "outputs": [
+            "cachekey",
+            "name"
+        ]
+    },
+    "actions/cache@v1": {
+        "inputs": {
+            "path": true,
+            "key": true,
+            "restore-keys": false
+        },
+        "outputs": [
+            "cache-hit"
+        ]
+    },
+    "actions/cache@v2": {
+        "inputs": {
+            "path": true,
+            "key": true,
+            "restore-keys": false,
+            "upload-chunk-size": false
+        },
+        "outputs": [
+            "cache-hit"
+        ]
+    },
+    "actions/cache@v3": {
+        "inputs": {
+            "path": true,
+            "key": true,
+            "restore-keys": false,
+            "upload-chunk-size": false,
+            "enableCrossOsArchive": false,
+            "fail-on-cache-miss": false,
+            "lookup-only": false
+        },
+        "outputs": [
+            "cache-hit"
+        ]
+    },
+    "actions/cache@v4": {
+        "inputs": {
+            "path": true,
+            "key": true,
+            "restore-keys": false,
+            "upload-chunk-size": false,
+            "enableCrossOsArchive": false,
+            "fail-on-cache-miss": false,
+            "lookup-only": false,
+            "save-always": false
+        },
+        "outputs": [
+            "cache-hit"
+        ]
+    },
+    "actions/checkout@v1": {
+        "inputs": {
+            "repository": false,
+            "ref": false,
+            "token": false,
+            "clean": false,
+            "submodules": false,
+            "lfs": false,
+            "fetch-depth": false,
+            "path": false
+        },
+        "outputs": []
+    },
+    "actions/checkout@v2": {
+        "inputs": {
+            "repository": false,
+            "ref": false,
+            "token": false,
+            "ssh-key": false,
+            "ssh-known-hosts": false,
+            "ssh-strict": false,
+            "persist-credentials": false,
+            "path": false,
+            "clean": false,
+            "fetch-depth": false,
+            "lfs": false,
+            "submodules": false,
+            "set-safe-directory": false
+        },
+        "outputs": []
+    },
+    "actions/checkout@v3": {
+        "inputs": {
+            "repository": false,
+            "ref": false,
+            "token": false,
+            "ssh-key": false,
+            "ssh-known-hosts": false,
+            "ssh-strict": false,
+            "persist-credentials": false,
+            "path": false,
+            "clean": false,
+            "sparse-checkout": false,
+            "sparse-checkout-cone-mode": false,
+            "fetch-depth": false,
+            "fetch-tags": false,
+            "lfs": false,
+            "submodules": false,
+            "set-safe-directory": false,
+            "github-server-url": false
+        },
+        "outputs": []
+    },
+    "actions/checkout@v4": {
+        "inputs": {
+            "repository": false,
+            "ref": false,
+            "token": false,
+            "ssh-key": false,
+            "ssh-known-hosts": false,
+            "ssh-strict": false,
+            "ssh-user": false,
+            "persist-credentials": false,
+            "path": false,
+            "clean": false,
+            "filter": false,
+            "sparse-checkout": false,
+            "sparse-checkout-cone-mode": false,
+            "fetch-depth": false,
+            "fetch-tags": false,
+            "show-progress": false,
+            "lfs": false,
+            "submodules": false,
+            "set-safe-directory": false,
+            "github-server-url": false
+        },
+        "outputs": [
+            "ref",
+            "commit"
+        ]
+    },
+    "actions/configure-pages@v1": {
+        "inputs": {
+            "static_site_generator": false,
+            "generator_config_file": false,
+            "token": true,
+            "enablement": false
+        },
+        "outputs": [
+            "base_url",
+            "origin",
+            "host",
+            "base_path"
+        ]
+    },
+    "actions/configure-pages@v2": {
+        "inputs": {
+            "static_site_generator": false,
+            "generator_config_file": false,
+            "token": true,
+            "enablement": false
+        },
+        "outputs": [
+            "base_url",
+            "origin",
+            "host",
+            "base_path"
+        ]
+    },
+    "actions/configure-pages@v3": {
+        "inputs": {
+            "static_site_generator": false,
+            "generator_config_file": false,
+            "token": true,
+            "enablement": false
+        },
+        "outputs": [
+            "base_url",
+            "origin",
+            "host",
+            "base_path"
+        ]
+    },
+    "actions/configure-pages@v4": {
+        "inputs": {
+            "static_site_generator": false,
+            "generator_config_file": false,
+            "token": true,
+            "enablement": false
+        },
+        "outputs": [
+            "base_url",
+            "origin",
+            "host",
+            "base_path"
+        ]
+    },
+    "actions/configure-pages@v5": {
+        "inputs": {
+            "static_site_generator": false,
+            "generator_config_file": false,
+            "token": true,
+            "enablement": false
+        },
+        "outputs": [
+            "base_url",
+            "origin",
+            "host",
+            "base_path"
+        ]
+    },
+    "actions/deploy-pages@v1": {
+        "inputs": {
+            "emit_telemetry": false,
+            "conclusion": false,
+            "token": true,
+            "timeout": false,
+            "error_count": false,
+            "reporting_interval": false,
+            "artifact_name": false,
+            "preview": false
+        },
+        "outputs": [
+            "page_url"
+        ]
+    },
+    "actions/deploy-pages@v2": {
+        "inputs": {
+            "token": true,
+            "timeout": false,
+            "error_count": false,
+            "reporting_interval": false,
+            "artifact_name": false,
+            "preview": false
+        },
+        "outputs": [
+            "page_url"
+        ]
+    },
+    "actions/deploy-pages@v3": {
+        "inputs": {
+            "token": true,
+            "timeout": false,
+            "error_count": false,
+            "reporting_interval": false,
+            "artifact_name": false,
+            "preview": false
+        },
+        "outputs": [
+            "page_url"
+        ]
+    },
+    "actions/deploy-pages@v4": {
+        "inputs": {
+            "token": true,
+            "timeout": false,
+            "error_count": false,
+            "reporting_interval": false,
+            "artifact_name": false,
+            "preview": false
+        },
+        "outputs": [
+            "page_url"
+        ]
+    },
+    "actions/delete-package-versions@v1": {
+        "inputs": {
+            "package-version-ids": false,
+            "owner": false,
+            "repo": false,
+            "package-name": false,
+            "num-old-versions-to-delete": false,
+            "token": false
+        },
+        "outputs": []
+    },
+    "actions/delete-package-versions@v2": {
+        "inputs": {
+            "package-version-ids": false,
+            "owner": false,
+            "repo": false,
+            "package-name": false,
+            "num-old-versions-to-delete": false,
+            "min-versions-to-keep": false,
+            "ignore-versions": false,
+            "delete-only-pre-release-versions": false,
+            "token": false
+        },
+        "outputs": []
+    },
+    "actions/delete-package-versions@v3": {
+        "inputs": {
+            "package-version-ids": false,
+            "owner": false,
+            "repo": false,
+            "package-name": false,
+            "num-old-versions-to-delete": false,
+            "min-versions-to-keep": false,
+            "ignore-versions": false,
+            "delete-only-pre-release-versions": false,
+            "token": false
+        },
+        "outputs": []
+    },
+    "actions/delete-package-versions@v4": {
+        "inputs": {
+            "package-version-ids": false,
+            "owner": false,
+            "package-name": true,
+            "package-type": true,
+            "num-old-versions-to-delete": false,
+            "min-versions-to-keep": false,
+            "ignore-versions": false,
+            "delete-only-pre-release-versions": false,
+            "delete-only-untagged-versions": false,
+            "token": false
+        },
+        "outputs": []
+    },
+    "actions/delete-package-versions@v5": {
+        "inputs": {
+            "package-version-ids": false,
+            "owner": false,
+            "package-name": true,
+            "package-type": true,
+            "num-old-versions-to-delete": false,
+            "min-versions-to-keep": false,
+            "ignore-versions": false,
+            "delete-only-pre-release-versions": false,
+            "delete-only-untagged-versions": false,
+            "token": false
+        },
+        "outputs": []
+    },
+    "actions/download-artifact@v1": {
+        "inputs": {
+            "name": true,
+            "path": false
+        },
+        "outputs": []
+    },
+    "actions/download-artifact@v2": {
+        "inputs": {
+            "name": false,
+            "path": false
+        },
+        "outputs": []
+    },
+    "actions/download-artifact@v3": {
+        "inputs": {
+            "name": false,
+            "path": false
+        },
+        "outputs": []
+    },
+    "actions/download-artifact@v3-node20": {
+        "inputs": {
+            "name": false,
+            "path": false
+        },
+        "outputs": []
+    },
+    "actions/download-artifact@v4": {
+        "inputs": {
+            "name": false,
+            "path": false,
+            "pattern": false,
+            "merge-multiple": false,
+            "github-token": false,
+            "repository": false,
+            "run-id": false
+        },
+        "outputs": [
+            "download-path"
+        ]
+    },
+    "actions/first-interaction@v1": {
+        "inputs": {
+            "repo-token": true,
+            "issue-message": false,
+            "pr-message": false
+        },
+        "outputs": []
+    },
+    "actions/github-script@v1": {
+        "inputs": {
+            "script": true,
+            "github-token": false,
+            "debug": false,
+            "user-agent": false,
+            "previews": false,
+            "result-encoding": false
+        },
+        "outputs": [
+            "result"
+        ]
+    },
+    "actions/github-script@v2": {
+        "inputs": {
+            "script": true,
+            "github-token": false,
+            "debug": false,
+            "user-agent": false,
+            "previews": false,
+            "result-encoding": false
+        },
+        "outputs": [
+            "result"
+        ]
+    },
+    "actions/github-script@v3": {
+        "inputs": {
+            "script": true,
+            "github-token": false,
+            "debug": false,
+            "user-agent": false,
+            "previews": false,
+            "result-encoding": false
+        },
+        "outputs": [
+            "result"
+        ]
+    },
+    "actions/github-script@v4": {
+        "inputs": {
+            "script": true,
+            "github-token": false,
+            "debug": false,
+            "user-agent": false,
+            "previews": false,
+            "result-encoding": false
+        },
+        "outputs": [
+            "result"
+        ]
+    },
+    "actions/github-script@v5": {
+        "inputs": {
+            "script": true,
+            "github-token": false,
+            "debug": false,
+            "user-agent": false,
+            "previews": false,
+            "result-encoding": false
+        },
+        "outputs": [
+            "result"
+        ]
+    },
+    "actions/github-script@v6": {
+        "inputs": {
+            "script": true,
+            "github-token": false,
+            "debug": false,
+            "user-agent": false,
+            "previews": false,
+            "result-encoding": false,
+            "retries": false,
+            "retry-exempt-status-codes": false
+        },
+        "outputs": [
+            "result"
+        ]
+    },
+    "actions/github-script@v7": {
+        "inputs": {
+            "script": true,
+            "github-token": false,
+            "debug": false,
+            "user-agent": false,
+            "previews": false,
+            "result-encoding": false,
+            "retries": false,
+            "retry-exempt-status-codes": false,
+            "base-url": false
+        },
+        "outputs": [
+            "result"
+        ]
+    },
+    "actions/labeler@v2": {
+        "inputs": {
+            "repo-token": false,
+            "configuration-path": false,
+            "sync-labels": false
+        },
+        "outputs": []
+    },
+    "actions/labeler@v3": {
+        "inputs": {
+            "repo-token": false,
+            "configuration-path": false,
+            "sync-labels": false
+        },
+        "outputs": []
+    },
+    "actions/labeler@v4": {
+        "inputs": {
+            "repo-token": false,
+            "configuration-path": false,
+            "sync-labels": false,
+            "dot": false,
+            "pr-number": false
+        },
+        "outputs": [
+            "new-labels",
+            "all-labels"
+        ]
+    },
+    "actions/labeler@v5": {
+        "inputs": {
+            "repo-token": false,
+            "configuration-path": false,
+            "sync-labels": false,
+            "dot": false,
+            "pr-number": false
+        },
+        "outputs": [
+            "new-labels",
+            "all-labels"
+        ]
+    },
+    "actions/setup-dotnet@v1": {
+        "inputs": {
+            "dotnet-version": false,
+            "source-url": false,
+            "owner": false,
+            "config-file": false,
+            "include-prerelease": false
+        },
+        "outputs": []
+    },
+    "actions/setup-dotnet@v2": {
+        "inputs": {
+            "dotnet-version": false,
+            "global-json-file": false,
+            "source-url": false,
+            "owner": false,
+            "config-file": false,
+            "include-prerelease": false
+        },
+        "outputs": []
+    },
+    "actions/setup-dotnet@v3": {
+        "inputs": {
+            "dotnet-version": false,
+            "dotnet-quality": false,
+            "global-json-file": false,
+            "source-url": false,
+            "owner": false,
+            "config-file": false,
+            "cache": false,
+            "cache-dependency-path": false
+        },
+        "outputs": [
+            "cache-hit",
+            "dotnet-version"
+        ]
+    },
+    "actions/setup-dotnet@v4": {
+        "inputs": {
+            "dotnet-version": false,
+            "dotnet-quality": false,
+            "global-json-file": false,
+            "source-url": false,
+            "owner": false,
+            "config-file": false,
+            "cache": false,
+            "cache-dependency-path": false
+        },
+        "outputs": [
+            "cache-hit",
+            "dotnet-version"
+        ]
+    },
+    "actions/setup-go@v1": {
+        "inputs": {
+            "go-version": false,
+            "version": false
+        },
+        "outputs": []
+    },
+    "actions/setup-go@v2": {
+        "inputs": {
+            "go-version": false,
+            "check-latest": false,
+            "stable": false,
+            "token": false
+        },
+        "outputs": []
+    },
+    "actions/setup-go@v3": {
+        "inputs": {
+            "go-version": false,
+            "go-version-file": false,
+            "check-latest": false,
+            "token": false,
+            "cache": false,
+            "cache-dependency-path": false,
+            "architecture": false
+        },
+        "outputs": [
+            "go-version",
+            "cache-hit"
+        ]
+    },
+    "actions/setup-go@v4": {
+        "inputs": {
+            "go-version": false,
+            "go-version-file": false,
+            "check-latest": false,
+            "token": false,
+            "cache": false,
+            "cache-dependency-path": false,
+            "architecture": false
+        },
+        "outputs": [
+            "go-version",
+            "cache-hit"
+        ]
+    },
+    "actions/setup-go@v5": {
+        "inputs": {
+            "go-version": false,
+            "go-version-file": false,
+            "check-latest": false,
+            "token": false,
+            "cache": false,
+            "cache-dependency-path": false,
+            "architecture": false
+        },
+        "outputs": [
+            "go-version",
+            "cache-hit"
+        ]
+    },
+    "actions/setup-java@v1": {
+        "inputs": {
+            "java-version": true,
+            "java-package": false,
+            "architecture": false,
+            "jdkFile": false,
+            "server-id": false,
+            "server-username": false,
+            "server-password": false,
+            "settings-path": false,
+            "gpg-private-key": false,
+            "gpg-passphrase": false
+        },
+        "outputs": [
+            "path",
+            "version"
+        ]
+    },
+    "actions/setup-java@v2": {
+        "inputs": {
+            "java-version": true,
+            "distribution": true,
+            "java-package": false,
+            "architecture": false,
+            "jdkFile": false,
+            "check-latest": false,
+            "server-id": false,
+            "server-username": false,
+            "server-password": false,
+            "settings-path": false,
+            "overwrite-settings": false,
+            "gpg-private-key": false,
+            "gpg-passphrase": false,
+            "cache": false,
+            "job-status": false
+        },
+        "outputs": [
+            "distribution",
+            "version",
+            "path"
+        ]
+    },
+    "actions/setup-java@v3": {
+        "inputs": {
+            "java-version": false,
+            "java-version-file": false,
+            "distribution": true,
+            "java-package": false,
+            "architecture": false,
+            "jdkFile": false,
+            "check-latest": false,
+            "server-id": false,
+            "server-username": false,
+            "server-password": false,
+            "settings-path": false,
+            "overwrite-settings": false,
+            "gpg-private-key": false,
+            "gpg-passphrase": false,
+            "cache": false,
+            "job-status": false,
+            "token": false,
+            "mvn-toolchain-id": false,
+            "mvn-toolchain-vendor": false
+        },
+        "outputs": [
+            "distribution",
+            "version",
+            "path",
+            "cache-hit"
+        ]
+    },
+    "actions/setup-java@v4": {
+        "inputs": {
+            "java-version": false,
+            "java-version-file": false,
+            "distribution": true,
+            "java-package": false,
+            "architecture": false,
+            "jdkFile": false,
+            "check-latest": false,
+            "server-id": false,
+            "server-username": false,
+            "server-password": false,
+            "settings-path": false,
+            "overwrite-settings": false,
+            "gpg-private-key": false,
+            "gpg-passphrase": false,
+            "cache": false,
+            "cache-dependency-path": false,
+            "job-status": false,
+            "token": false,
+            "mvn-toolchain-id": false,
+            "mvn-toolchain-vendor": false
+        },
+        "outputs": [
+            "distribution",
+            "version",
+            "path",
+            "cache-hit"
+        ]
+    },
+    "actions/setup-node@v1": {
+        "inputs": {
+            "always-auth": false,
+            "node-version": false,
+            "registry-url": false,
+            "scope": false,
+            "version": false
+        },
+        "outputs": []
+    },
+    "actions/setup-node@v2": {
+        "inputs": {
+            "always-auth": false,
+            "node-version": false,
+            "node-version-file": false,
+            "architecture": false,
+            "check-latest": false,
+            "registry-url": false,
+            "scope": false,
+            "token": false,
+            "cache": false,
+            "cache-dependency-path": false,
+            "version": false
+        },
+        "outputs": [
+            "cache-hit"
+        ]
+    },
+    "actions/setup-node@v3": {
+        "inputs": {
+            "always-auth": false,
+            "node-version": false,
+            "node-version-file": false,
+            "architecture": false,
+            "check-latest": false,
+            "registry-url": false,
+            "scope": false,
+            "token": false,
+            "cache": false,
+            "cache-dependency-path": false
+        },
+        "outputs": [
+            "cache-hit",
+            "node-version"
+        ]
+    },
+    "actions/setup-node@v4": {
+        "inputs": {
+            "always-auth": false,
+            "node-version": false,
+            "node-version-file": false,
+            "architecture": false,
+            "check-latest": false,
+            "registry-url": false,
+            "scope": false,
+            "token": false,
+            "cache": false,
+            "cache-dependency-path": false
+        },
+        "outputs": [
+            "cache-hit",
+            "node-version"
+        ]
+    },
+    "actions/setup-python@v1": {
+        "inputs": {
+            "python-version": false,
+            "architecture": false
+        },
+        "outputs": [
+            "python-version"
+        ]
+    },
+    "actions/setup-python@v2": {
+        "inputs": {
+            "python-version": false,
+            "cache": false,
+            "architecture": false,
+            "token": false,
+            "cache-dependency-path": false
+        },
+        "outputs": [
+            "python-version"
+        ]
+    },
+    "actions/setup-python@v3": {
+        "inputs": {
+            "python-version": false,
+            "cache": false,
+            "architecture": false,
+            "token": false,
+            "cache-dependency-path": false
+        },
+        "outputs": [
+            "python-version",
+            "cache-hit"
+        ]
+    },
+    "actions/setup-python@v4": {
+        "inputs": {
+            "python-version": false,
+            "python-version-file": false,
+            "cache": false,
+            "architecture": false,
+            "check-latest": false,
+            "token": false,
+            "cache-dependency-path": false,
+            "update-environment": false,
+            "allow-prereleases": false
+        },
+        "outputs": [
+            "python-version",
+            "cache-hit",
+            "python-path"
+        ]
+    },
+    "actions/setup-python@v5": {
+        "inputs": {
+            "python-version": false,
+            "python-version-file": false,
+            "cache": false,
+            "architecture": false,
+            "check-latest": false,
+            "token": false,
+            "cache-dependency-path": false,
+            "update-environment": false,
+            "allow-prereleases": false
+        },
+        "outputs": [
+            "python-version",
+            "cache-hit",
+            "python-path"
+        ]
+    },
+    "actions/stale@v1": {
+        "inputs": {
+            "repo-token": true,
+            "stale-issue-message": false,
+            "stale-pr-message": false,
+            "days-before-stale": false,
+            "days-before-close": false,
+            "stale-issue-label": false,
+            "exempt-issue-label": false,
+            "stale-pr-label": false,
+            "exempt-pr-label": false,
+            "operations-per-run": false
+        },
+        "outputs": []
+    },
+    "actions/stale@v2": {
+        "inputs": {
+            "repo-token": true,
+            "stale-issue-message": false,
+            "stale-pr-message": false,
+            "days-before-stale": false,
+            "days-before-close": false,
+            "stale-issue-label": false,
+            "exempt-issue-labels": false,
+            "stale-pr-label": false,
+            "exempt-pr-labels": false,
+            "only-labels": false,
+            "operations-per-run": false,
+            "debug-only": false
+        },
+        "outputs": []
+    },
+    "actions/stale@v3": {
+        "inputs": {
+            "repo-token": false,
+            "stale-issue-message": false,
+            "stale-pr-message": false,
+            "close-issue-message": false,
+            "close-pr-message": false,
+            "days-before-stale": false,
+            "days-before-issue-stale": false,
+            "days-before-pr-stale": false,
+            "days-before-close": false,
+            "days-before-issue-close": false,
+            "days-before-pr-close": false,
+            "stale-issue-label": false,
+            "close-issue-label": false,
+            "exempt-issue-labels": false,
+            "stale-pr-label": false,
+            "close-pr-label": false,
+            "exempt-pr-labels": false,
+            "exempt-milestones": false,
+            "exempt-issue-milestones": false,
+            "exempt-pr-milestones": false,
+            "exempt-all-milestones": false,
+            "exempt-all-issue-milestones": false,
+            "exempt-all-pr-milestones": false,
+            "only-labels": false,
+            "any-of-labels": false,
+            "any-of-issue-labels": false,
+            "any-of-pr-labels": false,
+            "only-issue-labels": false,
+            "only-pr-labels": false,
+            "operations-per-run": false,
+            "remove-stale-when-updated": false,
+            "remove-issue-stale-when-updated": false,
+            "remove-pr-stale-when-updated": false,
+            "debug-only": false,
+            "ascending": false,
+            "skip-stale-pr-message": false,
+            "skip-stale-issue-message": false,
+            "delete-branch": false,
+            "start-date": false,
+            "exempt-assignees": false,
+            "exempt-issue-assignees": false,
+            "exempt-pr-assignees": false,
+            "exempt-all-assignees": false,
+            "exempt-all-issue-assignees": false,
+            "exempt-all-pr-assignees": false,
+            "enable-statistics": false
+        },
+        "outputs": []
+    },
+    "actions/stale@v4": {
+        "inputs": {
+            "repo-token": false,
+            "stale-issue-message": false,
+            "stale-pr-message": false,
+            "close-issue-message": false,
+            "close-pr-message": false,
+            "days-before-stale": false,
+            "days-before-issue-stale": false,
+            "days-before-pr-stale": false,
+            "days-before-close": false,
+            "days-before-issue-close": false,
+            "days-before-pr-close": false,
+            "stale-issue-label": false,
+            "close-issue-label": false,
+            "exempt-issue-labels": false,
+            "stale-pr-label": false,
+            "close-pr-label": false,
+            "exempt-pr-labels": false,
+            "exempt-milestones": false,
+            "exempt-issue-milestones": false,
+            "exempt-pr-milestones": false,
+            "exempt-all-milestones": false,
+            "exempt-all-issue-milestones": false,
+            "exempt-all-pr-milestones": false,
+            "only-labels": false,
+            "any-of-labels": false,
+            "any-of-issue-labels": false,
+            "any-of-pr-labels": false,
+            "only-issue-labels": false,
+            "only-pr-labels": false,
+            "operations-per-run": false,
+            "remove-stale-when-updated": false,
+            "remove-issue-stale-when-updated": false,
+            "remove-pr-stale-when-updated": false,
+            "debug-only": false,
+            "ascending": false,
+            "delete-branch": false,
+            "start-date": false,
+            "exempt-assignees": false,
+            "exempt-issue-assignees": false,
+            "exempt-pr-assignees": false,
+            "exempt-all-assignees": false,
+            "exempt-all-issue-assignees": false,
+            "exempt-all-pr-assignees": false,
+            "exempt-draft-pr": false,
+            "enable-statistics": false,
+            "labels-to-add-when-unstale": false,
+            "labels-to-remove-when-unstale": false,
+            "ignore-updates": false,
+            "ignore-issue-updates": false,
+            "ignore-pr-updates": false
+        },
+        "outputs": [
+            "closed-issues-prs",
+            "staled-issues-prs"
+        ]
+    },
+    "actions/stale@v5": {
+        "inputs": {
+            "repo-token": false,
+            "stale-issue-message": false,
+            "stale-pr-message": false,
+            "close-issue-message": false,
+            "close-pr-message": false,
+            "days-before-stale": false,
+            "days-before-issue-stale": false,
+            "days-before-pr-stale": false,
+            "days-before-close": false,
+            "days-before-issue-close": false,
+            "days-before-pr-close": false,
+            "stale-issue-label": false,
+            "close-issue-label": false,
+            "exempt-issue-labels": false,
+            "close-issue-reason": false,
+            "stale-pr-label": false,
+            "close-pr-label": false,
+            "exempt-pr-labels": false,
+            "exempt-milestones": false,
+            "exempt-issue-milestones": false,
+            "exempt-pr-milestones": false,
+            "exempt-all-milestones": false,
+            "exempt-all-issue-milestones": false,
+            "exempt-all-pr-milestones": false,
+            "only-labels": false,
+            "any-of-labels": false,
+            "any-of-issue-labels": false,
+            "any-of-pr-labels": false,
+            "only-issue-labels": false,
+            "only-pr-labels": false,
+            "operations-per-run": false,
+            "remove-stale-when-updated": false,
+            "remove-issue-stale-when-updated": false,
+            "remove-pr-stale-when-updated": false,
+            "debug-only": false,
+            "ascending": false,
+            "delete-branch": false,
+            "start-date": false,
+            "exempt-assignees": false,
+            "exempt-issue-assignees": false,
+            "exempt-pr-assignees": false,
+            "exempt-all-assignees": false,
+            "exempt-all-issue-assignees": false,
+            "exempt-all-pr-assignees": false,
+            "exempt-draft-pr": false,
+            "enable-statistics": false,
+            "labels-to-add-when-unstale": false,
+            "labels-to-remove-when-unstale": false,
+            "ignore-updates": false,
+            "ignore-issue-updates": false,
+            "ignore-pr-updates": false,
+            "include-only-assigned": false
+        },
+        "outputs": [
+            "closed-issues-prs",
+            "staled-issues-prs"
+        ]
+    },
+    "actions/stale@v6": {
+        "inputs": {
+            "repo-token": false,
+            "stale-issue-message": false,
+            "stale-pr-message": false,
+            "close-issue-message": false,
+            "close-pr-message": false,
+            "days-before-stale": false,
+            "days-before-issue-stale": false,
+            "days-before-pr-stale": false,
+            "days-before-close": false,
+            "days-before-issue-close": false,
+            "days-before-pr-close": false,
+            "stale-issue-label": false,
+            "close-issue-label": false,
+            "exempt-issue-labels": false,
+            "close-issue-reason": false,
+            "stale-pr-label": false,
+            "close-pr-label": false,
+            "exempt-pr-labels": false,
+            "exempt-milestones": false,
+            "exempt-issue-milestones": false,
+            "exempt-pr-milestones": false,
+            "exempt-all-milestones": false,
+            "exempt-all-issue-milestones": false,
+            "exempt-all-pr-milestones": false,
+            "only-labels": false,
+            "any-of-labels": false,
+            "any-of-issue-labels": false,
+            "any-of-pr-labels": false,
+            "only-issue-labels": false,
+            "only-pr-labels": false,
+            "operations-per-run": false,
+            "remove-stale-when-updated": false,
+            "remove-issue-stale-when-updated": false,
+            "remove-pr-stale-when-updated": false,
+            "debug-only": false,
+            "ascending": false,
+            "delete-branch": false,
+            "start-date": false,
+            "exempt-assignees": false,
+            "exempt-issue-assignees": false,
+            "exempt-pr-assignees": false,
+            "exempt-all-assignees": false,
+            "exempt-all-issue-assignees": false,
+            "exempt-all-pr-assignees": false,
+            "exempt-draft-pr": false,
+            "enable-statistics": false,
+            "labels-to-add-when-unstale": false,
+            "labels-to-remove-when-unstale": false,
+            "ignore-updates": false,
+            "ignore-issue-updates": false,
+            "ignore-pr-updates": false,
+            "include-only-assigned": false
+        },
+        "outputs": [
+            "closed-issues-prs",
+            "staled-issues-prs"
+        ]
+    },
+    "actions/stale@v7": {
+        "inputs": {
+            "repo-token": false,
+            "stale-issue-message": false,
+            "stale-pr-message": false,
+            "close-issue-message": false,
+            "close-pr-message": false,
+            "days-before-stale": false,
+            "days-before-issue-stale": false,
+            "days-before-pr-stale": false,
+            "days-before-close": false,
+            "days-before-issue-close": false,
+            "days-before-pr-close": false,
+            "stale-issue-label": false,
+            "close-issue-label": false,
+            "exempt-issue-labels": false,
+            "close-issue-reason": false,
+            "stale-pr-label": false,
+            "close-pr-label": false,
+            "exempt-pr-labels": false,
+            "exempt-milestones": false,
+            "exempt-issue-milestones": false,
+            "exempt-pr-milestones": false,
+            "exempt-all-milestones": false,
+            "exempt-all-issue-milestones": false,
+            "exempt-all-pr-milestones": false,
+            "only-labels": false,
+            "any-of-labels": false,
+            "any-of-issue-labels": false,
+            "any-of-pr-labels": false,
+            "only-issue-labels": false,
+            "only-pr-labels": false,
+            "operations-per-run": false,
+            "remove-stale-when-updated": false,
+            "remove-issue-stale-when-updated": false,
+            "remove-pr-stale-when-updated": false,
+            "debug-only": false,
+            "ascending": false,
+            "delete-branch": false,
+            "start-date": false,
+            "exempt-assignees": false,
+            "exempt-issue-assignees": false,
+            "exempt-pr-assignees": false,
+            "exempt-all-assignees": false,
+            "exempt-all-issue-assignees": false,
+            "exempt-all-pr-assignees": false,
+            "exempt-draft-pr": false,
+            "enable-statistics": false,
+            "labels-to-add-when-unstale": false,
+            "labels-to-remove-when-unstale": false,
+            "ignore-updates": false,
+            "ignore-issue-updates": false,
+            "ignore-pr-updates": false,
+            "include-only-assigned": false
+        },
+        "outputs": [
+            "closed-issues-prs",
+            "staled-issues-prs"
+        ]
+    },
+    "actions/stale@v8": {
+        "inputs": {
+            "repo-token": false,
+            "stale-issue-message": false,
+            "stale-pr-message": false,
+            "close-issue-message": false,
+            "close-pr-message": false,
+            "days-before-stale": false,
+            "days-before-issue-stale": false,
+            "days-before-pr-stale": false,
+            "days-before-close": false,
+            "days-before-issue-close": false,
+            "days-before-pr-close": false,
+            "stale-issue-label": false,
+            "close-issue-label": false,
+            "exempt-issue-labels": false,
+            "close-issue-reason": false,
+            "stale-pr-label": false,
+            "close-pr-label": false,
+            "exempt-pr-labels": false,
+            "exempt-milestones": false,
+            "exempt-issue-milestones": false,
+            "exempt-pr-milestones": false,
+            "exempt-all-milestones": false,
+            "exempt-all-issue-milestones": false,
+            "exempt-all-pr-milestones": false,
+            "only-labels": false,
+            "any-of-labels": false,
+            "any-of-issue-labels": false,
+            "any-of-pr-labels": false,
+            "only-issue-labels": false,
+            "only-pr-labels": false,
+            "operations-per-run": false,
+            "remove-stale-when-updated": false,
+            "remove-issue-stale-when-updated": false,
+            "remove-pr-stale-when-updated": false,
+            "debug-only": false,
+            "ascending": false,
+            "delete-branch": false,
+            "start-date": false,
+            "exempt-assignees": false,
+            "exempt-issue-assignees": false,
+            "exempt-pr-assignees": false,
+            "exempt-all-assignees": false,
+            "exempt-all-issue-assignees": false,
+            "exempt-all-pr-assignees": false,
+            "exempt-draft-pr": false,
+            "enable-statistics": false,
+            "labels-to-add-when-unstale": false,
+            "labels-to-remove-when-stale": false,
+            "labels-to-remove-when-unstale": false,
+            "ignore-updates": false,
+            "ignore-issue-updates": false,
+            "ignore-pr-updates": false,
+            "include-only-assigned": false
+        },
+        "outputs": [
+            "closed-issues-prs",
+            "staled-issues-prs"
+        ]
+    },
+    "actions/stale@v9": {
+        "inputs": {
+            "repo-token": false,
+            "stale-issue-message": false,
+            "stale-pr-message": false,
+            "close-issue-message": false,
+            "close-pr-message": false,
+            "days-before-stale": false,
+            "days-before-issue-stale": false,
+            "days-before-pr-stale": false,
+            "days-before-close": false,
+            "days-before-issue-close": false,
+            "days-before-pr-close": false,
+            "stale-issue-label": false,
+            "close-issue-label": false,
+            "exempt-issue-labels": false,
+            "close-issue-reason": false,
+            "stale-pr-label": false,
+            "close-pr-label": false,
+            "exempt-pr-labels": false,
+            "exempt-milestones": false,
+            "exempt-issue-milestones": false,
+            "exempt-pr-milestones": false,
+            "exempt-all-milestones": false,
+            "exempt-all-issue-milestones": false,
+            "exempt-all-pr-milestones": false,
+            "only-labels": false,
+            "any-of-labels": false,
+            "any-of-issue-labels": false,
+            "any-of-pr-labels": false,
+            "only-issue-labels": false,
+            "only-pr-labels": false,
+            "operations-per-run": false,
+            "remove-stale-when-updated": false,
+            "remove-issue-stale-when-updated": false,
+            "remove-pr-stale-when-updated": false,
+            "debug-only": false,
+            "ascending": false,
+            "delete-branch": false,
+            "start-date": false,
+            "exempt-assignees": false,
+            "exempt-issue-assignees": false,
+            "exempt-pr-assignees": false,
+            "exempt-all-assignees": false,
+            "exempt-all-issue-assignees": false,
+            "exempt-all-pr-assignees": false,
+            "exempt-draft-pr": false,
+            "enable-statistics": false,
+            "labels-to-add-when-unstale": false,
+            "labels-to-remove-when-stale": false,
+            "labels-to-remove-when-unstale": false,
+            "ignore-updates": false,
+            "ignore-issue-updates": false,
+            "ignore-pr-updates": false,
+            "include-only-assigned": false
+        },
+        "outputs": [
+            "closed-issues-prs",
+            "staled-issues-prs"
+        ]
+    },
+    "actions/upload-artifact@v1": {
+        "inputs": {
+            "name": true,
+            "path": true
+        },
+        "outputs": []
+    },
+    "actions/upload-artifact@v2": {
+        "inputs": {
+            "name": false,
+            "path": true,
+            "if-no-files-found": false,
+            "retention-days": false
+        },
+        "outputs": []
+    },
+    "actions/upload-artifact@v3": {
+        "inputs": {
+            "name": false,
+            "path": true,
+            "if-no-files-found": false,
+            "retention-days": false,
+            "include-hidden-files": false
+        },
+        "outputs": []
+    },
+    "actions/upload-artifact@v3-node20": {
+        "inputs": {
+            "name": false,
+            "path": true,
+            "if-no-files-found": false,
+            "retention-days": false,
+            "include-hidden-files": false
+        },
+        "outputs": []
+    },
+    "actions/upload-artifact@v4": {
+        "inputs": {
+            "name": false,
+            "path": true,
+            "if-no-files-found": false,
+            "retention-days": false,
+            "compression-level": false,
+            "overwrite": false,
+            "include-hidden-files": false
+        },
+        "outputs": [
+            "artifact-id",
+            "artifact-url",
+            "artifact-digest"
+        ]
+    },
+    "actions/upload-pages-artifact@v1": {
+        "inputs": {
+            "name": false,
+            "path": true,
+            "retention-days": false
+        },
+        "outputs": []
+    },
+    "actions/upload-pages-artifact@v2": {
+        "inputs": {
+            "name": false,
+            "path": true,
+            "retention-days": false
+        },
+        "outputs": []
+    },
+    "actions/upload-pages-artifact@v3": {
+        "inputs": {
+            "name": false,
+            "path": true,
+            "retention-days": false
+        },
+        "outputs": [
+            "artifact_id"
+        ]
+    },
+    "actions/dependency-review-action@v3": {
+        "inputs": {
+            "repo-token": false,
+            "fail-on-severity": false,
+            "fail-on-scopes": false,
+            "base-ref": false,
+            "head-ref": false,
+            "config-file": false,
+            "allow-licenses": false,
+            "deny-licenses": false,
+            "allow-dependencies-licenses": false,
+            "allow-ghsas": false,
+            "external-repo-token": false,
+            "license-check": false,
+            "vulnerability-check": false,
+            "comment-summary-in-pr": false,
+            "deny-packages": false,
+            "deny-groups": false,
+            "retry-on-snapshot-warnings": false,
+            "retry-on-snapshot-warnings-timeout": false
+        },
+        "outputs": []
+    },
+    "actions/dependency-review-action@v4": {
+        "inputs": {
+            "repo-token": false,
+            "fail-on-severity": false,
+            "fail-on-scopes": false,
+            "base-ref": false,
+            "head-ref": false,
+            "config-file": false,
+            "allow-licenses": false,
+            "deny-licenses": false,
+            "allow-dependencies-licenses": false,
+            "allow-ghsas": false,
+            "external-repo-token": false,
+            "license-check": false,
+            "vulnerability-check": false,
+            "comment-summary-in-pr": false,
+            "deny-packages": false,
+            "deny-groups": false,
+            "retry-on-snapshot-warnings": false,
+            "retry-on-snapshot-warnings-timeout": false,
+            "warn-only": false,
+            "show-openssf-scorecard": false,
+            "warn-on-openssf-scorecard-level": false
+        },
+        "outputs": [
+            "comment-content",
+            "dependency-changes",
+            "vulnerable-changes",
+            "invalid-license-changes",
+            "denied-changes"
+        ]
+    },
+    "aws-actions/configure-aws-credentials@v1": {
+        "inputs": {
+            "audience": false,
+            "aws-access-key-id": false,
+            "aws-secret-access-key": false,
+            "aws-session-token": false,
+            "aws-region": true,
+            "mask-aws-account-id": false,
+            "role-to-assume": false,
+            "web-identity-token-file": false,
+            "role-duration-seconds": false,
+            "role-session-name": false,
+            "role-external-id": false,
+            "role-skip-session-tagging": false
+        },
+        "outputs": [
+            "aws-account-id"
+        ]
+    },
+    "aws-actions/configure-aws-credentials@v2": {
+        "inputs": {
+            "audience": false,
+            "aws-access-key-id": false,
+            "aws-secret-access-key": false,
+            "aws-session-token": false,
+            "aws-region": true,
+            "mask-aws-account-id": false,
+            "role-to-assume": false,
+            "web-identity-token-file": false,
+            "role-duration-seconds": false,
+            "role-session-name": false,
+            "role-external-id": false,
+            "role-skip-session-tagging": false,
+            "http-proxy": false,
+            "role-chaining": false,
+            "inline-session-policy": false,
+            "managed-session-policies": false
+        },
+        "outputs": [
+            "aws-account-id"
+        ]
+    },
+    "aws-actions/configure-aws-credentials@v3": {
+        "inputs": {
+            "aws-region": true,
+            "role-to-assume": false,
+            "aws-access-key-id": false,
+            "aws-secret-access-key": false,
+            "aws-session-token": false,
+            "web-identity-token-file": false,
+            "role-chaining": false,
+            "audience": false,
+            "http-proxy": false,
+            "mask-aws-account-id": false,
+            "role-duration-seconds": false,
+            "role-external-id": false,
+            "role-session-name": false,
+            "role-skip-session-tagging": false,
+            "inline-session-policy": false,
+            "managed-session-policies": false,
+            "output-credentials": false,
+            "unset-current-credentials": false,
+            "disable-retry": false,
+            "retry-max-attempts": false,
+            "special-characters-workaround": false
+        },
+        "outputs": [
+            "aws-account-id",
+            "aws-access-key-id",
+            "aws-secret-access-key",
+            "aws-session-token"
+        ]
+    },
+    "aws-actions/configure-aws-credentials@v4": {
+        "inputs": {
+            "aws-region": true,
+            "role-to-assume": false,
+            "aws-access-key-id": false,
+            "aws-secret-access-key": false,
+            "aws-session-token": false,
+            "web-identity-token-file": false,
+            "role-chaining": false,
+            "audience": false,
+            "http-proxy": false,
+            "mask-aws-account-id": false,
+            "role-duration-seconds": false,
+            "role-external-id": false,
+            "role-session-name": false,
+            "role-skip-session-tagging": false,
+            "inline-session-policy": false,
+            "managed-session-policies": false,
+            "output-credentials": false,
+            "unset-current-credentials": false,
+            "disable-retry": false,
+            "retry-max-attempts": false,
+            "special-characters-workaround": false
+        },
+        "outputs": [
+            "aws-account-id",
+            "aws-access-key-id",
+            "aws-secret-access-key",
+            "aws-session-token"
+        ]
+    },
+    "azure/aks-set-context@v1": {
+        "inputs": {
+            "creds": true,
+            "resource-group": false,
+            "cluster-name": false
+        },
+        "outputs": []
+    },
+    "azure/aks-set-context@v2": {
+        "inputs": {
+            "resource-group": true,
+            "cluster-name": true,
+            "subscription": false,
+            "admin": false,
+            "use-kubelogin": false
+        },
+        "outputs": []
+    },
+    "azure/aks-set-context@v3": {
+        "inputs": {
+            "resource-group": true,
+            "cluster-name": true,
+            "subscription": false,
+            "admin": false,
+            "use-kubelogin": false
+        },
+        "outputs": []
+    },
+    "azure/aks-set-context@v4": {
+        "inputs": {
+            "resource-group": true,
+            "cluster-name": true,
+            "subscription": false,
+            "admin": false,
+            "use-kubelogin": false,
+            "public-fqdn": false
+        },
+        "outputs": []
+    },
+    "azure/login@v1": {
+        "inputs": {
+            "creds": false,
+            "client-id": false,
+            "tenant-id": false,
+            "subscription-id": false,
+            "enable-AzPSSession": false,
+            "environment": false,
+            "allow-no-subscriptions": false,
+            "audience": false,
+            "auth-type": false
+        },
+        "outputs": []
+    },
+    "azure/login@v2": {
+        "inputs": {
+            "creds": false,
+            "client-id": false,
+            "tenant-id": false,
+            "subscription-id": false,
+            "enable-AzPSSession": false,
+            "environment": false,
+            "allow-no-subscriptions": false,
+            "audience": false,
+            "auth-type": false
+        },
+        "outputs": []
+    },
+    "bahmutov/npm-install@v1": {
+        "inputs": {
+            "working-directory": false,
+            "useLockFile": false,
+            "useRollingCache": false,
+            "install-command": false,
+            "cache-key-prefix": false
+        },
+        "outputs": []
+    },
+    "codecov/codecov-action@v1": {
+        "inputs": {
+            "token": false,
+            "files": false,
+            "directory": false,
+            "flags": false,
+            "aws_curl_args": false,
+            "codecov_curl_args": false,
+            "commit_parent": false,
+            "env_vars": false,
+            "fail_ci_if_error": false,
+            "file": false,
+            "functionalities": false,
+            "gcov_args": false,
+            "gcov_executable": false,
+            "gcov_path_exclude": false,
+            "gcov_path_include": false,
+            "gcov_prefix": false,
+            "gcov_root_dir": false,
+            "move_coverage_to_trash": false,
+            "name": false,
+            "network_filter": false,
+            "override_branch": false,
+            "override_build": false,
+            "override_commit": false,
+            "override_pr": false,
+            "override_tag": false,
+            "path_to_write_report": false,
+            "root_dir": false,
+            "verbose": false,
+            "working-directory": false,
+            "xcode_derived_data": false,
+            "xcode_package": false
+        },
+        "outputs": []
+    },
+    "codecov/codecov-action@v2": {
+        "inputs": {
+            "token": false,
+            "files": false,
+            "directory": false,
+            "flags": false,
+            "commit_parent": false,
+            "dry_run": false,
+            "env_vars": false,
+            "fail_ci_if_error": false,
+            "file": false,
+            "functionalities": false,
+            "move_coverage_to_trash": false,
+            "name": false,
+            "override_branch": false,
+            "override_build": false,
+            "override_commit": false,
+            "override_pr": false,
+            "override_tag": false,
+            "os": false,
+            "root_dir": false,
+            "slug": false,
+            "url": false,
+            "verbose": false,
+            "version": false,
+            "working-directory": false
+        },
+        "outputs": []
+    },
+    "codecov/codecov-action@v3": {
+        "inputs": {
+            "token": false,
+            "file": false,
+            "files": false,
+            "directory": false,
+            "flags": false,
+            "full_report": false,
+            "commit_parent": false,
+            "dry_run": false,
+            "env_vars": false,
+            "fail_ci_if_error": false,
+            "functionalities": false,
+            "gcov": false,
+            "gcov_args": false,
+            "gcov_executable": false,
+            "gcov_ignore": false,
+            "gcov_include": false,
+            "move_coverage_to_trash": false,
+            "name": false,
+            "network_filter": false,
+            "network_prefix": false,
+            "os": false,
+            "override_branch": false,
+            "override_build": false,
+            "override_commit": false,
+            "override_pr": false,
+            "override_tag": false,
+            "root_dir": false,
+            "slug": false,
+            "swift": false,
+            "swift_project": false,
+            "upstream_proxy": false,
+            "url": false,
+            "verbose": false,
+            "version": false,
+            "working-directory": false,
+            "xcode": false,
+            "xcode_archive_path": false,
+            "xtra_args": false
+        },
+        "outputs": []
+    },
+    "codecov/codecov-action@v4": {
+        "inputs": {
+            "token": false,
+            "codecov_yml_path": false,
+            "commit_parent": false,
+            "directory": false,
+            "disable_file_fixes": false,
+            "disable_search": false,
+            "disable_safe_directory": false,
+            "dry_run": false,
+            "env_vars": false,
+            "exclude": false,
+            "fail_ci_if_error": false,
+            "file": false,
+            "files": false,
+            "flags": false,
+            "git_service": false,
+            "handle_no_reports_found": false,
+            "job_code": false,
+            "name": false,
+            "network_filter": false,
+            "network_prefix": false,
+            "os": false,
+            "override_branch": false,
+            "override_build": false,
+            "override_build_url": false,
+            "override_commit": false,
+            "override_pr": false,
+            "plugin": false,
+            "plugins": false,
+            "report_code": false,
+            "root_dir": false,
+            "slug": false,
+            "url": false,
+            "use_legacy_upload_endpoint": false,
+            "use_oidc": false,
+            "verbose": false,
+            "version": false,
+            "working-directory": false
+        },
+        "outputs": []
+    },
+    "codecov/codecov-action@v5": {
+        "inputs": {
+            "base_sha": false,
+            "binary": false,
+            "codecov_yml_path": false,
+            "commit_parent": false,
+            "directory": false,
+            "disable_file_fixes": false,
+            "disable_search": false,
+            "disable_safe_directory": false,
+            "disable_telem": false,
+            "dry_run": false,
+            "env_vars": false,
+            "exclude": false,
+            "fail_ci_if_error": false,
+            "files": false,
+            "flags": false,
+            "force": false,
+            "git_service": false,
+            "gcov_args": false,
+            "gcov_executable": false,
+            "gcov_ignore": false,
+            "gcov_include": false,
+            "handle_no_reports_found": false,
+            "job_code": false,
+            "name": false,
+            "network_filter": false,
+            "network_prefix": false,
+            "os": false,
+            "override_branch": false,
+            "override_build": false,
+            "override_build_url": false,
+            "override_commit": false,
+            "override_pr": false,
+            "plugins": false,
+            "recurse_submodules": false,
+            "report_code": false,
+            "report_type": false,
+            "root_dir": false,
+            "run_command": false,
+            "skip_validation": false,
+            "slug": false,
+            "swift_project": false,
+            "token": false,
+            "url": false,
+            "use_legacy_upload_endpoint": false,
+            "use_oidc": false,
+            "use_pypi": false,
+            "verbose": false,
+            "version": false,
+            "working-directory": false
+        },
+        "outputs": []
+    },
+    "dawidd6/action-download-artifact@v2": {
+        "inputs": {
+            "github_token": false,
+            "workflow": false,
+            "workflow_conclusion": false,
+            "repo": false,
+            "pr": false,
+            "commit": false,
+            "branch": false,
+            "event": false,
+            "run_id": false,
+            "run_number": false,
+            "name": false,
+            "name_is_regexp": false,
+            "path": false,
+            "allow_forks": false,
+            "check_artifacts": false,
+            "search_artifacts": false,
+            "skip_unpack": false,
+            "dry_run": false,
+            "if_no_artifact_found": false
+        },
+        "outputs": [
+            "error_message",
+            "dry_run",
+            "found_artifact",
+            "artifacts"
+        ]
+    },
+    "dawidd6/action-download-artifact@v3": {
+        "inputs": {
+            "github_token": false,
+            "workflow": false,
+            "workflow_search": false,
+            "workflow_conclusion": false,
+            "repo": false,
+            "pr": false,
+            "commit": false,
+            "branch": false,
+            "event": false,
+            "run_id": false,
+            "run_number": false,
+            "name": false,
+            "name_is_regexp": false,
+            "path": false,
+            "allow_forks": false,
+            "check_artifacts": false,
+            "search_artifacts": false,
+            "skip_unpack": false,
+            "dry_run": false,
+            "if_no_artifact_found": false
+        },
+        "outputs": [
+            "error_message",
+            "dry_run",
+            "found_artifact",
+            "artifacts"
+        ]
+    },
+    "dawidd6/action-download-artifact@v5": {
+        "inputs": {
+            "github_token": false,
+            "workflow": false,
+            "workflow_search": false,
+            "workflow_conclusion": false,
+            "repo": false,
+            "pr": false,
+            "commit": false,
+            "branch": false,
+            "event": false,
+            "run_id": false,
+            "run_number": false,
+            "name": false,
+            "name_is_regexp": false,
+            "path": false,
+            "allow_forks": false,
+            "check_artifacts": false,
+            "search_artifacts": false,
+            "skip_unpack": false,
+            "dry_run": false,
+            "if_no_artifact_found": false
+        },
+        "outputs": [
+            "error_message",
+            "dry_run",
+            "found_artifact",
+            "artifacts"
+        ]
+    },
+    "dawidd6/action-download-artifact@v6": {
+        "inputs": {
+            "github_token": false,
+            "workflow": false,
+            "workflow_search": false,
+            "workflow_conclusion": false,
+            "repo": false,
+            "pr": false,
+            "commit": false,
+            "branch": false,
+            "event": false,
+            "run_id": false,
+            "run_number": false,
+            "name": false,
+            "name_is_regexp": false,
+            "path": false,
+            "allow_forks": false,
+            "check_artifacts": false,
+            "search_artifacts": false,
+            "skip_unpack": false,
+            "dry_run": false,
+            "if_no_artifact_found": false
+        },
+        "outputs": [
+            "error_message",
+            "dry_run",
+            "found_artifact",
+            "artifacts"
+        ]
+    },
+    "dawidd6/action-download-artifact@v7": {
+        "inputs": {
+            "github_token": false,
+            "workflow": false,
+            "workflow_search": false,
+            "workflow_conclusion": false,
+            "repo": false,
+            "pr": false,
+            "commit": false,
+            "branch": false,
+            "event": false,
+            "run_id": false,
+            "run_number": false,
+            "name": false,
+            "name_is_regexp": false,
+            "path": false,
+            "allow_forks": false,
+            "check_artifacts": false,
+            "search_artifacts": false,
+            "skip_unpack": false,
+            "dry_run": false,
+            "if_no_artifact_found": false
+        },
+        "outputs": [
+            "error_message",
+            "dry_run",
+            "found_artifact",
+            "artifacts"
+        ]
+    },
+    "dawidd6/action-send-mail@v1": {
+        "inputs": {
+            "server_address": true,
+            "server_port": true,
+            "username": true,
+            "password": true,
+            "subject": true,
+            "body": true,
+            "to": true,
+            "from": true,
+            "content_type": false
+        },
+        "outputs": []
+    },
+    "dawidd6/action-send-mail@v2": {
+        "inputs": {
+            "server_address": true,
+            "server_port": true,
+            "username": true,
+            "password": true,
+            "subject": true,
+            "body": true,
+            "to": true,
+            "from": true,
+            "cc": false,
+            "bcc": false,
+            "reply_to": false,
+            "ignore_cert": false,
+            "content_type": false,
+            "convert_markdown": false,
+            "attachments": false
+        },
+        "outputs": []
+    },
+    "dawidd6/action-send-mail@v3": {
+        "inputs": {
+            "connection_url": false,
+            "server_address": false,
+            "server_port": false,
+            "secure": false,
+            "username": false,
+            "password": false,
+            "subject": true,
+            "to": false,
+            "from": true,
+            "body": false,
+            "html_body": false,
+            "cc": false,
+            "bcc": false,
+            "reply_to": false,
+            "in_reply_to": false,
+            "ignore_cert": false,
+            "convert_markdown": false,
+            "attachments": false,
+            "priority": false,
+            "nodemailerlog": false,
+            "nodemailerdebug": false
+        },
+        "outputs": []
+    },
+    "dawidd6/action-send-mail@v4": {
+        "inputs": {
+            "connection_url": false,
+            "server_address": false,
+            "server_port": false,
+            "secure": false,
+            "username": false,
+            "password": false,
+            "subject": true,
+            "to": false,
+            "from": true,
+            "body": false,
+            "html_body": false,
+            "cc": false,
+            "bcc": false,
+            "reply_to": false,
+            "in_reply_to": false,
+            "ignore_cert": false,
+            "convert_markdown": false,
+            "attachments": false,
+            "priority": false,
+            "nodemailerlog": false,
+            "nodemailerdebug": false
+        },
+        "outputs": []
+    },
+    "dessant/lock-threads@v2": {
+        "inputs": {
+            "github-token": false,
+            "issue-lock-inactive-days": false,
+            "issue-exclude-created-before": false,
+            "issue-exclude-labels": false,
+            "issue-lock-labels": false,
+            "issue-lock-comment": false,
+            "issue-lock-reason": false,
+            "pr-lock-inactive-days": false,
+            "pr-exclude-created-before": false,
+            "pr-exclude-labels": false,
+            "pr-lock-labels": false,
+            "pr-lock-comment": false,
+            "pr-lock-reason": false,
+            "process-only": false
+        },
+        "outputs": [
+            "issues",
+            "prs"
+        ]
+    },
+    "dessant/lock-threads@v3": {
+        "inputs": {
+            "github-token": false,
+            "issue-inactive-days": false,
+            "exclude-issue-created-before": false,
+            "exclude-issue-created-after": false,
+            "exclude-issue-created-between": false,
+            "exclude-issue-closed-before": false,
+            "exclude-issue-closed-after": false,
+            "exclude-issue-closed-between": false,
+            "include-any-issue-labels": false,
+            "include-all-issue-labels": false,
+            "exclude-any-issue-labels": false,
+            "add-issue-labels": false,
+            "remove-issue-labels": false,
+            "issue-comment": false,
+            "issue-lock-reason": false,
+            "pr-inactive-days": false,
+            "exclude-pr-created-before": false,
+            "exclude-pr-created-after": false,
+            "exclude-pr-created-between": false,
+            "exclude-pr-closed-before": false,
+            "exclude-pr-closed-after": false,
+            "exclude-pr-closed-between": false,
+            "include-any-pr-labels": false,
+            "include-all-pr-labels": false,
+            "exclude-any-pr-labels": false,
+            "add-pr-labels": false,
+            "remove-pr-labels": false,
+            "pr-comment": false,
+            "pr-lock-reason": false,
+            "process-only": false,
+            "log-output": false
+        },
+        "outputs": [
+            "issues",
+            "prs"
+        ]
+    },
+    "dessant/lock-threads@v4": {
+        "inputs": {
+            "github-token": false,
+            "issue-inactive-days": false,
+            "exclude-issue-created-before": false,
+            "exclude-issue-created-after": false,
+            "exclude-issue-created-between": false,
+            "exclude-issue-closed-before": false,
+            "exclude-issue-closed-after": false,
+            "exclude-issue-closed-between": false,
+            "include-any-issue-labels": false,
+            "include-all-issue-labels": false,
+            "exclude-any-issue-labels": false,
+            "add-issue-labels": false,
+            "remove-issue-labels": false,
+            "issue-comment": false,
+            "issue-lock-reason": false,
+            "pr-inactive-days": false,
+            "exclude-pr-created-before": false,
+            "exclude-pr-created-after": false,
+            "exclude-pr-created-between": false,
+            "exclude-pr-closed-before": false,
+            "exclude-pr-closed-after": false,
+            "exclude-pr-closed-between": false,
+            "include-any-pr-labels": false,
+            "include-all-pr-labels": false,
+            "exclude-any-pr-labels": false,
+            "add-pr-labels": false,
+            "remove-pr-labels": false,
+            "pr-comment": false,
+            "pr-lock-reason": false,
+            "process-only": false,
+            "log-output": false
+        },
+        "outputs": [
+            "issues",
+            "prs"
+        ]
+    },
+    "dessant/lock-threads@v5": {
+        "inputs": {
+            "github-token": false,
+            "issue-inactive-days": false,
+            "exclude-issue-created-before": false,
+            "exclude-issue-created-after": false,
+            "exclude-issue-created-between": false,
+            "exclude-issue-closed-before": false,
+            "exclude-issue-closed-after": false,
+            "exclude-issue-closed-between": false,
+            "include-any-issue-labels": false,
+            "include-all-issue-labels": false,
+            "exclude-any-issue-labels": false,
+            "add-issue-labels": false,
+            "remove-issue-labels": false,
+            "issue-comment": false,
+            "issue-lock-reason": false,
+            "pr-inactive-days": false,
+            "exclude-pr-created-before": false,
+            "exclude-pr-created-after": false,
+            "exclude-pr-created-between": false,
+            "exclude-pr-closed-before": false,
+            "exclude-pr-closed-after": false,
+            "exclude-pr-closed-between": false,
+            "include-any-pr-labels": false,
+            "include-all-pr-labels": false,
+            "exclude-any-pr-labels": false,
+            "add-pr-labels": false,
+            "remove-pr-labels": false,
+            "pr-comment": false,
+            "pr-lock-reason": false,
+            "discussion-inactive-days": false,
+            "exclude-discussion-created-before": false,
+            "exclude-discussion-created-after": false,
+            "exclude-discussion-created-between": false,
+            "exclude-discussion-closed-before": false,
+            "exclude-discussion-closed-after": false,
+            "exclude-discussion-closed-between": false,
+            "include-any-discussion-labels": false,
+            "include-all-discussion-labels": false,
+            "exclude-any-discussion-labels": false,
+            "add-discussion-labels": false,
+            "remove-discussion-labels": false,
+            "discussion-comment": false,
+            "process-only": false,
+            "log-output": false
+        },
+        "outputs": [
+            "issues",
+            "prs",
+            "discussions"
+        ]
+    },
+    "docker/build-push-action@v1": {
+        "inputs": {
+            "username": false,
+            "password": false,
+            "registry": false,
+            "repository": true,
+            "tags": false,
+            "tag_with_ref": false,
+            "tag_with_sha": false,
+            "path": false,
+            "dockerfile": false,
+            "target": false,
+            "always_pull": false,
+            "build_args": false,
+            "cache_froms": false,
+            "labels": false,
+            "add_git_labels": false,
+            "push": false
+        },
+        "outputs": []
+    },
+    "docker/build-push-action@v2": {
+        "inputs": {
+            "add-hosts": false,
+            "allow": false,
+            "build-args": false,
+            "build-contexts": false,
+            "builder": false,
+            "cache-from": false,
+            "cache-to": false,
+            "cgroup-parent": false,
+            "context": false,
+            "file": false,
+            "labels": false,
+            "load": false,
+            "network": false,
+            "no-cache": false,
+            "outputs": false,
+            "platforms": false,
+            "pull": false,
+            "push": false,
+            "secrets": false,
+            "secret-files": false,
+            "shm-size": false,
+            "ssh": false,
+            "tags": false,
+            "target": false,
+            "ulimit": false,
+            "github-token": false
+        },
+        "outputs": [
+            "imageid",
+            "digest",
+            "metadata"
+        ]
+    },
+    "docker/build-push-action@v3": {
+        "inputs": {
+            "add-hosts": false,
+            "allow": false,
+            "attests": false,
+            "build-args": false,
+            "build-contexts": false,
+            "builder": false,
+            "cache-from": false,
+            "cache-to": false,
+            "cgroup-parent": false,
+            "context": false,
+            "file": false,
+            "labels": false,
+            "load": false,
+            "network": false,
+            "no-cache": false,
+            "no-cache-filters": false,
+            "outputs": false,
+            "platforms": false,
+            "provenance": false,
+            "pull": false,
+            "push": false,
+            "sbom": false,
+            "secrets": false,
+            "secret-files": false,
+            "shm-size": false,
+            "ssh": false,
+            "tags": false,
+            "target": false,
+            "ulimit": false,
+            "github-token": false
+        },
+        "outputs": [
+            "imageid",
+            "digest",
+            "metadata"
+        ]
+    },
+    "docker/build-push-action@v4": {
+        "inputs": {
+            "add-hosts": false,
+            "allow": false,
+            "attests": false,
+            "build-args": false,
+            "build-contexts": false,
+            "builder": false,
+            "cache-from": false,
+            "cache-to": false,
+            "cgroup-parent": false,
+            "context": false,
+            "file": false,
+            "labels": false,
+            "load": false,
+            "network": false,
+            "no-cache": false,
+            "no-cache-filters": false,
+            "outputs": false,
+            "platforms": false,
+            "provenance": false,
+            "pull": false,
+            "push": false,
+            "sbom": false,
+            "secrets": false,
+            "secret-files": false,
+            "shm-size": false,
+            "ssh": false,
+            "tags": false,
+            "target": false,
+            "ulimit": false,
+            "github-token": false
+        },
+        "outputs": [
+            "imageid",
+            "digest",
+            "metadata"
+        ]
+    },
+    "docker/build-push-action@v5": {
+        "inputs": {
+            "add-hosts": false,
+            "allow": false,
+            "annotations": false,
+            "attests": false,
+            "build-args": false,
+            "build-contexts": false,
+            "builder": false,
+            "cache-from": false,
+            "cache-to": false,
+            "cgroup-parent": false,
+            "context": false,
+            "file": false,
+            "labels": false,
+            "load": false,
+            "network": false,
+            "no-cache": false,
+            "no-cache-filters": false,
+            "outputs": false,
+            "platforms": false,
+            "provenance": false,
+            "pull": false,
+            "push": false,
+            "sbom": false,
+            "secrets": false,
+            "secret-envs": false,
+            "secret-files": false,
+            "shm-size": false,
+            "ssh": false,
+            "tags": false,
+            "target": false,
+            "ulimit": false,
+            "github-token": false
+        },
+        "outputs": [
+            "imageid",
+            "digest",
+            "metadata"
+        ]
+    },
+    "docker/build-push-action@v6": {
+        "inputs": {
+            "add-hosts": false,
+            "allow": false,
+            "annotations": false,
+            "attests": false,
+            "build-args": false,
+            "build-contexts": false,
+            "builder": false,
+            "cache-from": false,
+            "cache-to": false,
+            "call": false,
+            "cgroup-parent": false,
+            "context": false,
+            "file": false,
+            "labels": false,
+            "load": false,
+            "network": false,
+            "no-cache": false,
+            "no-cache-filters": false,
+            "outputs": false,
+            "platforms": false,
+            "provenance": false,
+            "pull": false,
+            "push": false,
+            "sbom": false,
+            "secrets": false,
+            "secret-envs": false,
+            "secret-files": false,
+            "shm-size": false,
+            "ssh": false,
+            "tags": false,
+            "target": false,
+            "ulimit": false,
+            "github-token": false
+        },
+        "outputs": [
+            "imageid",
+            "digest",
+            "metadata"
+        ]
+    },
+    "docker/login-action@v1": {
+        "inputs": {
+            "registry": false,
+            "username": false,
+            "password": false,
+            "ecr": false,
+            "logout": false
+        },
+        "outputs": []
+    },
+    "docker/login-action@v2": {
+        "inputs": {
+            "registry": false,
+            "username": false,
+            "password": false,
+            "ecr": false,
+            "logout": false
+        },
+        "outputs": []
+    },
+    "docker/login-action@v3": {
+        "inputs": {
+            "registry": false,
+            "username": false,
+            "password": false,
+            "ecr": false,
+            "logout": false
+        },
+        "outputs": []
+    },
+    "docker/metadata-action@v1": {
+        "inputs": {
+            "images": true,
+            "tag-sha": false,
+            "tag-edge": false,
+            "tag-edge-branch": false,
+            "tag-semver": false,
+            "tag-match": false,
+            "tag-match-group": false,
+            "tag-latest": false,
+            "tag-match-latest": false,
+            "tag-schedule": false,
+            "tag-custom": false,
+            "tag-custom-only": false,
+            "label-custom": false,
+            "sep-tags": false,
+            "sep-labels": false,
+            "github-token": true
+        },
+        "outputs": [
+            "version",
+            "tags",
+            "labels",
+            "bake-file"
+        ]
+    },
+    "docker/metadata-action@v2": {
+        "inputs": {
+            "images": true,
+            "tags": false,
+            "flavor": false,
+            "labels": false,
+            "sep-tags": false,
+            "sep-labels": false,
+            "bake-target": false,
+            "github-token": true
+        },
+        "outputs": [
+            "version",
+            "tags",
+            "labels",
+            "bake-file"
+        ]
+    },
+    "docker/metadata-action@v3": {
+        "inputs": {
+            "images": true,
+            "tags": false,
+            "flavor": false,
+            "labels": false,
+            "sep-tags": false,
+            "sep-labels": false,
+            "bake-target": false,
+            "github-token": true
+        },
+        "outputs": [
+            "version",
+            "tags",
+            "labels",
+            "bake-file",
+            "json"
+        ]
+    },
+    "docker/metadata-action@v4": {
+        "inputs": {
+            "context": true,
+            "images": true,
+            "tags": false,
+            "flavor": false,
+            "labels": false,
+            "sep-tags": false,
+            "sep-labels": false,
+            "bake-target": false,
+            "github-token": true
+        },
+        "outputs": [
+            "version",
+            "tags",
+            "labels",
+            "bake-file",
+            "json"
+        ]
+    },
+    "docker/metadata-action@v5": {
+        "inputs": {
+            "context": true,
+            "images": false,
+            "tags": false,
+            "flavor": false,
+            "labels": false,
+            "annotations": false,
+            "sep-tags": false,
+            "sep-labels": false,
+            "sep-annotations": false,
+            "bake-target": false,
+            "github-token": true
+        },
+        "outputs": [
+            "version",
+            "tags",
+            "labels",
+            "annotations",
+            "json",
+            "bake-file-tags",
+            "bake-file-labels",
+            "bake-file-annotations",
+            "bake-file"
+        ]
+    },
+    "docker/setup-buildx-action@v1": {
+        "inputs": {
+            "version": false,
+            "driver": false,
+            "driver-opts": false,
+            "buildkitd-flags": false,
+            "install": false,
+            "use": false,
+            "endpoint": false,
+            "config": false,
+            "config-inline": false
+        },
+        "outputs": [
+            "name",
+            "driver",
+            "endpoint",
+            "status",
+            "flags",
+            "platforms"
+        ]
+    },
+    "docker/setup-buildx-action@v2": {
+        "inputs": {
+            "version": false,
+            "driver": false,
+            "driver-opts": false,
+            "buildkitd-flags": false,
+            "install": false,
+            "use": false,
+            "endpoint": false,
+            "platforms": false,
+            "config": false,
+            "config-inline": false,
+            "append": false,
+            "cleanup": false
+        },
+        "outputs": [
+            "name",
+            "driver",
+            "platforms",
+            "nodes",
+            "endpoint",
+            "status",
+            "flags"
+        ]
+    },
+    "docker/setup-buildx-action@v3": {
+        "inputs": {
+            "version": false,
+            "driver": false,
+            "driver-opts": false,
+            "buildkitd-flags": false,
+            "buildkitd-config": false,
+            "buildkitd-config-inline": false,
+            "install": false,
+            "use": false,
+            "endpoint": false,
+            "platforms": false,
+            "append": false,
+            "cache-binary": false,
+            "cleanup": false,
+            "config": false,
+            "config-inline": false
+        },
+        "outputs": [
+            "name",
+            "driver",
+            "platforms",
+            "nodes",
+            "endpoint",
+            "status",
+            "flags"
+        ]
+    },
+    "docker/setup-qemu-action@v1": {
+        "inputs": {
+            "image": false,
+            "platforms": false
+        },
+        "outputs": [
+            "platforms"
+        ]
+    },
+    "docker/setup-qemu-action@v2": {
+        "inputs": {
+            "image": false,
+            "platforms": false
+        },
+        "outputs": [
+            "platforms"
+        ]
+    },
+    "docker/setup-qemu-action@v3": {
+        "inputs": {
+            "image": false,
+            "platforms": false,
+            "cache-image": false
+        },
+        "outputs": [
+            "platforms"
+        ]
+    },
+    "dorny/paths-filter@v1": {
+        "inputs": {
+            "token": false,
+            "filters": true
+        },
+        "outputs": []
+    },
+    "dorny/paths-filter@v2": {
+        "inputs": {
+            "token": false,
+            "working-directory": false,
+            "ref": false,
+            "base": false,
+            "filters": true,
+            "list-files": false,
+            "initial-fetch-depth": false
+        },
+        "outputs": [
+            "changes"
+        ]
+    },
+    "dorny/paths-filter@v3": {
+        "inputs": {
+            "token": false,
+            "working-directory": false,
+            "ref": false,
+            "base": false,
+            "filters": true,
+            "list-files": false,
+            "initial-fetch-depth": false
+        },
+        "outputs": [
+            "changes"
+        ]
+    },
+    "enriikke/gatsby-gh-pages-action@v2": {
+        "inputs": {
+            "access-token": false,
+            "deploy-branch": false,
+            "deploy-repo": false,
+            "gatsby-args": false,
+            "skip-publish": false,
+            "working-dir": false,
+            "commit-message": false,
+            "git-config-name": false,
+            "git-config-email": false
+        },
+        "outputs": []
+    },
+    "erlef/setup-beam@v1": {
+        "inputs": {
+            "github-token": false,
+            "otp-version": false,
+            "elixir-version": false,
+            "gleam-version": false,
+            "install-hex": false,
+            "install-rebar": false,
+            "rebar3-version": false,
+            "version-type": false,
+            "disable_problem_matchers": false,
+            "version-file": false,
+            "hexpm-mirrors": false
+        },
+        "outputs": [
+            "elixir-version",
+            "otp-version",
+            "gleam-version",
+            "rebar3-version",
+            "setup-beam-version"
+        ]
+    },
+    "game-ci/unity-builder@v2": {
+        "inputs": {
+            "targetPlatform": true,
+            "unityVersion": false,
+            "customImage": false,
+            "projectPath": false,
+            "buildName": false,
+            "buildsPath": false,
+            "buildMethod": false,
+            "customParameters": false,
+            "versioning": false,
+            "version": false,
+            "androidVersionCode": false,
+            "androidAppBundle": false,
+            "androidKeystoreName": false,
+            "androidKeystoreBase64": false,
+            "androidKeystorePass": false,
+            "androidKeyaliasName": false,
+            "androidKeyaliasPass": false,
+            "androidTargetSdkVersion": false,
+            "sshAgent": false,
+            "gitPrivateToken": false,
+            "chownFilesTo": false,
+            "allowDirtyBuild": false,
+            "postBuildSteps": false,
+            "preBuildSteps": false,
+            "customJobHooks": false,
+            "customJob": false,
+            "awsBaseStackName": false,
+            "cloudRunnerCluster": false,
+            "cloudRunnerCpu": false,
+            "cloudRunnerMemory": false,
+            "cachePushOverrideCommand": false,
+            "cachePullOverrideCommand": false,
+            "readInputFromOverrideList": false,
+            "readInputOverrideCommand": false,
+            "kubeConfig": false,
+            "kubeVolume": false,
+            "kubeStorageClass": false,
+            "kubeVolumeSize": false,
+            "cacheKey": false,
+            "checkDependencyHealthOverride": false,
+            "startDependenciesOverride": false
+        },
+        "outputs": [
+            "volume",
+            "buildVersion"
+        ]
+    },
+    "game-ci/unity-builder@v3": {
+        "inputs": {
+            "targetPlatform": true,
+            "unityVersion": false,
+            "customImage": false,
+            "projectPath": false,
+            "buildName": false,
+            "buildsPath": false,
+            "buildMethod": false,
+            "customParameters": false,
+            "versioning": false,
+            "version": false,
+            "androidVersionCode": false,
+            "androidExportType": false,
+            "androidKeystoreName": false,
+            "androidKeystoreBase64": false,
+            "androidKeystorePass": false,
+            "androidKeyaliasName": false,
+            "androidKeyaliasPass": false,
+            "androidTargetSdkVersion": false,
+            "androidSymbolType": false,
+            "sshAgent": false,
+            "sshPublicKeysDirectoryPath": false,
+            "gitPrivateToken": false,
+            "githubOwner": false,
+            "chownFilesTo": false,
+            "allowDirtyBuild": false,
+            "postBuildSteps": false,
+            "preBuildSteps": false,
+            "containerHookFiles": false,
+            "customHookFiles": false,
+            "customCommandHooks": false,
+            "customJob": false,
+            "awsStackName": false,
+            "providerStrategy": false,
+            "cloudRunnerCpu": false,
+            "cloudRunnerMemory": false,
+            "readInputFromOverrideList": false,
+            "readInputOverrideCommand": false,
+            "kubeConfig": false,
+            "kubeVolume": false,
+            "kubeStorageClass": false,
+            "kubeVolumeSize": false,
+            "cacheKey": false,
+            "watchToEnd": false,
+            "cacheUnityInstallationOnMac": false,
+            "unityHubVersionOnMac": false,
+            "unityLicensingServer": false,
+            "dockerWorkspacePath": false
+        },
+        "outputs": [
+            "volume",
+            "buildVersion",
+            "androidVersionCode"
+        ]
+    },
+    "game-ci/unity-builder@v4": {
+        "inputs": {
+            "targetPlatform": true,
+            "unityVersion": false,
+            "customImage": false,
+            "projectPath": false,
+            "buildName": false,
+            "buildsPath": false,
+            "buildMethod": false,
+            "manualExit": false,
+            "enableGpu": false,
+            "customParameters": false,
+            "versioning": false,
+            "version": false,
+            "androidVersionCode": false,
+            "androidExportType": false,
+            "androidKeystoreName": false,
+            "androidKeystoreBase64": false,
+            "androidKeystorePass": false,
+            "androidKeyaliasName": false,
+            "androidKeyaliasPass": false,
+            "androidTargetSdkVersion": false,
+            "androidSymbolType": false,
+            "sshAgent": false,
+            "sshPublicKeysDirectoryPath": false,
+            "gitPrivateToken": false,
+            "githubOwner": false,
+            "runAsHostUser": false,
+            "chownFilesTo": false,
+            "dockerCpuLimit": false,
+            "dockerMemoryLimit": false,
+            "dockerIsolationMode": false,
+            "containerRegistryRepository": false,
+            "containerRegistryImageVersion": false,
+            "allowDirtyBuild": false,
+            "postBuildSteps": false,
+            "preBuildSteps": false,
+            "containerHookFiles": false,
+            "customHookFiles": false,
+            "customCommandHooks": false,
+            "customJob": false,
+            "awsStackName": false,
+            "providerStrategy": false,
+            "containerCpu": false,
+            "containerMemory": false,
+            "readInputFromOverrideList": false,
+            "readInputOverrideCommand": false,
+            "kubeConfig": false,
+            "kubeVolume": false,
+            "kubeStorageClass": false,
+            "kubeVolumeSize": false,
+            "cacheKey": false,
+            "watchToEnd": false,
+            "cacheUnityInstallationOnMac": false,
+            "unityHubVersionOnMac": false,
+            "unityLicensingServer": false,
+            "dockerWorkspacePath": false,
+            "skipActivation": false
+        },
+        "outputs": [
+            "volume",
+            "buildVersion",
+            "androidVersionCode",
+            "engineExitCode"
+        ]
+    },
+    "github/super-linter@v3": {
+        "inputs": {},
+        "outputs": []
+    },
+    "github/super-linter@v4": {
+        "inputs": {},
+        "outputs": []
+    },
+    "github/super-linter@v5": {
+        "inputs": {},
+        "outputs": []
+    },
+    "github/super-linter@v6": {
+        "inputs": {},
+        "outputs": []
+    },
+    "github/super-linter@v7": {
+        "inputs": {},
+        "outputs": []
+    },
+    "githubocto/flat@v1": {
+        "inputs": {
+            "outfile_basename": false,
+            "http_url": false,
+            "sql_format": false,
+            "sql_connstring": false,
+            "sql_queryfile": false,
+            "postprocess": false
+        },
+        "outputs": [
+            "delta_bytes"
+        ]
+    },
+    "githubocto/flat@v2": {
+        "inputs": {
+            "downloaded_filename": false,
+            "http_url": false,
+            "sql_connstring": false,
+            "sql_queryfile": false,
+            "postprocess": false
+        },
+        "outputs": [
+            "delta_bytes"
+        ]
+    },
+    "githubocto/flat@v3": {
+        "inputs": {
+            "axios_config": false,
+            "downloaded_filename": false,
+            "http_url": false,
+            "authorization": false,
+            "mask": false,
+            "sql_connstring": false,
+            "sql_queryfile": false,
+            "typeorm_config": false,
+            "postprocess": false
+        },
+        "outputs": [
+            "delta_bytes"
+        ]
+    },
+    "golangci/golangci-lint-action@v1": {
+        "inputs": {
+            "version": true,
+            "args": false,
+            "working-directory": false,
+            "github-token": true,
+            "only-new-issues": true
+        },
+        "outputs": []
+    },
+    "golangci/golangci-lint-action@v2": {
+        "inputs": {
+            "version": false,
+            "args": false,
+            "working-directory": false,
+            "github-token": true,
+            "only-new-issues": true,
+            "skip-go-installation": true,
+            "skip-pkg-cache": true,
+            "skip-build-cache": true
+        },
+        "outputs": []
+    },
+    "golangci/golangci-lint-action@v3": {
+        "inputs": {
+            "version": false,
+            "args": false,
+            "working-directory": false,
+            "github-token": false,
+            "only-new-issues": false,
+            "skip-cache": false,
+            "skip-pkg-cache": false,
+            "skip-build-cache": false,
+            "install-mode": false
+        },
+        "outputs": []
+    },
+    "golangci/golangci-lint-action@v4": {
+        "inputs": {
+            "version": false,
+            "args": false,
+            "working-directory": false,
+            "github-token": false,
+            "only-new-issues": false,
+            "skip-cache": false,
+            "skip-pkg-cache": false,
+            "skip-build-cache": false,
+            "install-mode": false
+        },
+        "outputs": []
+    },
+    "golangci/golangci-lint-action@v5": {
+        "inputs": {
+            "version": false,
+            "install-mode": false,
+            "working-directory": false,
+            "github-token": false,
+            "only-new-issues": false,
+            "skip-cache": false,
+            "skip-save-cache": false,
+            "annotations": false,
+            "args": false,
+            "cache-invalidation-interval": false
+        },
+        "outputs": []
+    },
+    "golangci/golangci-lint-action@v6": {
+        "inputs": {
+            "version": false,
+            "install-mode": false,
+            "working-directory": false,
+            "github-token": false,
+            "verify": false,
+            "only-new-issues": false,
+            "skip-cache": false,
+            "skip-save-cache": false,
+            "problem-matchers": false,
+            "args": false,
+            "cache-invalidation-interval": false
+        },
+        "outputs": []
+    },
+    "google-github-actions/auth@v1": {
+        "inputs": {
+            "project_id": false,
+            "workload_identity_provider": false,
+            "service_account": false,
+            "audience": false,
+            "credentials_json": false,
+            "create_credentials_file": false,
+            "export_environment_variables": false,
+            "token_format": false,
+            "delegates": false,
+            "cleanup_credentials": false,
+            "access_token_lifetime": false,
+            "access_token_scopes": false,
+            "access_token_subject": false,
+            "retries": false,
+            "backoff": false,
+            "backoff_limit": false,
+            "id_token_audience": false,
+            "id_token_include_email": false
+        },
+        "outputs": [
+            "project_id",
+            "credentials_file_path",
+            "access_token",
+            "access_token_expiration",
+            "id_token"
+        ]
+    },
+    "google-github-actions/auth@v2": {
+        "inputs": {
+            "project_id": false,
+            "workload_identity_provider": false,
+            "service_account": false,
+            "audience": false,
+            "credentials_json": false,
+            "create_credentials_file": false,
+            "export_environment_variables": false,
+            "token_format": false,
+            "delegates": false,
+            "universe": false,
+            "request_reason": false,
+            "cleanup_credentials": false,
+            "access_token_lifetime": false,
+            "access_token_scopes": false,
+            "access_token_subject": false,
+            "retries": false,
+            "backoff": false,
+            "backoff_limit": false,
+            "id_token_audience": false,
+            "id_token_include_email": false
+        },
+        "outputs": [
+            "project_id",
+            "credentials_file_path",
+            "auth_token",
+            "access_token",
+            "id_token"
+        ]
+    },
+    "google-github-actions/get-secretmanager-secrets@v1": {
+        "inputs": {
+            "secrets": true,
+            "min_mask_length": false
+        },
+        "outputs": []
+    },
+    "google-github-actions/get-secretmanager-secrets@v2": {
+        "inputs": {
+            "secrets": true,
+            "min_mask_length": false,
+            "export_to_environment": false,
+            "encoding": false,
+            "universe": false
+        },
+        "outputs": [
+            "secrets"
+        ]
+    },
+    "google-github-actions/setup-gcloud@v1": {
+        "inputs": {
+            "skip_install": false,
+            "version": false,
+            "project_id": false,
+            "install_components": false
+        },
+        "outputs": []
+    },
+    "google-github-actions/setup-gcloud@v2": {
+        "inputs": {
+            "version": false,
+            "project_id": false,
+            "install_components": false,
+            "skip_install": false
+        },
+        "outputs": [
+            "version"
+        ]
+    },
+    "google-github-actions/upload-cloud-storage@v1": {
+        "inputs": {
+            "project_id": false,
+            "path": true,
+            "destination": true,
+            "gzip": false,
+            "resumable": false,
+            "predefinedAcl": false,
+            "parent": false,
+            "glob": false,
+            "concurrency": false,
+            "headers": false,
+            "process_gcloudignore": false
+        },
+        "outputs": []
+    },
+    "google-github-actions/upload-cloud-storage@v2": {
+        "inputs": {
+            "project_id": false,
+            "universe": false,
+            "path": true,
+            "destination": true,
+            "gzip": false,
+            "resumable": false,
+            "predefinedAcl": false,
+            "headers": false,
+            "parent": false,
+            "glob": false,
+            "concurrency": false,
+            "gcloudignore_path": false,
+            "process_gcloudignore": false
+        },
+        "outputs": [
+            "uploaded"
+        ]
+    },
+    "goreleaser/goreleaser-action@v1": {
+        "inputs": {
+            "version": false,
+            "args": false,
+            "key": false,
+            "workdir": false
+        },
+        "outputs": []
+    },
+    "goreleaser/goreleaser-action@v2": {
+        "inputs": {
+            "distribution": false,
+            "version": false,
+            "args": false,
+            "workdir": false,
+            "install-only": false
+        },
+        "outputs": [
+            "artifacts",
+            "metadata"
+        ]
+    },
+    "goreleaser/goreleaser-action@v3": {
+        "inputs": {
+            "distribution": false,
+            "version": false,
+            "args": false,
+            "workdir": false,
+            "install-only": false
+        },
+        "outputs": [
+            "artifacts",
+            "metadata"
+        ]
+    },
+    "goreleaser/goreleaser-action@v4": {
+        "inputs": {
+            "distribution": false,
+            "version": false,
+            "args": false,
+            "workdir": false,
+            "install-only": false
+        },
+        "outputs": [
+            "artifacts",
+            "metadata"
+        ]
+    },
+    "goreleaser/goreleaser-action@v5": {
+        "inputs": {
+            "distribution": false,
+            "version": false,
+            "args": false,
+            "workdir": false,
+            "install-only": false
+        },
+        "outputs": [
+            "artifacts",
+            "metadata"
+        ]
+    },
+    "goreleaser/goreleaser-action@v6": {
+        "inputs": {
+            "distribution": false,
+            "version": false,
+            "args": false,
+            "workdir": false,
+            "install-only": false
+        },
+        "outputs": [
+            "artifacts",
+            "metadata"
+        ]
+    },
+    "gradle/wrapper-validation-action@v1": {
+        "inputs": {
+            "min-wrapper-count": false,
+            "allow-snapshots": false,
+            "allow-checksums": false
+        },
+        "outputs": [
+            "failed-wrapper"
+        ]
+    },
+    "gradle/wrapper-validation-action@v2": {
+        "inputs": {
+            "min-wrapper-count": false,
+            "allow-snapshots": false,
+            "allow-checksums": false
+        },
+        "outputs": [
+            "failed-wrapper"
+        ]
+    },
+    "gradle/wrapper-validation-action@v3": {
+        "inputs": {
+            "min-wrapper-count": false,
+            "allow-snapshots": false,
+            "allow-checksums": false
+        },
+        "outputs": [
+            "failed-wrapper"
+        ]
+    },
+    "marvinpinto/action-automatic-releases@latest": {
+        "inputs": {
+            "repo_token": true,
+            "automatic_release_tag": false,
+            "draft": false,
+            "prerelease": false,
+            "title": false,
+            "files": false
+        },
+        "outputs": [
+            "automatic_releases_tag",
+            "upload_url"
+        ]
+    },
+    "microsoft/playwright-github-action@v1": {
+        "inputs": {},
+        "outputs": []
+    },
+    "mikepenz/release-changelog-builder-action@v1": {
+        "inputs": {
+            "configuration": false,
+            "path": false,
+            "owner": false,
+            "repo": false,
+            "fromTag": false,
+            "toTag": false,
+            "ignorePreReleases": false,
+            "failOnError": false,
+            "commitMode": false,
+            "outputFile": false,
+            "token": false
+        },
+        "outputs": [
+            "changelog",
+            "owner",
+            "repo",
+            "fromTag",
+            "toTag",
+            "failed"
+        ]
+    },
+    "mikepenz/release-changelog-builder-action@v2": {
+        "inputs": {
+            "configuration": false,
+            "path": false,
+            "owner": false,
+            "repo": false,
+            "fromTag": false,
+            "toTag": false,
+            "ignorePreReleases": false,
+            "failOnError": false,
+            "commitMode": false,
+            "outputFile": false,
+            "token": false,
+            "baseUrl": false
+        },
+        "outputs": [
+            "changelog",
+            "owner",
+            "repo",
+            "fromTag",
+            "toTag",
+            "failed"
+        ]
+    },
+    "mikepenz/release-changelog-builder-action@v3": {
+        "inputs": {
+            "configurationJson": false,
+            "configuration": false,
+            "path": false,
+            "owner": false,
+            "repo": false,
+            "fromTag": false,
+            "toTag": false,
+            "includeOpen": false,
+            "ignorePreReleases": false,
+            "failOnError": false,
+            "fetchReviewers": false,
+            "fetchReleaseInformation": false,
+            "fetchReviews": false,
+            "commitMode": false,
+            "outputFile": false,
+            "token": false,
+            "baseUrl": false
+        },
+        "outputs": [
+            "changelog",
+            "pull_requests",
+            "owner",
+            "repo",
+            "fromTag",
+            "toTag",
+            "failed",
+            "categorized_prs",
+            "uncategorized_prs",
+            "open_prs"
+        ]
+    },
+    "mikepenz/release-changelog-builder-action@v4": {
+        "inputs": {
+            "configurationJson": false,
+            "configuration": false,
+            "path": false,
+            "owner": false,
+            "repo": false,
+            "fromTag": false,
+            "toTag": false,
+            "includeOpen": false,
+            "ignorePreReleases": false,
+            "failOnError": false,
+            "fetchViaCommits": false,
+            "fetchReviewers": false,
+            "fetchReleaseInformation": false,
+            "fetchReviews": false,
+            "commitMode": false,
+            "outputFile": false,
+            "token": false,
+            "baseUrl": false,
+            "exportCache": false,
+            "exportOnly": false,
+            "cache": false,
+            "platform": false
+        },
+        "outputs": [
+            "changelog",
+            "pull_requests",
+            "owner",
+            "repo",
+            "fromTag",
+            "toTag",
+            "failed",
+            "categorized_prs",
+            "uncategorized_prs",
+            "open_prs",
+            "cache"
+        ]
+    },
+    "mikepenz/release-changelog-builder-action@v5": {
+        "inputs": {
+            "configurationJson": false,
+            "configuration": false,
+            "path": false,
+            "owner": false,
+            "repo": false,
+            "fromTag": false,
+            "toTag": false,
+            "includeOpen": false,
+            "ignorePreReleases": false,
+            "failOnError": false,
+            "fetchViaCommits": false,
+            "fetchReviewers": false,
+            "fetchReleaseInformation": false,
+            "fetchReviews": false,
+            "mode": false,
+            "commitMode": false,
+            "outputFile": false,
+            "token": false,
+            "baseUrl": false,
+            "exportCache": false,
+            "exportOnly": false,
+            "cache": false,
+            "platform": false
+        },
+        "outputs": [
+            "changelog",
+            "pull_requests",
+            "owner",
+            "repo",
+            "fromTag",
+            "toTag",
+            "failed",
+            "categorized_prs",
+            "uncategorized_prs",
+            "open_prs",
+            "cache"
+        ]
+    },
+    "msys2/setup-msys2@v1": {
+        "inputs": {
+            "msystem": false,
+            "path-type": false,
+            "release": false,
+            "update": false,
+            "install": false,
+            "cache": false
+        },
+        "outputs": []
+    },
+    "msys2/setup-msys2@v2": {
+        "inputs": {
+            "msystem": false,
+            "path-type": false,
+            "update": false,
+            "install": false,
+            "pacboy": false,
+            "release": false,
+            "location": false,
+            "platform-check-severity": false,
+            "cache": false
+        },
+        "outputs": [
+            "msys2-location"
+        ]
+    },
+    "ncipollo/release-action@v1": {
+        "inputs": {
+            "allowUpdates": false,
+            "artifactErrorsFailBuild": false,
+            "artifact": false,
+            "artifacts": false,
+            "artifactContentType": false,
+            "body": false,
+            "bodyFile": false,
+            "commit": false,
+            "discussionCategory": false,
+            "draft": false,
+            "generateReleaseNotes": false,
+            "makeLatest": false,
+            "name": false,
+            "omitBody": false,
+            "omitBodyDuringUpdate": false,
+            "omitDraftDuringUpdate": false,
+            "omitName": false,
+            "omitNameDuringUpdate": false,
+            "omitPrereleaseDuringUpdate": false,
+            "owner": false,
+            "prerelease": false,
+            "removeArtifacts": false,
+            "replacesArtifacts": false,
+            "repo": false,
+            "skipIfReleaseExists": false,
+            "tag": false,
+            "token": false,
+            "updateOnlyUnreleased": false
+        },
+        "outputs": [
+            "id",
+            "html_url",
+            "upload_url"
+        ]
+    },
+    "nwtgck/actions-netlify@v1": {
+        "inputs": {
+            "publish-dir": true,
+            "functions-dir": false,
+            "deploy-message": false,
+            "github-token": false,
+            "production-branch": false,
+            "production-deploy": false,
+            "enable-pull-request-comment": false,
+            "enable-commit-comment": false,
+            "enable-commit-status": false,
+            "overwrites-pull-request-comment": false,
+            "netlify-config-path": false,
+            "alias": false,
+            "github-deployment-environment": false,
+            "github-deployment-description": false,
+            "fails-without-credentials": false
+        },
+        "outputs": [
+            "deploy-url"
+        ]
+    },
+    "nwtgck/actions-netlify@v2": {
+        "inputs": {
+            "publish-dir": true,
+            "functions-dir": false,
+            "deploy-message": false,
+            "github-token": false,
+            "production-branch": false,
+            "production-deploy": false,
+            "enable-pull-request-comment": false,
+            "enable-commit-comment": false,
+            "enable-commit-status": false,
+            "overwrites-pull-request-comment": false,
+            "netlify-config-path": false,
+            "alias": false,
+            "enable-github-deployment": false,
+            "github-deployment-environment": false,
+            "github-deployment-description": false,
+            "fails-without-credentials": false
+        },
+        "outputs": [
+            "deploy-url"
+        ]
+    },
+    "nwtgck/actions-netlify@v3": {
+        "inputs": {
+            "publish-dir": true,
+            "functions-dir": false,
+            "deploy-message": false,
+            "github-token": false,
+            "production-branch": false,
+            "production-deploy": false,
+            "enable-pull-request-comment": false,
+            "enable-commit-comment": false,
+            "enable-commit-status": false,
+            "overwrites-pull-request-comment": false,
+            "netlify-config-path": false,
+            "alias": false,
+            "enable-github-deployment": false,
+            "github-deployment-environment": false,
+            "github-deployment-description": false,
+            "fails-without-credentials": false
+        },
+        "outputs": [
+            "deploy-url"
+        ]
+    },
+    "octokit/request-action@v1.x": {
+        "inputs": {
+            "route": true
+        },
+        "outputs": [
+            "status",
+            "headers",
+            "data"
+        ]
+    },
+    "octokit/request-action@v2.x": {
+        "inputs": {
+            "route": true,
+            "mediaType": false
+        },
+        "outputs": [
+            "status",
+            "headers",
+            "data"
+        ]
+    },
+    "peaceiris/actions-gh-pages@v2": {
+        "inputs": {
+            "emptyCommits": false,
+            "keepFiles": false,
+            "forceOrphan": false,
+            "username": false,
+            "useremail": false,
+            "commitMessage": false,
+            "tagName": false,
+            "tagMessage": false,
+            "tagOverwrite": false
+        },
+        "outputs": []
+    },
+    "peaceiris/actions-gh-pages@v3": {
+        "inputs": {
+            "deploy_key": false,
+            "github_token": false,
+            "personal_token": false,
+            "publish_branch": false,
+            "publish_dir": false,
+            "destination_dir": false,
+            "external_repository": false,
+            "allow_empty_commit": false,
+            "keep_files": false,
+            "force_orphan": false,
+            "user_name": false,
+            "user_email": false,
+            "commit_message": false,
+            "full_commit_message": false,
+            "tag_name": false,
+            "tag_message": false,
+            "enable_jekyll": false,
+            "disable_nojekyll": false,
+            "cname": false,
+            "exclude_assets": false
+        },
+        "outputs": []
+    },
+    "peaceiris/actions-gh-pages@v4": {
+        "inputs": {
+            "deploy_key": false,
+            "github_token": false,
+            "personal_token": false,
+            "publish_branch": false,
+            "publish_dir": false,
+            "destination_dir": false,
+            "external_repository": false,
+            "allow_empty_commit": false,
+            "keep_files": false,
+            "force_orphan": false,
+            "user_name": false,
+            "user_email": false,
+            "commit_message": false,
+            "full_commit_message": false,
+            "tag_name": false,
+            "tag_message": false,
+            "enable_jekyll": false,
+            "disable_nojekyll": false,
+            "cname": false,
+            "exclude_assets": false
+        },
+        "outputs": []
+    },
+    "peter-evans/create-pull-request@v1": {
+        "inputs": {
+            "token": true,
+            "commit-message": false,
+            "author-name": false,
+            "author-email": false,
+            "committer-name": false,
+            "committer-email": false,
+            "title": false,
+            "body": false,
+            "labels": false,
+            "assignees": false,
+            "reviewers": false,
+            "team-reviewers": false,
+            "milestone": false,
+            "project": false,
+            "project-column": false,
+            "branch": false,
+            "base": false,
+            "branch-suffix": false
+        },
+        "outputs": [
+            "pr_number"
+        ]
+    },
+    "peter-evans/create-pull-request@v2": {
+        "inputs": {
+            "token": false,
+            "path": false,
+            "commit-message": false,
+            "committer": false,
+            "author": false,
+            "title": false,
+            "body": false,
+            "labels": false,
+            "assignees": false,
+            "reviewers": false,
+            "team-reviewers": false,
+            "milestone": false,
+            "project": false,
+            "project-column": false,
+            "draft": false,
+            "branch": false,
+            "request-to-parent": false,
+            "base": false,
+            "branch-suffix": false
+        },
+        "outputs": [
+            "pull-request-number"
+        ]
+    },
+    "peter-evans/create-pull-request@v3": {
+        "inputs": {
+            "token": false,
+            "path": false,
+            "add-paths": false,
+            "commit-message": false,
+            "committer": false,
+            "author": false,
+            "signoff": false,
+            "branch": false,
+            "delete-branch": false,
+            "branch-suffix": false,
+            "base": false,
+            "push-to-fork": false,
+            "title": false,
+            "body": false,
+            "labels": false,
+            "assignees": false,
+            "reviewers": false,
+            "team-reviewers": false,
+            "milestone": false,
+            "draft": false
+        },
+        "outputs": [
+            "pull-request-number",
+            "pull-request-url",
+            "pull-request-operation",
+            "pull-request-head-sha"
+        ]
+    },
+    "peter-evans/create-pull-request@v4": {
+        "inputs": {
+            "token": false,
+            "path": false,
+            "add-paths": false,
+            "commit-message": false,
+            "committer": false,
+            "author": false,
+            "signoff": false,
+            "branch": false,
+            "delete-branch": false,
+            "branch-suffix": false,
+            "base": false,
+            "push-to-fork": false,
+            "title": false,
+            "body": false,
+            "labels": false,
+            "assignees": false,
+            "reviewers": false,
+            "team-reviewers": false,
+            "milestone": false,
+            "draft": false
+        },
+        "outputs": [
+            "pull-request-number",
+            "pull-request-url",
+            "pull-request-operation",
+            "pull-request-head-sha"
+        ]
+    },
+    "peter-evans/create-pull-request@v5": {
+        "inputs": {
+            "token": false,
+            "path": false,
+            "add-paths": false,
+            "commit-message": false,
+            "committer": false,
+            "author": false,
+            "signoff": false,
+            "branch": false,
+            "delete-branch": false,
+            "branch-suffix": false,
+            "base": false,
+            "push-to-fork": false,
+            "title": false,
+            "body": false,
+            "body-path": false,
+            "labels": false,
+            "assignees": false,
+            "reviewers": false,
+            "team-reviewers": false,
+            "milestone": false,
+            "draft": false
+        },
+        "outputs": [
+            "pull-request-number",
+            "pull-request-url",
+            "pull-request-operation",
+            "pull-request-head-sha"
+        ]
+    },
+    "peter-evans/create-pull-request@v6": {
+        "inputs": {
+            "token": false,
+            "git-token": false,
+            "path": false,
+            "add-paths": false,
+            "commit-message": false,
+            "committer": false,
+            "author": false,
+            "signoff": false,
+            "branch": false,
+            "delete-branch": false,
+            "branch-suffix": false,
+            "base": false,
+            "push-to-fork": false,
+            "title": false,
+            "body": false,
+            "body-path": false,
+            "labels": false,
+            "assignees": false,
+            "reviewers": false,
+            "team-reviewers": false,
+            "milestone": false,
+            "draft": false
+        },
+        "outputs": [
+            "pull-request-number",
+            "pull-request-url",
+            "pull-request-operation",
+            "pull-request-head-sha",
+            "pull-request-branch"
+        ]
+    },
+    "peter-evans/create-pull-request@v7": {
+        "inputs": {
+            "token": false,
+            "branch-token": false,
+            "path": false,
+            "add-paths": false,
+            "commit-message": false,
+            "committer": false,
+            "author": false,
+            "signoff": false,
+            "branch": false,
+            "delete-branch": false,
+            "branch-suffix": false,
+            "base": false,
+            "push-to-fork": false,
+            "sign-commits": false,
+            "title": false,
+            "body": false,
+            "body-path": false,
+            "labels": false,
+            "assignees": false,
+            "reviewers": false,
+            "team-reviewers": false,
+            "milestone": false,
+            "draft": false,
+            "maintainer-can-modify": false
+        },
+        "outputs": [
+            "pull-request-number",
+            "pull-request-url",
+            "pull-request-operation",
+            "pull-request-head-sha",
+            "pull-request-branch"
+        ]
+    },
+    "preactjs/compressed-size-action@v1": {
+        "inputs": {
+            "repo-token": true,
+            "build-script": false,
+            "compression": false,
+            "show-total": false,
+            "collapse-unchanged": false,
+            "omit-unchanged": false
+        },
+        "outputs": []
+    },
+    "preactjs/compressed-size-action@v2": {
+        "inputs": {
+            "repo-token": false,
+            "clean-script": false,
+            "install-script": false,
+            "build-script": false,
+            "compression": false,
+            "show-total": false,
+            "collapse-unchanged": false,
+            "omit-unchanged": false,
+            "strip-hash": false,
+            "use-check": false,
+            "minimum-change-threshold": false,
+            "pattern": false,
+            "exclude": false,
+            "cwd": false,
+            "comment-key": false
+        },
+        "outputs": []
+    },
+    "pulumi/actions@v1": {
+        "inputs": {
+            "command": true
+        },
+        "outputs": []
+    },
+    "pulumi/actions@v2": {
+        "inputs": {
+            "command": true,
+            "stack-name": true,
+            "work-dir": false,
+            "comment-on-pr": false,
+            "github-token": false,
+            "cloud-url": false,
+            "parallel": false,
+            "message": false,
+            "expect-no-changes": false,
+            "diff": false,
+            "replace": false,
+            "target": false,
+            "target-dependents": false,
+            "refresh": false,
+            "upsert": false
+        },
+        "outputs": [
+            "output"
+        ]
+    },
+    "pulumi/actions@v3": {
+        "inputs": {
+            "command": true,
+            "stack-name": true,
+            "work-dir": false,
+            "comment-on-pr": false,
+            "comment-on-pr-number": false,
+            "github-token": false,
+            "cloud-url": false,
+            "secrets-provider": false,
+            "parallel": false,
+            "message": false,
+            "config-map": false,
+            "expect-no-changes": false,
+            "diff": false,
+            "replace": false,
+            "target": false,
+            "target-dependents": false,
+            "policyPacks": false,
+            "policyPackConfigs": false,
+            "refresh": false,
+            "upsert": false,
+            "remove": false,
+            "edit-pr-comment": false,
+            "pulumi-version": false,
+            "color": false
+        },
+        "outputs": [
+            "output"
+        ]
+    },
+    "pulumi/actions@v4": {
+        "inputs": {
+            "command": false,
+            "stack-name": false,
+            "pulumi-version": false,
+            "work-dir": false,
+            "comment-on-pr": false,
+            "comment-on-pr-number": false,
+            "comment-on-summary": false,
+            "github-token": false,
+            "cloud-url": false,
+            "secrets-provider": false,
+            "parallel": false,
+            "message": false,
+            "config-map": false,
+            "expect-no-changes": false,
+            "diff": false,
+            "replace": false,
+            "target": false,
+            "target-dependents": false,
+            "policyPacks": false,
+            "policyPackConfigs": false,
+            "refresh": false,
+            "upsert": false,
+            "remove": false,
+            "edit-pr-comment": false,
+            "color": false,
+            "exclude-protected": false,
+            "plan": false
+        },
+        "outputs": [
+            "output"
+        ]
+    },
+    "pulumi/actions@v5": {
+        "inputs": {
+            "command": false,
+            "stack-name": false,
+            "pulumi-version": false,
+            "pulumi-version-file": false,
+            "work-dir": false,
+            "comment-on-pr": false,
+            "comment-on-pr-number": false,
+            "comment-on-summary": false,
+            "github-token": false,
+            "cloud-url": false,
+            "secrets-provider": false,
+            "parallel": false,
+            "message": false,
+            "config-map": false,
+            "expect-no-changes": false,
+            "diff": false,
+            "replace": false,
+            "target": false,
+            "target-dependents": false,
+            "policyPacks": false,
+            "policyPackConfigs": false,
+            "refresh": false,
+            "upsert": false,
+            "remove": false,
+            "edit-pr-comment": false,
+            "color": false,
+            "exclude-protected": false,
+            "plan": false,
+            "suppress-outputs": false,
+            "suppress-progress": false,
+            "always-include-summary": false
+        },
+        "outputs": [
+            "output"
+        ]
+    },
+    "pulumi/actions@v6": {
+        "inputs": {
+            "command": false,
+            "stack-name": false,
+            "pulumi-version": false,
+            "pulumi-version-file": false,
+            "work-dir": false,
+            "comment-on-pr": false,
+            "comment-on-pr-number": false,
+            "comment-on-summary": false,
+            "github-token": false,
+            "cloud-url": false,
+            "secrets-provider": false,
+            "parallel": false,
+            "message": false,
+            "config-map": false,
+            "expect-no-changes": false,
+            "diff": false,
+            "replace": false,
+            "target": false,
+            "target-dependents": false,
+            "policyPacks": false,
+            "policyPackConfigs": false,
+            "refresh": false,
+            "upsert": false,
+            "remove": false,
+            "edit-pr-comment": false,
+            "color": false,
+            "exclude-protected": false,
+            "plan": false,
+            "suppress-outputs": false,
+            "suppress-progress": false,
+            "always-include-summary": false,
+            "continue-on-error": false
+        },
+        "outputs": [
+            "output"
+        ]
+    },
+    "pypa/gh-action-pypi-publish@release/v1": {
+        "inputs": {
+            "user": false,
+            "password": false,
+            "repository-url": false,
+            "repository_url": false,
+            "packages-dir": false,
+            "packages_dir": false,
+            "verify-metadata": false,
+            "verify_metadata": false,
+            "skip-existing": false,
+            "skip_existing": false,
+            "verbose": false,
+            "print-hash": false,
+            "print_hash": false,
+            "attestations": false
+        },
+        "outputs": []
+    },
+    "reviewdog/action-actionlint@v1": {
+        "inputs": {
+            "github_token": true,
+            "tool_name": true,
+            "level": true,
+            "reporter": true,
+            "filter_mode": true,
+            "fail_level": false,
+            "fail_on_error": true,
+            "reviewdog_flags": false,
+            "actionlint_flags": false
+        },
+        "outputs": []
+    },
+    "reviewdog/action-eslint@v1": {
+        "inputs": {
+            "github_token": true,
+            "level": false,
+            "reporter": false,
+            "filter_mode": false,
+            "fail_level": false,
+            "fail_on_error": false,
+            "reviewdog_flags": false,
+            "eslint_flags": false,
+            "workdir": false,
+            "tool_name": false,
+            "node_options": false
+        },
+        "outputs": []
+    },
+    "reviewdog/action-golangci-lint@v1": {
+        "inputs": {
+            "github_token": true,
+            "golangci_lint_flags": false,
+            "tool_name": false,
+            "level": false,
+            "reporter": false,
+            "filter_mode": false,
+            "fail_on_error": false,
+            "reviewdog_flags": false,
+            "workdir": false
+        },
+        "outputs": []
+    },
+    "reviewdog/action-golangci-lint@v2": {
+        "inputs": {
+            "github_token": true,
+            "golangci_lint_flags": false,
+            "tool_name": false,
+            "level": false,
+            "reporter": false,
+            "filter_mode": false,
+            "fail_level": false,
+            "fail_on_error": false,
+            "reviewdog_flags": false,
+            "workdir": false,
+            "reviewdog_version": false,
+            "golangci_lint_version": false,
+            "go_version": false,
+            "go_version_file": false,
+            "cache": false
+        },
+        "outputs": []
+    },
+    "reviewdog/action-hadolint@v1": {
+        "inputs": {
+            "github_token": false,
+            "hadolint_flags": false,
+            "hadolint_ignore": false,
+            "tool_name": false,
+            "exclude": false,
+            "include": false,
+            "level": false,
+            "reporter": false,
+            "filter_mode": false,
+            "fail_level": false,
+            "fail_on_error": false,
+            "reviewdog_flags": false
+        },
+        "outputs": []
+    },
+    "reviewdog/action-misspell@v1": {
+        "inputs": {
+            "github_token": false,
+            "locale": false,
+            "level": false,
+            "reporter": false,
+            "ignore": false,
+            "path": false,
+            "pattern": false,
+            "exclude": false,
+            "filter_mode": false,
+            "fail_level": false,
+            "fail_on_error": false
+        },
+        "outputs": []
+    },
+    "reviewdog/action-rubocop@v1": {
+        "inputs": {
+            "github_token": true,
+            "rubocop_version": false,
+            "rubocop_extensions": false,
+            "rubocop_flags": false,
+            "tool_name": false,
+            "level": false,
+            "reporter": false,
+            "filter_mode": false,
+            "fail_on_error": false,
+            "reviewdog_flags": false,
+            "workdir": false,
+            "skip_install": false,
+            "use_bundler": false
+        },
+        "outputs": []
+    },
+    "reviewdog/action-rubocop@v2": {
+        "inputs": {
+            "fail_level": false,
+            "fail_on_error": false,
+            "filter_mode": false,
+            "github_token": false,
+            "level": false,
+            "only_changed": false,
+            "reporter": false,
+            "reviewdog_flags": false,
+            "rubocop_extensions": false,
+            "rubocop_flags": false,
+            "rubocop_version": false,
+            "skip_install": false,
+            "tool_name": false,
+            "use_bundler": false,
+            "workdir": false
+        },
+        "outputs": []
+    },
+    "reviewdog/action-shellcheck@v1": {
+        "inputs": {
+            "github_token": false,
+            "level": false,
+            "reporter": false,
+            "filter_mode": false,
+            "fail_level": false,
+            "fail_on_error": false,
+            "reviewdog_flags": false,
+            "path": false,
+            "pattern": false,
+            "check_all_files_with_shebangs": false,
+            "exclude": false,
+            "shellcheck_flags": false
+        },
+        "outputs": []
+    },
+    "reviewdog/action-tflint@v1": {
+        "inputs": {
+            "github_token": true,
+            "level": false,
+            "reporter": false,
+            "filter_mode": false,
+            "fail_level": false,
+            "fail_on_error": false,
+            "working_directory": false,
+            "tflint_version": false,
+            "tflint_rulesets": false,
+            "tflint_init": false,
+            "tflint_target_dir": false,
+            "tflint_config": false,
+            "flags": false
+        },
+        "outputs": [
+            "tflint-return-code",
+            "reviewdog-return-code"
+        ]
+    },
+    "rhysd/action-setup-vim@v1": {
+        "inputs": {
+            "version": false,
+            "neovim": false,
+            "configure-args": false,
+            "token": false
+        },
+        "outputs": [
+            "executable"
+        ]
+    },
+    "ridedott/merge-me-action@v1": {
+        "inputs": {
+            "GITHUB_TOKEN": true,
+            "GITHUB_LOGIN": false,
+            "MERGE_METHOD": false,
+            "PRESET": false
+        },
+        "outputs": []
+    },
+    "ridedott/merge-me-action@v2": {
+        "inputs": {
+            "GITHUB_LOGIN": false,
+            "GITHUB_TOKEN": true,
+            "ENABLE_GITHUB_API_PREVIEW": false,
+            "MERGE_METHOD": false,
+            "PRESET": false,
+            "ENABLED_FOR_MANUAL_CHANGES": false,
+            "MAXIMUM_RETRIES": false
+        },
+        "outputs": []
+    },
+    "rtCamp/action-slack-notify@v2": {
+        "inputs": {},
+        "outputs": []
+    },
+    "ruby/setup-ruby@v1": {
+        "inputs": {
+            "ruby-version": false,
+            "rubygems": false,
+            "bundler": false,
+            "bundler-cache": false,
+            "working-directory": false,
+            "cache-version": false,
+            "self-hosted": false,
+            "windows-toolchain": false
+        },
+        "outputs": [
+            "ruby-prefix"
+        ]
+    },
+    "shivammathur/setup-php@v1": {
+        "inputs": {
+            "php-version": true,
+            "extensions": false,
+            "ini-values": false,
+            "coverage": false,
+            "tools": false,
+            "extension-csv": false,
+            "ini-values-csv": false,
+            "pecl": false
+        },
+        "outputs": []
+    },
+    "shivammathur/setup-php@v2": {
+        "inputs": {
+            "php-version": false,
+            "php-version-file": false,
+            "extensions": false,
+            "ini-file": false,
+            "ini-values": false,
+            "coverage": false,
+            "tools": false
+        },
+        "outputs": [
+            "php-version"
+        ]
+    },
+    "softprops/action-gh-release@v1": {
+        "inputs": {
+            "body": false,
+            "body_path": false,
+            "name": false,
+            "tag_name": false,
+            "draft": false,
+            "prerelease": false,
+            "files": false,
+            "fail_on_unmatched_files": false,
+            "repository": false,
+            "token": false,
+            "target_commitish": false,
+            "discussion_category_name": false,
+            "generate_release_notes": false,
+            "append_body": false
+        },
+        "outputs": [
+            "url",
+            "id",
+            "upload_url",
+            "assets"
+        ]
+    },
+    "softprops/action-gh-release@v2": {
+        "inputs": {
+            "body": false,
+            "body_path": false,
+            "name": false,
+            "tag_name": false,
+            "draft": false,
+            "prerelease": false,
+            "preserve_order": false,
+            "files": false,
+            "fail_on_unmatched_files": false,
+            "repository": false,
+            "token": false,
+            "target_commitish": false,
+            "discussion_category_name": false,
+            "generate_release_notes": false,
+            "append_body": false,
+            "make_latest": false
+        },
+        "outputs": [
+            "url",
+            "id",
+            "upload_url",
+            "assets"
+        ]
+    },
+    "subosito/flutter-action@v2": {
+        "inputs": {
+            "channel": false,
+            "flutter-version": false,
+            "flutter-version-file": false,
+            "architecture": false,
+            "cache": false,
+            "cache-key": false,
+            "cache-path": false,
+            "pub-cache-key": false,
+            "pub-cache-path": false,
+            "dry-run": false
+        },
+        "outputs": [
+            "CHANNEL",
+            "VERSION",
+            "ARCHITECTURE",
+            "CACHE-KEY",
+            "CACHE-PATH",
+            "PUB-CACHE-KEY",
+            "PUB-CACHE-PATH"
+        ]
+    },
+    "treosh/lighthouse-ci-action@v1": {
+        "inputs": {
+            "url": false,
+            "urls": false
+        },
+        "outputs": [
+            "resultsPath"
+        ]
+    },
+    "treosh/lighthouse-ci-action@v2": {
+        "inputs": {
+            "urls": false,
+            "budgetPath": false,
+            "configPath": false,
+            "uploadArtifacts": false,
+            "temporaryPublicStorage": false,
+            "runs": false,
+            "serverBaseUrl": false,
+            "serverToken": false
+        },
+        "outputs": [
+            "resultsPath"
+        ]
+    },
+    "treosh/lighthouse-ci-action@v3": {
+        "inputs": {
+            "urls": false,
+            "budgetPath": false,
+            "configPath": false,
+            "uploadArtifacts": false,
+            "temporaryPublicStorage": false,
+            "runs": false,
+            "serverBaseUrl": false,
+            "serverToken": false,
+            "basicAuthUsername": false,
+            "basicAuthPassword": false
+        },
+        "outputs": [
+            "resultsPath",
+            "links",
+            "assertionResults"
+        ]
+    },
+    "treosh/lighthouse-ci-action@v7": {
+        "inputs": {
+            "urls": false,
+            "budgetPath": false,
+            "configPath": false,
+            "uploadArtifacts": false,
+            "temporaryPublicStorage": false,
+            "runs": false,
+            "serverBaseUrl": false,
+            "serverToken": false,
+            "basicAuthUsername": false,
+            "basicAuthPassword": false
+        },
+        "outputs": [
+            "resultsPath",
+            "links",
+            "assertionResults"
+        ]
+    },
+    "treosh/lighthouse-ci-action@v8": {
+        "inputs": {
+            "urls": false,
+            "budgetPath": false,
+            "configPath": false,
+            "uploadArtifacts": false,
+            "artifactName": false,
+            "temporaryPublicStorage": false,
+            "runs": false,
+            "serverBaseUrl": false,
+            "serverToken": false,
+            "basicAuthUsername": false,
+            "basicAuthPassword": false
+        },
+        "outputs": [
+            "resultsPath",
+            "links",
+            "assertionResults"
+        ]
+    },
+    "treosh/lighthouse-ci-action@v9": {
+        "inputs": {
+            "urls": false,
+            "budgetPath": false,
+            "configPath": false,
+            "uploadArtifacts": false,
+            "artifactName": false,
+            "temporaryPublicStorage": false,
+            "runs": false,
+            "serverBaseUrl": false,
+            "serverToken": false,
+            "basicAuthUsername": false,
+            "basicAuthPassword": false
+        },
+        "outputs": [
+            "resultsPath",
+            "links",
+            "assertionResults"
+        ]
+    },
+    "treosh/lighthouse-ci-action@v10": {
+        "inputs": {
+            "urls": false,
+            "budgetPath": false,
+            "configPath": false,
+            "uploadArtifacts": false,
+            "artifactName": false,
+            "temporaryPublicStorage": false,
+            "runs": false,
+            "serverBaseUrl": false,
+            "serverToken": false,
+            "basicAuthUsername": false,
+            "basicAuthPassword": false
+        },
+        "outputs": [
+            "resultsPath",
+            "links",
+            "assertionResults"
+        ]
+    },
+    "treosh/lighthouse-ci-action@v11": {
+        "inputs": {
+            "urls": false,
+            "budgetPath": false,
+            "configPath": false,
+            "uploadArtifacts": false,
+            "artifactName": false,
+            "temporaryPublicStorage": false,
+            "runs": false,
+            "serverBaseUrl": false,
+            "serverToken": false,
+            "basicAuthUsername": false,
+            "basicAuthPassword": false,
+            "uploadExtraArgs": false
+        },
+        "outputs": [
+            "resultsPath",
+            "links",
+            "assertionResults"
+        ]
+    },
+    "treosh/lighthouse-ci-action@v12": {
+        "inputs": {
+            "urls": false,
+            "budgetPath": false,
+            "configPath": false,
+            "uploadArtifacts": false,
+            "artifactName": false,
+            "temporaryPublicStorage": false,
+            "runs": false,
+            "serverBaseUrl": false,
+            "serverToken": false,
+            "basicAuthUsername": false,
+            "basicAuthPassword": false,
+            "uploadExtraArgs": false
+        },
+        "outputs": [
+            "resultsPath",
+            "links",
+            "assertionResults"
+        ]
+    },
+    "wearerequired/lint-action@v1": {
+        "inputs": {
+            "github_token": false,
+            "continue_on_error": false,
+            "auto_fix": false,
+            "git_no_verify": false,
+            "git_name": false,
+            "git_email": false,
+            "commit_message": false,
+            "check_name": false,
+            "neutral_check_on_warning": false,
+            "stylelint": false,
+            "stylelint_args": false,
+            "stylelint_dir": false,
+            "stylelint_extensions": false,
+            "stylelint_command_prefix": false,
+            "gofmt": false,
+            "gofmt_args": false,
+            "gofmt_dir": false,
+            "gofmt_extensions": false,
+            "gofmt_command_prefix": false,
+            "golint": false,
+            "golint_args": false,
+            "golint_dir": false,
+            "golint_extensions": false,
+            "golint_command_prefix": false,
+            "eslint": false,
+            "eslint_args": false,
+            "eslint_dir": false,
+            "eslint_extensions": false,
+            "eslint_command_prefix": false,
+            "prettier": false,
+            "prettier_args": false,
+            "prettier_dir": false,
+            "prettier_extensions": false,
+            "prettier_command_prefix": false,
+            "xo": false,
+            "xo_args": false,
+            "xo_dir": false,
+            "xo_extensions": false,
+            "xo_command_prefix": false,
+            "php_codesniffer": false,
+            "php_codesniffer_args": false,
+            "php_codesniffer_dir": false,
+            "php_codesniffer_extensions": false,
+            "php_codesniffer_command_prefix": false,
+            "black": false,
+            "black_args": false,
+            "black_dir": false,
+            "black_extensions": false,
+            "black_command_prefix": false,
+            "flake8": false,
+            "flake8_args": false,
+            "flake8_dir": false,
+            "flake8_extensions": false,
+            "flake8_command_prefix": false,
+            "mypy": false,
+            "mypy_args": false,
+            "mypy_dir": false,
+            "mypy_extensions": false,
+            "mypy_command_prefix": false,
+            "oitnb": false,
+            "oitnb_args": false,
+            "oitnb_dir": false,
+            "oitnb_extensions": false,
+            "oitnb_command_prefix": false,
+            "rubocop": false,
+            "rubocop_args": false,
+            "rubocop_dir": false,
+            "rubocop_extensions": false,
+            "rubocop_command_prefix": false,
+            "erblint": false,
+            "erblint_args": false,
+            "erblint_dir": false,
+            "erblint_extensions": false,
+            "erblint_command_prefix": false,
+            "swiftformat": false,
+            "swiftformat_args": false,
+            "swiftformat_dir": false,
+            "swiftformat_extensions": false,
+            "swiftformat_command_prefix": false,
+            "swift_format_lockwood": false,
+            "swift_format_lockwood_args": false,
+            "swift_format_lockwood_dir": false,
+            "swift_format_lockwood_extensions": false,
+            "swift_format_lockwood_command_prefix": false,
+            "swift_format_official": false,
+            "swift_format_official_args": false,
+            "swift_format_official_dir": false,
+            "swift_format_official_extensions": false,
+            "swift_format_official_command_prefix": false,
+            "swiftlint": false,
+            "swiftlint_args": false,
+            "swiftlint_dir": false,
+            "swiftlint_extensions": false,
+            "swiftlint_command_prefix": false,
+            "dotnet_format": false,
+            "dotnet_format_args": false,
+            "dotnet_format_dir": false,
+            "dotnet_format_extensions": false,
+            "dotnet_format_command_prefix": false
+        },
+        "outputs": []
+    },
+    "wearerequired/lint-action@v2": {
+        "inputs": {
+            "github_token": false,
+            "continue_on_error": false,
+            "auto_fix": false,
+            "commit": false,
+            "git_no_verify": false,
+            "git_name": false,
+            "git_email": false,
+            "commit_message": false,
+            "check_name": false,
+            "neutral_check_on_warning": false,
+            "stylelint": false,
+            "stylelint_args": false,
+            "stylelint_dir": false,
+            "stylelint_extensions": false,
+            "stylelint_command_prefix": false,
+            "stylelint_auto_fix": false,
+            "gofmt": false,
+            "gofmt_args": false,
+            "gofmt_dir": false,
+            "gofmt_extensions": false,
+            "gofmt_command_prefix": false,
+            "gofmt_auto_fix": false,
+            "golint": false,
+            "golint_args": false,
+            "golint_dir": false,
+            "golint_extensions": false,
+            "golint_command_prefix": false,
+            "golint_auto_fix": false,
+            "eslint": false,
+            "eslint_args": false,
+            "eslint_dir": false,
+            "eslint_extensions": false,
+            "eslint_command_prefix": false,
+            "eslint_auto_fix": false,
+            "prettier": false,
+            "prettier_args": false,
+            "prettier_dir": false,
+            "prettier_extensions": false,
+            "prettier_command_prefix": false,
+            "prettier_auto_fix": false,
+            "xo": false,
+            "xo_args": false,
+            "xo_dir": false,
+            "xo_extensions": false,
+            "xo_command_prefix": false,
+            "xo_auto_fix": false,
+            "tsc": false,
+            "tsc_args": false,
+            "tsc_dir": false,
+            "tsc_extensions": false,
+            "tsc_command_prefix": false,
+            "tsc_auto_fix": false,
+            "php_codesniffer": false,
+            "php_codesniffer_args": false,
+            "php_codesniffer_dir": false,
+            "php_codesniffer_extensions": false,
+            "php_codesniffer_command_prefix": false,
+            "php_codesniffer_auto_fix": false,
+            "autopep8": false,
+            "autopep8_args": false,
+            "autopep8_dir": false,
+            "autopep8_extensions": false,
+            "autopep8_command_prefix": false,
+            "autopep8_auto_fix": false,
+            "black": false,
+            "black_args": false,
+            "black_dir": false,
+            "black_extensions": false,
+            "black_command_prefix": false,
+            "black_auto_fix": false,
+            "clang_format": false,
+            "clang_format_args": false,
+            "clang_format_dir": false,
+            "clang_format_extensions": false,
+            "clang_format_command_prefix": false,
+            "clang_format_auto_fix": false,
+            "flake8": false,
+            "flake8_args": false,
+            "flake8_dir": false,
+            "flake8_extensions": false,
+            "flake8_command_prefix": false,
+            "flake8_auto_fix": false,
+            "mypy": false,
+            "mypy_args": false,
+            "mypy_dir": false,
+            "mypy_extensions": false,
+            "mypy_command_prefix": false,
+            "mypy_auto_fix": false,
+            "oitnb": false,
+            "oitnb_args": false,
+            "oitnb_dir": false,
+            "oitnb_extensions": false,
+            "oitnb_command_prefix": false,
+            "oitnb_auto_fix": false,
+            "pylint": false,
+            "pylint_args": false,
+            "pylint_dir": false,
+            "pylint_extensions": false,
+            "pylint_command_prefix": false,
+            "pylint_auto_fix": false,
+            "rubocop": false,
+            "rubocop_args": false,
+            "rubocop_dir": false,
+            "rubocop_extensions": false,
+            "rubocop_command_prefix": false,
+            "rubocop_auto_fix": false,
+            "erblint": false,
+            "erblint_args": false,
+            "erblint_dir": false,
+            "erblint_extensions": false,
+            "erblint_command_prefix": false,
+            "erblint_auto_fix": false,
+            "swiftformat": false,
+            "swiftformat_args": false,
+            "swiftformat_dir": false,
+            "swiftformat_extensions": false,
+            "swiftformat_command_prefix": false,
+            "swiftformat_auto_fix": false,
+            "swift_format_lockwood": false,
+            "swift_format_lockwood_args": false,
+            "swift_format_lockwood_dir": false,
+            "swift_format_lockwood_extensions": false,
+            "swift_format_lockwood_command_prefix": false,
+            "swift_format_lockwood_auto_fix": false,
+            "swift_format_official": false,
+            "swift_format_official_args": false,
+            "swift_format_official_dir": false,
+            "swift_format_official_extensions": false,
+            "swift_format_official_command_prefix": false,
+            "swift_format_official_auto_fix": false,
+            "swiftlint": false,
+            "swiftlint_args": false,
+            "swiftlint_dir": false,
+            "swiftlint_extensions": false,
+            "swiftlint_command_prefix": false,
+            "swiftlint_auto_fix": false,
+            "dotnet_format": false,
+            "dotnet_format_args": false,
+            "dotnet_format_dir": false,
+            "dotnet_format_extensions": false,
+            "dotnet_format_command_prefix": false,
+            "dotnet_format_auto_fix": false
+        },
+        "outputs": []
+    },
+    "peaceiris/actions-hugo@v3": {
+        "inputs": {
+            "hugo-version": false,
+            "extended": false
+        },
+        "outputs": []
+    },
+    "actions/attest-build-provenance@v1": {
+        "inputs": {
+            "subject-path": false,
+            "subject-digest": false,
+            "subject-name": false,
+            "push-to-registry": false,
+            "show-summary": false,
+            "github-token": false
+        },
+        "outputs": [
+            "bundle-path"
+        ]
+    },
+    "actions/attest-build-provenance@v2": {
+        "inputs": {
+            "subject-path": false,
+            "subject-digest": false,
+            "subject-name": false,
+            "subject-checksums": false,
+            "push-to-registry": false,
+            "show-summary": false,
+            "github-token": false
+        },
+        "outputs": [
+            "bundle-path",
+            "attestation-id",
+            "attestation-url"
+        ]
+    },
+    "actions/add-to-project@v1.0.1": {
+        "inputs": {
+            "project-url": true,
+            "github-token": true,
+            "labeled": false,
+            "label-operator": false
+        },
+        "outputs": [
+            "itemId"
+        ]
+    },
+    "octokit/graphql-action@v2.x": {
+        "inputs": {
+            "query": true,
+            "mediaType": false,
+            "variables": false
+        },
+        "outputs": [
+            "data"
+        ]
+    }
+}
