@@ -1,4 +1,4 @@
-from validateactions import cli
+from validateactions import cli, linter
 import tempfile
 import os
 
@@ -27,8 +27,19 @@ jobs:
         tmp_path = tmp.name 
 
     try:
-        cli.run(tmp_path)
+        with open(tmp_path, 'r') as f:
+            problems = linter.run(f)
     finally:
         os.remove(tmp_path)
-    # tokens = list(parser.tokenize(workflow))
-    assert None is None
+    
+    sorted_problems = sorted(problems, key=lambda x: (x.line, x.column))
+
+    assert len(sorted_problems) == 5
+    rule_event = 'event-trigger'
+    rule_input = 'jobs-steps-uses'
+    assert sorted_problems[0].rule == rule_event
+    assert sorted_problems[1].rule == rule_event
+    assert sorted_problems[2].rule == rule_input
+    assert sorted_problems[2].level == 'warning'
+    assert sorted_problems[3].rule == rule_input
+    assert sorted_problems[4].rule == rule_input
