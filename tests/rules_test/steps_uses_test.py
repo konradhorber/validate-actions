@@ -16,9 +16,7 @@ jobs:
         with:
           unknown_input: 'test'
 """
-    tokens = list(parser.tokenize(workflow))
-    result = jobs_steps_uses.check(tokens, None)
-    assert result is None
+    throws_no_error(workflow)
 
 
 # region required inputs
@@ -32,9 +30,7 @@ jobs:
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
 """
-    tokens = list(parser.tokenize(workflow))
-    result = jobs_steps_uses.check(tokens, None)
-    assert isinstance(result, LintProblem)
+    throws_single_error(workflow)
 
 def test_required_input_correct_with():
     workflow = """
@@ -48,9 +44,7 @@ jobs:
         with: 
           status: 'test'
 """
-    tokens = list(parser.tokenize(workflow))
-    result = jobs_steps_uses.check(tokens, None)
-    assert result is None
+    throws_no_error(workflow)
 
 def test_required_input_but_wrong_with_ending_directly():
     workflow = """
@@ -64,9 +58,7 @@ jobs:
         with: 
           fields: 'test'
 """
-    tokens = list(parser.tokenize(workflow))
-    result = jobs_steps_uses.check(tokens, None)
-    assert isinstance(result, LintProblem)
+    throws_single_error(workflow)
     
 def test_required_input_but_wrong_with_block_continues():
     workflow = """
@@ -81,9 +73,7 @@ jobs:
           fields: 'test'
       - run: npm install
 """
-    tokens = list(parser.tokenize(workflow))
-    result = jobs_steps_uses.check(tokens, None)
-    assert isinstance(result, LintProblem)
+    throws_single_error(workflow)
 
 def test_required_input_correct_with_multiple_inputs():
     workflow = """
@@ -98,9 +88,7 @@ jobs:
           fields: 'test'
           status: 'correct'
 """
-    tokens = list(parser.tokenize(workflow))
-    result = jobs_steps_uses.check(tokens, None)
-    assert result is None
+    throws_no_error(workflow)
 
 def test_required_input_but_wrong_multiple_inputs():
     workflow = """
@@ -115,9 +103,7 @@ jobs:
           fields: 'test'
           custom_payload: 'test'
 """
-    tokens = list(parser.tokenize(workflow))
-    result = jobs_steps_uses.check(tokens, None)
-    assert isinstance(result, LintProblem)
+    throws_single_error(workflow)
 
 # endregion required inputs
 
@@ -134,9 +120,7 @@ jobs:
         with: 
           status: 'test'
 """
-    tokens = list(parser.tokenize(workflow))
-    result = jobs_steps_uses.check(tokens, None)
-    assert result is None
+    throws_no_error(workflow)
 
 def test_uses_non_existent_input_first():
     workflow = """
@@ -152,10 +136,13 @@ jobs:
           status: 'test'
 """
     tokens = list(parser.tokenize(workflow))
-    result = jobs_steps_uses.check(tokens, None)
-    assert isinstance(result, LintProblem)
-    assert result.line == 9
-    assert result.desc == "8398a7/action-slack@v2 has unknown input: wrong_input"
+    gen = jobs_steps_uses.check(tokens, None)
+    result = list(gen)
+    assert len(result) == 1
+    assert isinstance(result[0], LintProblem)
+    assert result[0].rule == 'jobs-steps-uses'
+    assert result[0].line == 9
+    assert result[0].desc == "8398a7/action-slack@v2 has unknown input: wrong_input"
 
 def test_uses_non_existent_input_second():
     workflow = """
@@ -171,10 +158,26 @@ jobs:
           wrong_input: 'test'
 """
     tokens = list(parser.tokenize(workflow))
-    result = jobs_steps_uses.check(tokens, None)
-    assert isinstance(result, LintProblem)
-    assert result.line == 10
-    assert result.desc == "8398a7/action-slack@v2 has unknown input: wrong_input"
+    gen = jobs_steps_uses.check(tokens, None)
+    result = list(gen)
+    assert len(result) == 1
+    assert isinstance(result[0], LintProblem)
+    assert result[0].rule == 'jobs-steps-uses'
+    assert result[0].line == 10
+    assert result[0].desc == "8398a7/action-slack@v2 has unknown input: wrong_input"
 
 # endregion all inputs
 
+def throws_single_error(workflow: str):
+    tokens = list(parser.tokenize(workflow))
+    gen = jobs_steps_uses.check(tokens,'')
+    result = list(gen)
+    assert len(result) == 1
+    assert isinstance(result[0], LintProblem)
+    assert result[0].rule == 'jobs-steps-uses'
+
+def throws_no_error(workflow: str):
+    tokens = list(parser.tokenize(workflow))
+    gen = jobs_steps_uses.check(tokens, '')
+    result = list(gen)
+    assert result == []

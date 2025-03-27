@@ -1,10 +1,8 @@
 import yaml
-import parser
+import validateactions.parser as parser
 import json
-import rules
-from lint_problem import LintProblem
-import rules.event_trigger
-import validateactions.rules.jobs_steps_uses
+import validateactions.rules as rules
+from validateactions.lint_problem import LintProblem
 
 PROBLEM_LEVELS = {
     0: None,
@@ -21,16 +19,15 @@ def run(input):
     content = input.read()
     return _run(content)
     
-# TODO think about how to get multiple errors
 def _run(buffer):
+    l = list(get_actions_error(buffer))
+    for problem in l:
+        if problem == None:
+            l.remove(problem)
     syntax_error = get_syntax_error(buffer)
-    actions_error = get_actions_error(buffer)
-
     if syntax_error:
-        yield syntax_error
-    
-    if actions_error:
-        yield actions_error
+        l.append(syntax_error)
+    return l
 
 def get_syntax_error(buffer):
     assert hasattr(buffer, '__getitem__'), \
@@ -45,17 +42,15 @@ def get_syntax_error(buffer):
                            'syntax')
 
 ACTIONS_ERROR_RULES = [
+    rules.jobs_steps_uses,
     rules.event_trigger,
-    rules.steps_uses
     ]
 
 def get_actions_error(buffer):
     tokens = list(parser.tokenize(buffer))
     schema = get_workflow_schema(SCHEMA_FILE)
     for rule in ACTIONS_ERROR_RULES:
-        problem = rule.check(tokens, schema)
-        if problem:
-            return problem
+        yield from rule.check(tokens, schema)
         
 def get_workflow_schema(file):
     with open(file) as f:

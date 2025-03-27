@@ -1,4 +1,4 @@
-import linter
+import validateactions.linter
 import sys
 
 class Format:
@@ -15,20 +15,22 @@ class Format:
         if problem.rule:
             line += f'  \033[2m({problem.rule})\033[0m'
         return line
-    
+
 def run(file):
     try:
         with open(file, newline='') as f:
-            problems = linter.run(f)
+            problems = validateactions.linter.run(f)
     except OSError as e:
         print(e, file=sys.stderr)
         sys.exit(-1)
-    
-    prob_level = show_problems(problems, file)
 
-    if prob_level == linter.PROBLEM_LEVELS['error']:
+    sorted_problems = sorted(problems, key=lambda x: (x.line, x.column))
+    
+    prob_level = show_problems(sorted_problems, file)
+
+    if prob_level == validateactions.linter.PROBLEM_LEVELS['error']:
         return_code = 1
-    elif prob_level == linter.PROBLEM_LEVELS['warning']:
+    elif prob_level == validateactions.linter.PROBLEM_LEVELS['warning']:
         return_code = 2
     else:
         return_code = 0
@@ -42,7 +44,7 @@ def show_problems(problems, file):
     first = True
 
     for problem in problems:
-        max_level = max(max_level, linter.PROBLEM_LEVELS[problem.level])
+        max_level = max(max_level, validateactions.linter.PROBLEM_LEVELS[problem.level])
         if first:
             print(f'\033[4m{file}\033[0m')
             first = False
