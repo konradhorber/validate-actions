@@ -87,7 +87,7 @@ def check_mapping(tokens, events, structure_determining_token_index, end_token):
 def check_scalar_against_schema(token, events):
     event = token
     if not event.value in events:
-        desc = f'event must be valid but found: "{event.value}"'
+        desc = f'event must be valid but found: {event.value}'
         level = 'error'
         yield LintProblem(
             event.start_mark.line,

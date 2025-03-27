@@ -1,10 +1,13 @@
 import cli
 import typer
+from pathlib import Path
 
 
 
-def main(file: str):
-    cli.run(file)
+def main():
+    directory = Path('.github-test/workflows')
+    cli.run_directory(directory)
+
 
     
 
