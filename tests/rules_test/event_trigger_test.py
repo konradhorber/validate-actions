@@ -14,8 +14,11 @@ def test_no_on():
 name: test
 """
     workflow_tokens = list(yaml.parse(workflow, Loader=yaml.BaseLoader))
-    result = event_trigger.check(workflow_tokens, schema)
-    assert isinstance(result, LintProblem)
+    gen = event_trigger.check(workflow_tokens, schema)
+    result = list(gen)
+    assert len(result) == 1
+    assert isinstance(result[0], LintProblem)
+    assert result[0].rule == 'event-trigger'
 
 def test_single_event_correct():
     workflow ="""
@@ -23,8 +26,9 @@ name: test
 on: push
 """
     workflow_tokens = list(parser.tokenize(workflow))
-    result = event_trigger.check(workflow_tokens, schema)
-    assert result is None
+    gen = event_trigger.check(workflow_tokens, schema)
+    result = list(gen)
+    assert result == []
 
 
 def test_single_event_problem():
@@ -33,8 +37,11 @@ name: test
 on: ush
 """
     workflow_tokens = list(parser.tokenize(workflow))
-    result = event_trigger.check(workflow_tokens, schema)
-    assert isinstance(result, LintProblem)
+    gen = event_trigger.check(workflow_tokens, schema)
+    result = list(gen)
+    assert len(result) == 1
+    assert isinstance(result[0], LintProblem)
+    assert result[0].rule == 'event-trigger'
 
 def test_flow_sequence_correct():
     workflow ="""
@@ -42,8 +49,9 @@ name: test
 on: [push, pull_request]
 """
     workflow_tokens = list(parser.tokenize(workflow))
-    result = event_trigger.check(workflow_tokens, schema)
-    assert result is None
+    gen = event_trigger.check(workflow_tokens, schema)
+    result = list(gen)
+    assert result == []
 
 def test_flow_sequence_problem():
     workflow ="""
@@ -51,8 +59,11 @@ name: test
 on: [push, pull_equest]
 """
     workflow_tokens = list(parser.tokenize(workflow))
-    result = event_trigger.check(workflow_tokens, schema)
-    assert isinstance(result, LintProblem)
+    gen = event_trigger.check(workflow_tokens, schema)
+    result = list(gen)
+    assert len(result) == 1
+    assert isinstance(result[0], LintProblem)
+    assert result[0].rule == 'event-trigger'
 
 def test_block_sequence_correct():
     workflow ="""
@@ -62,8 +73,9 @@ on:
   - pull_request
 """
     workflow_tokens = list(parser.tokenize(workflow))
-    result = event_trigger.check(workflow_tokens, schema)
-    assert result is None
+    gen = event_trigger.check(workflow_tokens, schema)
+    result = list(gen)
+    assert result == []
 
 def test_block_sequence_problem():
     workflow ="""
@@ -73,8 +85,11 @@ on:
   - pul_request
 """
     workflow_tokens = list(parser.tokenize(workflow))
-    result = event_trigger.check(workflow_tokens, schema)
-    assert isinstance(result, LintProblem)
+    gen = event_trigger.check(workflow_tokens, schema)
+    result = list(gen)
+    assert len(result) == 1
+    assert isinstance(result[0], LintProblem)
+    assert result[0].rule == 'event-trigger'
 
 def test_block_mapping_correct():
     workflow ="""
@@ -86,8 +101,9 @@ on:
     branches: [ $default-branch ]
 """
     workflow_tokens = list(parser.tokenize(workflow))
-    result = event_trigger.check(workflow_tokens, schema)
-    assert result is None
+    gen = event_trigger.check(workflow_tokens, schema)
+    result = list(gen)
+    assert result == []
 
 def test_block_mapping_problem():
     workflow ="""
@@ -99,5 +115,8 @@ on:
     branches: [ $default-branch ]
 """
     workflow_tokens = list(parser.tokenize(workflow))
-    result = event_trigger.check(workflow_tokens, schema)
-    assert isinstance(result, LintProblem)
+    gen = event_trigger.check(workflow_tokens, schema)
+    result = list(gen)
+    assert len(result) == 1
+    assert isinstance(result[0], LintProblem)
+    assert result[0].rule == 'event-trigger'

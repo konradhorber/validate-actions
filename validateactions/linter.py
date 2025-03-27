@@ -21,6 +21,9 @@ def run(input):
     
 def _run(buffer):
     l = list(get_actions_error(buffer))
+    for problem in l:
+        if problem == None:
+            l.remove(problem)
     syntax_error = get_syntax_error(buffer)
     if syntax_error:
         l.append(syntax_error)
