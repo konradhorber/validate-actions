@@ -1,6 +1,6 @@
 import yaml
 from validate_actions.lint_problem import LintProblem
-from validate_actions.rules.support_functions import find_index_of
+from validate_actions.rules.support_functions import find_index_of, parse_action
 import json
 from typing import Iterator
 import importlib.resources as pkg_resources
@@ -14,7 +14,12 @@ def check(tokens, schema):
         
         yield from not_using_version_spec(action_slug, action_index, tokens)
 
-        required_inputs, possible_inputs = get_inputs(action_slug)
+        input_result = get_inputs(action_slug, tokens[action_index])
+        if isinstance(input_result, LintProblem):
+            yield input_result
+            return
+        else:
+            required_inputs, possible_inputs = input_result
 
         with_index = action_index + 2
         with_token = tokens[with_index]
@@ -48,24 +53,21 @@ def not_using_version_spec(
               rule
          )
 
-def get_inputs(action_slug):
-    with pkg_resources.open_text('validate_actions.resources', 'popular_actions.json') as f:
-        popular_actions = json.load(f)
+def get_inputs(action_slug, action_token):
+    action_metadata = parse_action(action_slug)
+    if action_metadata is None:
+        return LintProblem(
+            action_token.start_mark.line,
+            action_token.start_mark.column,
+            'warning',
+            f'Couldn\'t fetch metadata for {action_slug}. Continuing validation without',
+            rule
+        )
 
-        try:
-            action_schema = popular_actions[action_slug]
-        except KeyError:
-            return [], []
-
-        required_inputs = []
-        possible_inputs = []
-        for input, required in action_schema['inputs'].items():
-            if required == True:
-                required_inputs.append(input)
-                possible_inputs.append(input)
-            else:
-                possible_inputs.append(input)
-        return required_inputs, possible_inputs
+    inputs = action_metadata['inputs']
+    possible_inputs = list(inputs.keys())
+    required_inputs = [key for key, value in inputs.items() if value.get('required') is True]
+    return required_inputs, possible_inputs
 
 def has_with(token):
     return isinstance(token, yaml.ScalarToken) and token.value == 'with'
