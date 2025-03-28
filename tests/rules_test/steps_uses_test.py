@@ -4,7 +4,7 @@ from validate_actions.lint_problem import LintProblem
 from validate_actions import parser
 
 # with
-def test_unknown_action_passes():
+def test_unknown_action_throws_warning():
     workflow = """
 name: test
 jobs:
@@ -16,7 +16,13 @@ jobs:
         with:
           unknown_input: 'test'
 """
-    throws_no_error(workflow)
+    tokens = list(parser.tokenize(workflow))
+    gen = jobs_steps_uses.check(tokens,'')
+    result = list(gen)
+    assert len(result) == 1
+    assert isinstance(result[0], LintProblem)
+    assert result[0].rule == 'jobs-steps-uses'
+    assert result[0].level == 'warning'
 
 
 # region required inputs

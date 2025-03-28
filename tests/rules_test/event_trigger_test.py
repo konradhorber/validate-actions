@@ -3,10 +3,11 @@ import validate_actions.rules.event_trigger as event_trigger
 import json
 from validate_actions.lint_problem import LintProblem
 from validate_actions import parser
+import importlib.resources as pkg_resources
 
-SCHEMA_FILE = 'resources/github-workflow.json'
-with open(SCHEMA_FILE) as f:
-    schema = json.load(f)
+SCHEMA_FILE = 'github-workflow.json'
+with pkg_resources.open_text('validate_actions.resources', SCHEMA_FILE) as f:
+        schema =  json.load(f)
 
 
 def test_no_on():

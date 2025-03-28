@@ -1,5 +1,6 @@
 import validate_actions.linter
 import sys
+from rich.progress import Progress, SpinnerColumn, TextColumn
 
 STYLE = {
     0: {
@@ -45,7 +46,13 @@ def run_directory(directory):
     prob_level = 0
     files = list(directory.glob('*.yml')) + list(directory.glob('*.yaml'))
     for file in files:
-        prob_level, n_errors, n_warnings = run(file)
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            transient=True
+        ) as progress:
+            progress.add_task(description=f'Validating {file.name}...', total=None)
+            prob_level, n_errors, n_warnings = run(file)
         max_level = max(max_level, validate_actions.linter.PROBLEM_LEVELS[prob_level])
         total_errors += n_errors
         total_warnings += n_warnings

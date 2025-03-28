@@ -11,10 +11,10 @@ def main():
     if not project_root:
         print(f'{cli.STYLE["neutral"]}Could not find workflows directory. Please run this script from the root of your project.{cli.STYLE["format_end"]}')
         raise typer.Exit(1)
-    directory = project_root / '.github-test/workflows'
+    directory = project_root / '.github/workflows'
     cli.run_directory(directory)
 
-def find_workflows(marker='.github-test'):
+def find_workflows(marker='.github'):
     start_dir = Path.cwd()
     for directory in [start_dir] + list(start_dir.parents)[:2]:
         if (directory / marker).is_dir():
