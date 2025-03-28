@@ -1,8 +1,8 @@
 import yaml
-import validateactions.rules.event_trigger as event_trigger
+import validate_actions.rules.event_trigger as event_trigger
 import json
-from validateactions.lint_problem import LintProblem
-from validateactions import parser
+from validate_actions.lint_problem import LintProblem
+from validate_actions import parser
 
 SCHEMA_FILE = 'resources/github-workflow.json'
 with open(SCHEMA_FILE) as f:

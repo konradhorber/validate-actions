@@ -1,8 +1,9 @@
 import yaml
-from validateactions.lint_problem import LintProblem
-from validateactions.rules.support_functions import find_index_of
+from validate_actions.lint_problem import LintProblem
+from validate_actions.rules.support_functions import find_index_of
 import json
 from typing import Iterator
+import importlib.resources as pkg_resources
 
 rule = 'jobs-steps-uses'
 
@@ -20,7 +21,7 @@ def check(tokens, schema):
         with_exists = has_with(with_token)
         if not with_exists:
             if len(required_inputs) == 0:
-                break
+                continue
             else:
                 yield from misses_required_input(with_token, action_slug, required_inputs)
         else:
@@ -43,12 +44,12 @@ def not_using_version_spec(
               tokens[action_index].start_mark.line,
               tokens[action_index].start_mark.column,
               'warning',
-              'Using specific version of the action is recommended (e.g., @v2)',
+              f'Using specific version of {action_slug} is recommended @version',
               rule
          )
 
 def get_inputs(action_slug):
-    with open('resources/popular_actions.json', 'r') as f:
+    with pkg_resources.open_text('validate_actions.resources', 'popular_actions.json') as f:
         popular_actions = json.load(f)
 
         try:
@@ -114,7 +115,7 @@ def uses_non_defined_input(with_index, used_inputs, tokens, action_slug, possibl
                 tokens[with_index + j + i * 4].start_mark.line,
                 tokens[with_index + j + i * 4].start_mark.column,
                 'error',
-                f'{action_slug} has unknown input: {input}',
+                f'{action_slug} uses unknown input: {input}',
                 rule
             )
         i += 1

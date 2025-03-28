@@ -1,6 +1,6 @@
 import yaml
-from validateactions.lint_problem import LintProblem
-from validateactions.rules.support_functions import find_index_of
+from validate_actions.lint_problem import LintProblem
+from validate_actions.rules.support_functions import find_index_of
 
 rule = 'event-trigger'
 
@@ -87,7 +87,7 @@ def check_mapping(tokens, events, structure_determining_token_index, end_token):
 def check_scalar_against_schema(token, events):
     event = token
     if not event.value in events:
-        desc = f'event must be valid but found: "{event.value}"'
+        desc = f'event must be valid but found: {event.value}'
         level = 'error'
         yield LintProblem(
             event.start_mark.line,
