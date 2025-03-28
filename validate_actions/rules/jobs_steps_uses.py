@@ -1,8 +1,9 @@
 import yaml
-from validateactions.lint_problem import LintProblem
-from validateactions.rules.support_functions import find_index_of
+from validate_actions.lint_problem import LintProblem
+from validate_actions.rules.support_functions import find_index_of
 import json
 from typing import Iterator
+import importlib.resources as pkg_resources
 
 rule = 'jobs-steps-uses'
 
@@ -48,7 +49,7 @@ def not_using_version_spec(
          )
 
 def get_inputs(action_slug):
-    with open('resources/popular_actions.json', 'r') as f:
+    with pkg_resources.open_text('validate_actions.resources', 'popular_actions.json') as f:
         popular_actions = json.load(f)
 
         try:

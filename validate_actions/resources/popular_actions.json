@@ -1341,7 +1341,8 @@
             "token": false,
             "cache-dependency-path": false,
             "update-environment": false,
-            "allow-prereleases": false
+            "allow-prereleases": false,
+            "freethreaded": false
         },
         "outputs": [
             "python-version",
@@ -4916,7 +4917,8 @@
             "cache-path": false,
             "pub-cache-key": false,
             "pub-cache-path": false,
-            "dry-run": false
+            "dry-run": false,
+            "git-source": false
         },
         "outputs": [
             "CHANNEL",
@@ -4925,7 +4927,8 @@
             "CACHE-KEY",
             "CACHE-PATH",
             "PUB-CACHE-KEY",
-            "PUB-CACHE-PATH"
+            "PUB-CACHE-PATH",
+            "GIT_SOURCE"
         ]
     },
     "treosh/lighthouse-ci-action@v1": {

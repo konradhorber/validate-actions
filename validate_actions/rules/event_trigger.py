@@ -1,6 +1,6 @@
 import yaml
-from validateactions.lint_problem import LintProblem
-from validateactions.rules.support_functions import find_index_of
+from validate_actions.lint_problem import LintProblem
+from validate_actions.rules.support_functions import find_index_of
 
 rule = 'event-trigger'
 

@@ -1,7 +1,7 @@
-import validateactions.rules.jobs_steps_uses as jobs_steps_uses
-import validateactions.parser as parser
-from validateactions.lint_problem import LintProblem
-from validateactions import parser
+import validate_actions.rules.jobs_steps_uses as jobs_steps_uses
+import validate_actions.parser as parser
+from validate_actions.lint_problem import LintProblem
+from validate_actions import parser
 
 # with
 def test_unknown_action_passes():
@@ -142,7 +142,7 @@ jobs:
     assert isinstance(result[0], LintProblem)
     assert result[0].rule == 'jobs-steps-uses'
     assert result[0].line == 9
-    assert result[0].desc == "8398a7/action-slack@v2 has unknown input: wrong_input"
+    assert result[0].desc == "8398a7/action-slack@v2 uses unknown input: wrong_input"
 
 def test_uses_non_existent_input_second():
     workflow = """
@@ -164,7 +164,7 @@ jobs:
     assert isinstance(result[0], LintProblem)
     assert result[0].rule == 'jobs-steps-uses'
     assert result[0].line == 10
-    assert result[0].desc == "8398a7/action-slack@v2 has unknown input: wrong_input"
+    assert result[0].desc == "8398a7/action-slack@v2 uses unknown input: wrong_input"
 
 # endregion all inputs
 

@@ -1,19 +1,40 @@
-import validateactions.linter
+import validate_actions.linter
 import sys
+
+STYLE = {
+    0: {
+        'color_bold': '\033[1;92m',
+        'color': '\033[92m',
+        'sign': '✓'
+    },
+    1: {
+        'color_bold': '\033[1;31m',
+        'color': '\033[31m',
+        'sign': '✗'
+    },
+    2: {
+        'color_bold': '\033[1;33m',
+        'color': '\033[33m',
+        'sign': '⚠'
+    },
+    'format_end': '\033[0m',
+    'neutral': '\033[2m',
+}
+
 
 class Format:
     @staticmethod
     def standard_color(problem, filename):
-        line = f'  \033[2m{problem.line + 1}:{problem.column + 1}\033[0m'
+        line = f'  {STYLE["neutral"]}{problem.line + 1}:{problem.column + 1}{STYLE["format_end"]}'
         line += max(20 - len(line), 0) * ' '
         if problem.level == 'warning':
-            line += f'\033[33m{problem.level}\033[0m'
+            line += f'{STYLE[2]["color"]}{problem.level}{STYLE["format_end"]}'
         else:
-            line += f'\033[31m{problem.level}\033[0m'
+            line += f'{STYLE[1]["color"]}{problem.level}{STYLE["format_end"]}'
         line += max(38 - len(line), 0) * ' '
         line += problem.desc
         if problem.rule:
-            line += f'  \033[2m({problem.rule})\033[0m'
+            line += f'  {STYLE["neutral"]}({problem.rule}){STYLE["format_end"]}'
         return line
 
 def run_directory(directory):
@@ -25,13 +46,13 @@ def run_directory(directory):
     files = list(directory.glob('*.yml')) + list(directory.glob('*.yaml'))
     for file in files:
         prob_level, n_errors, n_warnings = run(file)
-        max_level = max(max_level, validateactions.linter.PROBLEM_LEVELS[prob_level])
+        max_level = max(max_level, validate_actions.linter.PROBLEM_LEVELS[prob_level])
         total_errors += n_errors
         total_warnings += n_warnings
     
-    if max_level == validateactions.linter.PROBLEM_LEVELS['error']:
+    if max_level == validate_actions.linter.PROBLEM_LEVELS['error']:
         return_code = 1
-    elif max_level == validateactions.linter.PROBLEM_LEVELS['warning']:
+    elif max_level == validate_actions.linter.PROBLEM_LEVELS['warning']:
         return_code = 2
     else:
         return_code = 0
@@ -44,7 +65,7 @@ def run_directory(directory):
 def run(file):
     try:
         with open(file, newline='') as f:
-            problems = validateactions.linter.run(f)
+            problems = validate_actions.linter.run(f)
     except OSError as e:
         print(e, file=sys.stderr)
         sys.exit(-1)
@@ -60,32 +81,23 @@ def run(file):
     
 def show_problems(problems, file):
     max_level = 0
-    first = True
+
+    print()
+    print(f'\033[4m{file}\033[0m')
 
     for problem in problems:
-        max_level = max(max_level, validateactions.linter.PROBLEM_LEVELS[problem.level])
-        if first:
-            print()
-            print(f'\033[4m{file}\033[0m')
-            first = False
+        max_level = max(max_level, validate_actions.linter.PROBLEM_LEVELS[problem.level])
         print(Format.standard_color(problem, file))
+
+    if max_level == 0:
+        print(f'  {STYLE["neutral"]}{STYLE[0]["sign"]} All checks passed\033[0m')
     
-    problem_level = validateactions.linter.PROBLEM_LEVELS[max_level]
+    problem_level = validate_actions.linter.PROBLEM_LEVELS[max_level]
     return problem_level
 
 def show_return_message(return_code, n_error, n_warning):
-    if return_code == 0:
-        color_begin = '\033[1;92m'  # bold + bright green
-        sign = '✓'
-    elif return_code == 1:
-        color_begin = '\033[1;31m'  # bold + red
-        sign = '✗'
-    else:
-        color_begin = '\033[1;33m'  # bold + yellow
-        sign = '⚠'
-
-    color_end = '\033[0m'
+    style = STYLE[return_code]
 
     print()
-    print(f'{color_begin}{sign} {n_error+n_warning} problems ({n_error} errors, {n_warning} warnings){color_end}')
+    print(f'{style["color_bold"]}{style["sign"]} {n_error+n_warning} problems ({n_error} errors, {n_warning} warnings){STYLE["format_end"]}')
     print()

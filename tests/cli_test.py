@@ -1,4 +1,4 @@
-from validateactions import cli, linter
+from validate_actions import cli, linter
 import tempfile
 import os
 

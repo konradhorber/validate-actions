@@ -14,12 +14,15 @@ dependencies = [
 
 [tool.poetry]
 packages = [
-    { include="validateactions" }
+    { include="validate_actions" }
 ]
+
+[tool.poetry.scripts]
+validate-actions = "validate_actions.main:app"
 
 [tool.pytest.ini_options]
 pythonpath = [
-  "validateactions"
+  "validate_actions"
 ]
 
 [tool.poetry.group.dev.dependencies]

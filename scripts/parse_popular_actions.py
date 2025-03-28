@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 JSON_FILE = Path('scripts/popular_actions_in.json')
-OUTPUT_FILE = Path('resources/popular_actions.json')
+OUTPUT_FILE = Path('validate_actions/resources/popular_actions.json')
 GITHUB_URL = 'https://raw.githubusercontent.com/'
 
 def parse_action_file(action: Dict[str, Any], tag: str, session: requests.Session) -> Dict[str, Any]:

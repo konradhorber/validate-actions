@@ -1,8 +1,9 @@
 import yaml
-import validateactions.parser as parser
+import validate_actions.parser as parser
 import json
-import validateactions.rules as rules
-from validateactions.lint_problem import LintProblem
+import validate_actions.rules as rules
+from validate_actions.lint_problem import LintProblem
+import importlib.resources as pkg_resources
 
 PROBLEM_LEVELS = {
     0: None,
@@ -12,8 +13,6 @@ PROBLEM_LEVELS = {
     'warning': 1,
     'error': 2,
 }
-
-SCHEMA_FILE = 'resources/github-workflow.json'
 
 def run(input):
     content = input.read()
@@ -48,10 +47,10 @@ ACTIONS_ERROR_RULES = [
 
 def get_actions_error(buffer):
     tokens = list(parser.tokenize(buffer))
-    schema = get_workflow_schema(SCHEMA_FILE)
+    schema = get_workflow_schema('github-workflow.json')
     for rule in ACTIONS_ERROR_RULES:
         yield from rule.check(tokens, schema)
         
 def get_workflow_schema(file):
-    with open(file) as f:
+    with pkg_resources.open_text('validate_actions.resources', file) as f:
         return json.load(f)
