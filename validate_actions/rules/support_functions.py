@@ -17,26 +17,27 @@ same_session_cache = {}
 
 def parse_action(slug):
     action, sep, tag = slug.partition('@')
-    tag = tag if sep else 'main'
-    
-    url_no_ext = f'{GITHUB_URL}{action}/{tag}/action'
-    
-    if url_no_ext in same_session_cache:
-        return same_session_cache[url_no_ext]
+    tags = [tag] if sep else ['main', 'master']
+
+    for current_tag in tags:
+        url_no_ext = f'{GITHUB_URL}{action}/{current_tag}/action'
         
-    for ext in ['.yml', '.yaml']:
-        try:
-            response = SESSION.get(f'{url_no_ext}{ext}')
-        except requests.RequestException as e:
-            logger.warning(f"Request error for {url_no_ext}{ext}: {e}")
-            continue
+        if url_no_ext in same_session_cache:
+            return same_session_cache[url_no_ext]
         
-        if response.status_code == 200:
+        for ext in ['.yml', '.yaml']:
             try:
-                action_metadata = yaml.safe_load(response.text)
-            except yaml.YAMLError as e:
-                logger.error(f"Couldn't parse YAML of {action} download: {e}")
-                return
-            same_session_cache[url_no_ext] = action_metadata
-            return action_metadata
+                response = SESSION.get(f'{url_no_ext}{ext}')
+            except requests.RequestException as e:
+                logger.warning(f"Request error for {url_no_ext}{ext}: {e}")
+                continue
+            
+            if response.status_code == 200:
+                try:
+                    action_metadata = yaml.safe_load(response.text)
+                except yaml.YAMLError as e:
+                    logger.error(f"Couldn't parse YAML of {action} download: {e}")
+                    return
+                same_session_cache[url_no_ext] = action_metadata
+                return action_metadata
     return

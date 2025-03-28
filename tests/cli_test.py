@@ -20,7 +20,7 @@ jobs:
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
         with:
-          unknown_input: 'test'
+          status: 'test'
 """
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
         tmp.write(workflow)
