@@ -6,8 +6,9 @@ from validate_actions import parser
 import importlib.resources as pkg_resources
 
 SCHEMA_FILE = 'github-workflow.json'
-with pkg_resources.open_text('validate_actions.resources', SCHEMA_FILE) as f:
-        schema =  json.load(f)
+schema_path = pkg_resources.files('validate_actions.resources').joinpath(SCHEMA_FILE)
+with schema_path.open('r', encoding='utf-8') as f:
+    schema = json.load(f)
 
 
 def test_no_on():
