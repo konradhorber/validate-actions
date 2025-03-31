@@ -52,5 +52,6 @@ def get_actions_error(buffer):
         yield from rule.check(tokens, schema)
         
 def get_workflow_schema(file):
-    with pkg_resources.open_text('validate_actions.resources', file) as f:
+    schema_path = pkg_resources.files('validate_actions.resources').joinpath(file)
+    with schema_path.open('r', encoding='utf-8') as f:
         return json.load(f)
