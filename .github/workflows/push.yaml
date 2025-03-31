@@ -2,7 +2,7 @@ name: Build, test, and publish to TestPyPI on push
 
 on:
   push:
-    branches: feature/create-dev-guide # TODO update
+    branches: main
 
 jobs:
   build-test:
