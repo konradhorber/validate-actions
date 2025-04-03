@@ -82,13 +82,16 @@ class WorkflowFactory:
     def build_jobs(jobs_token_tree: Dict[ScalarToken, Any]) -> Dict[str, Job]:
         jobs = {}
         for job_id, job_token_tree in jobs_token_tree.items():
-            job_id_str = job_id.value
-            jobs[job_id_str] = WorkflowFactory.build_job(job_token_tree, job_id_str)
+            jobs[job_id.value] = WorkflowFactory.build_job(job_token_tree, job_id)
         return jobs
 
     @staticmethod
-    def build_job(job_token_tree: Dict[ScalarToken, Any], job_id_str: str) -> Job:
-        job_id_ = job_id_str
+    def build_job(job_token_tree: Dict[ScalarToken, Any], job_id: ScalarToken) -> Job:
+        pos = Pos(
+            line=job_id.start_mark.line,
+            col=job_id.start_mark.column,
+        )
+        job_id_ = job_id.value
         name_ = None
         permissions_ = None
         needs_ = None
@@ -149,8 +152,10 @@ class WorkflowFactory:
                     pass
                 case _:
                     raise ValueError(f"Unknown job key: {key_str}")
-    
+
+
         return Job(
+            pos=pos,
             job_id_=job_id_,
             name_=name_,
             permissions_=permissions_,
@@ -181,6 +186,7 @@ class WorkflowFactory:
     
     @staticmethod
     def build_step(step_token_tree: Dict[ScalarToken, Any]) -> Step:
+        pos = None
         id_ = None
         if_ = None
         name_ = None
@@ -195,6 +201,8 @@ class WorkflowFactory:
         continue_on_error_ = None
         timeout_minutes_ = None
 
+        exec_pos = None
+
         # build step inputs
         for key in step_token_tree:
             key_str = key.value
@@ -207,8 +215,16 @@ class WorkflowFactory:
                     name_ = step_token_tree[key].value
                 case 'uses':
                     uses_ = step_token_tree[key].value
+                    exec_pos = Pos(
+                        line=key.start_mark.line,
+                        col=key.start_mark.column
+                    )
                 case 'run':
                     run_ = step_token_tree[key].value
+                    exec_pos = Pos(
+                        line=key.start_mark.line,
+                        col=key.start_mark.column
+                    )
                 case 'working-directory':
                     working_directory_ = step_token_tree[key].value
                 case 'shell':
@@ -242,6 +258,7 @@ class WorkflowFactory:
             raise ValueError(f"Step cannot have both 'uses' and 'run' keys")
         if uses_ is not None:
             exec = ExecAction(
+                pos=exec_pos,
                 uses_=uses_,
                 with_=with_,
                 with_args_=with_args_,
@@ -249,13 +266,21 @@ class WorkflowFactory:
             )
         else:
             exec = ExecRun(
+                pos=exec_pos,
                 run_=run_,
                 shell_=shell_,
                 working_directory_=working_directory_
             )
         
+        first_key = next(iter(step_token_tree))
+        pos = Pos(
+            line=first_key.start_mark.line,
+            col=first_key.start_mark.column
+        )
+
         # create step
         return Step(
+            pos=pos,
             id_=id_,
             if_=if_,
             name_=name_,

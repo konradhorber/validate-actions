@@ -47,6 +47,8 @@ class Concurrency:
 
 @dataclass
 class Job:
+    pos: 'Pos'
+
     job_id_: str
 
     steps_: List['Step']
@@ -87,6 +89,7 @@ class Job:
 
 @dataclass
 class Step:
+    pos: 'Pos'
     exec: 'Exec'
     id_: Optional[str] = None
     if_: Optional[str] = None
@@ -100,6 +103,7 @@ class Exec(ABC):
 
 @dataclass
 class ExecAction(Exec):
+    pos: 'Pos'
     uses_: str
     with_: Optional[Dict[str, str]] = None
     with_args_: Optional[str] = None
@@ -107,11 +111,12 @@ class ExecAction(Exec):
     
 @dataclass
 class ExecRun(Exec):
+    pos: 'Pos'
     run_: str
     shell_: Optional[str] = None
     working_directory_: Optional[str] = None
     
 @dataclass
 class Pos:
-    row: int
+    line: int
     col: int
