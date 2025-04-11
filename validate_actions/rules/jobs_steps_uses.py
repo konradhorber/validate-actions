@@ -1,123 +1,213 @@
-import yaml
 from validate_actions.lint_problem import LintProblem
-from validate_actions.rules.support_functions import find_index_of, parse_action
-import json
-from typing import Iterator
-import importlib.resources as pkg_resources
+from validate_actions.rules.support_functions import parse_action
+from validate_actions.rules import Rule
+from validate_actions.workflow.ast import Workflow, ExecAction
+from typing import Generator, Union, Tuple, List, Dict, Any, Optional
+from validate_actions.workflow.ast import String
 
-rule = 'jobs-steps-uses'
 
-def check(tokens, schema):
-    for uses_index in get_uses_indices(tokens):
-        action_index = uses_index + 2
-        action_slug = tokens[action_index].value
-        
-        yield from not_using_version_spec(action_slug, action_index, tokens)
+class JobsStepsUses(Rule):
+    """
+    Validates the `uses:` field in workflow steps.
+    """
 
-        input_result = get_inputs(action_slug, tokens[action_index])
-        if isinstance(input_result, LintProblem):
-            yield input_result
-            return
-        else:
-            required_inputs, possible_inputs = input_result
+    NAME = 'jobs-steps-uses'
 
-        with_index = action_index + 2
-        with_token = tokens[with_index]
-        with_exists = has_with(with_token)
-        if not with_exists:
-            if len(required_inputs) == 0:
-                continue
+    @staticmethod
+    def check(
+        workflow: 'Workflow',
+        schema: Optional[Dict[String, Any]] = None
+    ) -> Generator[LintProblem, None, None]:
+        """
+        Validates all actions in the workflow.
+
+        Args:
+            workflow (Workflow): The workflow to validate.
+            schema (dict, optional): The schema to validate against. Defaults
+                to None.
+
+        Yields:
+            LintProblem: Problems found during validation.
+        """
+        return JobsStepsUses.check_single_action(workflow)
+
+    @staticmethod
+    def check_single_action(
+        workflow: 'Workflow'
+    ) -> Generator[LintProblem, None, None]:
+        """
+        Validates actions individually without context declared by `uses:` in
+        the workflow steps.
+
+        Args:
+            workflow (Workflow): The workflow to validate.
+
+        Yields:
+            LintProblem: Problems found during validation.
+        """
+        actions = []
+        for job in workflow.jobs_.values():
+            steps = job.steps_
+            for step in steps:
+                if isinstance(step.exec, ExecAction):
+                    actions.append(step.exec)
+
+        for action in actions:
+            yield from JobsStepsUses.not_using_version_spec(action)
+            input_result = JobsStepsUses.get_inputs(action)
+            if isinstance(input_result, LintProblem):
+                yield input_result
+                return
             else:
-                yield from misses_required_input(with_token, action_slug, required_inputs)
-        else:
-            used_inputs = list(get_used_inputs(tokens, with_index))
-            yield from check_required_inputs(with_token, used_inputs, action_slug, required_inputs)
-            yield from uses_non_defined_input(with_index, used_inputs, tokens, action_slug, possible_inputs)
+                required_inputs, possible_inputs = input_result
 
-def get_uses_indices(tokens):
-    for i, token in enumerate(tokens):
-        if isinstance(token, yaml.ScalarToken) and token.value == 'uses':
-            yield i
+            if len(action.with_) == 0:
+                if len(required_inputs) == 0:
+                    continue
+                else:
+                    yield from JobsStepsUses.misses_required_input(
+                        action, required_inputs
+                    )
+            else:
+                yield from JobsStepsUses.check_required_inputs(
+                    action, required_inputs
+                )
+                yield from JobsStepsUses.uses_non_defined_input(
+                    action, possible_inputs
+                )
 
-def not_using_version_spec(
-    action_slug: str,
-    action_index: int,
-    tokens: list
-) -> Iterator[LintProblem]:
-    if not '@' in action_slug:
-       yield LintProblem(
-              tokens[action_index].start_mark.line,
-              tokens[action_index].start_mark.column,
-              'warning',
-              f'Using specific version of {action_slug} is recommended @version',
-              rule
-         )
+    @staticmethod
+    def not_using_version_spec(
+        action: ExecAction,
+    ) -> Generator[LintProblem, None, None]:
+        """
+        Checks if an action specifies a version using `@version`. If not, a
+        warning is generated.
 
-def get_inputs(action_slug, action_token):
-    action_metadata = parse_action(action_slug)
-    if action_metadata is None:
-        return LintProblem(
-            action_token.start_mark.line,
-            action_token.start_mark.column,
-            'warning',
-            f'Couldn\'t fetch metadata for {action_slug}. Continuing validation without',
-            rule
+        Args:
+            action (ExecAction): The action to validate.
+
+        Yields:
+            LintProblem: Warning if version is not specified.
+        """
+        if '@' not in action.uses_:
+            yield LintProblem(
+                    action.pos,
+                    'warning',
+                    (
+                        f'Using specific version of {action.uses_} is '
+                        f'recommended @version'
+                    ),
+                    JobsStepsUses.NAME
+                )
+
+    @staticmethod
+    def get_inputs(
+        action: ExecAction
+    ) -> Union[Tuple[List[str], List[str]], LintProblem]:
+        """
+        Fetches metadata for an action and extracts its required and possible
+        inputs.
+
+        Args:
+            action (ExecAction): The action to fetch inputs for.
+
+        Returns:
+            Tuple[List[str], List[str]]: Required and possible inputs if
+                metadata is fetched successfully.
+            LintProblem: Warning if metadata cannot be fetched.
+        """
+        action_metadata = parse_action(action.uses_)
+
+        if action_metadata is None:
+            return LintProblem(
+                action.pos,
+                'warning',
+                (
+                    f"Couldn't fetch metadata for {action.uses_}. "
+                    "Continuing validation without"
+                ),
+                JobsStepsUses.NAME
+            )
+
+        inputs = action_metadata['inputs']
+        possible_inputs = list(inputs.keys())
+        required_inputs = [
+            key for key, value in inputs.items()
+            if value.get('required') is True
+        ]
+        return required_inputs, possible_inputs
+
+    @staticmethod
+    def misses_required_input(
+        action: ExecAction,
+        required_inputs: list
+    ) -> Generator[LintProblem, None, None]:
+        """
+        Checks if an action is missing any required inputs.
+
+        Args:
+            action (ExecAction): The action to validate.
+            required_inputs (list): The list of required inputs.
+
+        Yields:
+            LintProblem: Error if required inputs are missing.
+        """
+        prettyprint_required_inputs = ', '.join(required_inputs)
+        yield LintProblem(
+            action.pos,
+            'error',
+            (
+                f'{action.uses_} misses required inputs: '
+                f'{prettyprint_required_inputs}'
+            ),
+            JobsStepsUses.NAME
         )
 
-    inputs = action_metadata['inputs']
-    possible_inputs = list(inputs.keys())
-    required_inputs = [key for key, value in inputs.items() if value.get('required') is True]
-    return required_inputs, possible_inputs
+    @staticmethod
+    def check_required_inputs(action, required_inputs):
+        """
+        Validates that all required inputs for an action are provided.
 
-def has_with(token):
-    return isinstance(token, yaml.ScalarToken) and token.value == 'with'
+        Args:
+            action (ExecAction): The action to validate.
+            required_inputs (list): The list of required inputs.
 
-def misses_required_input(
-        token: yaml.Token, 
-        action_slug: str, 
-        required_inputs: list) -> Iterator[LintProblem]:
-    prettyprint_required_inputs = ', '.join(required_inputs)
-    yield LintProblem(
-        token.start_mark.line,
-        token.start_mark.column,
-        'error',
-        f'{action_slug} misses required inputs: {prettyprint_required_inputs}',
-        rule
-    )
+        Yields:
+            LintProblem: Error if required inputs are missing.
+        """
+        if len(required_inputs) == 0:
+            return
 
-def get_used_inputs(tokens, with_index):
-    i = with_index + 2
-    while not isinstance(tokens[i], yaml.BlockEndToken):
-        if (
-            isinstance(tokens[i], yaml.KeyToken)
-            and isinstance(tokens[i+1], yaml.ScalarToken)
-        ):
-            yield tokens[i+1].value
-            i += 3
-        i += 1
+        for input in required_inputs:
+            if input not in action.with_:
+                yield from JobsStepsUses.misses_required_input(
+                    action, required_inputs
+                )
 
-def check_required_inputs(with_token, used_inputs, action_slug, required_inputs):
-    if len(required_inputs) == 0:
-        return
-            
-    for input in required_inputs:
-        if input not in used_inputs:
-            yield from misses_required_input(with_token, action_slug, required_inputs)    
+    @staticmethod
+    def uses_non_defined_input(
+        action: ExecAction,
+        possible_inputs: List[str]
+    ) -> Generator[LintProblem, None, None]:
+        """
+        Checks if an action uses inputs that are not defined in its metadata.
 
+        Args:
+            action (ExecAction): The action to validate.
+            possible_inputs (List[str]): The list of possible inputs.
 
-def uses_non_defined_input(with_index, used_inputs, tokens, action_slug, possible_inputs):
-    if len(possible_inputs) == 0:
-        return
+        Yields:
+            LintProblem: Error if undefined inputs are used.
+        """
+        if len(possible_inputs) == 0:
+            return
 
-    i = 0
-    j = 4
-    for input in used_inputs:
-        if input not in possible_inputs:
-            yield LintProblem(
-                tokens[with_index + j + i * 4].start_mark.line,
-                tokens[with_index + j + i * 4].start_mark.column,
-                'error',
-                f'{action_slug} uses unknown input: {input}',
-                rule
-            )
-        i += 1
+        for input in action.with_:
+            if input not in possible_inputs:
+                yield LintProblem(
+                    action.pos,
+                    'error',
+                    f'{action.uses_} uses unknown input: {input}',
+                    JobsStepsUses.NAME
+                )

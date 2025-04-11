@@ -1,13 +1,21 @@
+from validate_actions.workflow.ast import Pos
+
+
+# TODO fix this 
 class LintProblem:
     """Represents a linting problem"""
-    def __init__(self, line, column, level, desc='<no description>', rule=None):
+    def __init__(self, 
+                 pos: Pos, 
+                 level: str, 
+                 desc: str, 
+                 rule: str):
         #: Line on which the problem was found (starting at 1)
-        self.line = line
+        self.line: int = pos.line
         #: Column on which the problem was found (starting at 1)
-        self.column = column
+        self.column: int = pos.col
         #: Warning or error
-        self.level = level
+        self.level: str = level
         #: Human-readable description of the problem
-        self.desc = desc
+        self.desc: str = desc
         #: Identifier of the rule that detected the problem
-        self.rule = rule
+        self.rule: str = rule

@@ -1,11 +1,13 @@
-from validate_actions import cli, linter
 import tempfile
-import os
+from pathlib import Path
+
+from validate_actions import linter
+
 
 def test_run():
-    workflow = """name: test
+    workflow_string = """name: test
 on:
-  pus:
+  push:
     branches: [ $default-branch ]
   pullrequest:
     branches: [ $default-branch ]
@@ -22,24 +24,24 @@ jobs:
         with:
           status: 'test'
 """
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
-        tmp.write(workflow)
-        tmp_path = tmp.name 
+    with tempfile.NamedTemporaryFile(
+        suffix='.yml', mode='w+', delete=False
+    ) as temp_file:
+        temp_file.write(workflow_string)
+        temp_file_path = Path(temp_file.name)
 
     try:
-        with open(tmp_path, 'r') as f:
-            problems = linter.run(f)
+        problems = linter.run(temp_file_path)
     finally:
-        os.remove(tmp_path)
-    
+        temp_file_path.unlink(missing_ok=True)
+
     sorted_problems = sorted(problems, key=lambda x: (x.line, x.column))
 
-    assert len(sorted_problems) == 5
-    rule_event = 'event-trigger'
+    assert len(sorted_problems) == 4
+    rule_event = 'events-syntax-error'
     rule_input = 'jobs-steps-uses'
     assert sorted_problems[0].rule == rule_event
-    assert sorted_problems[1].rule == rule_event
+    assert sorted_problems[1].rule == rule_input
+    assert sorted_problems[1].level == 'warning'
     assert sorted_problems[2].rule == rule_input
-    assert sorted_problems[2].level == 'warning'
     assert sorted_problems[3].rule == rule_input
-    assert sorted_problems[4].rule == rule_input
