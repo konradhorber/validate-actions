@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any
-from validate_actions.workflow import ast
+from typing import Any, Dict, List, Optional
+
 from validate_actions.lint_problem import LintProblem
+from validate_actions.workflow import ast, helper
 
 
 class JobsBuilder(ABC):
@@ -51,7 +52,7 @@ class BaseJobsBuilder(JobsBuilder):
         environment_ = None
         concurrency_ = None
         outputs_ = None
-        env_ = None
+        env_: Optional[ast.Env] = None
         defaults_ = None
         steps_ = []
         timeout_minutes_ = None
@@ -81,7 +82,7 @@ class BaseJobsBuilder(JobsBuilder):
                 case 'outputs':
                     pass
                 case 'env':
-                    pass
+                    env_ = helper.build_env(job_dict[key], self.problems, self.RULE_NAME)
                 case 'defaults':
                     pass
                 case 'steps':
@@ -152,7 +153,7 @@ class BaseJobsBuilder(JobsBuilder):
         with_ = {}
         with_args_ = None
         with_entrypoint_ = None
-        env_ = None
+        env_: Optional[ast.Env] = None
         continue_on_error_ = None
         timeout_minutes_ = None
 
@@ -196,7 +197,7 @@ class BaseJobsBuilder(JobsBuilder):
                         else:
                             with_[with_key_str] = with_value_str
                 case 'env':
-                    pass
+                    env_ = helper.build_env(step_token_tree[key], self.problems, self.RULE_NAME)
                 case 'continue-on-error':
                     continue_on_error_ = step_token_tree[key].string
                 case 'timeout-minutes':

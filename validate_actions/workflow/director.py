@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import validate_actions.workflow.ast as ast
 from validate_actions.lint_problem import LintProblem
+from validate_actions.workflow import helper
 from validate_actions.workflow.events_builder import EventsBuilder
 from validate_actions.workflow.jobs_builder import JobsBuilder
 from validate_actions.workflow.parser import YAMLParser
@@ -74,7 +75,7 @@ class BaseDirector(Director):
         run_name_ = None
         on_: List[ast.Event] = []
         permissions_ = None
-        env_ = None
+        env_: Optional[ast.Env] = None
         defaults_ = None
         concurrency_ = None
         jobs_: Dict[ast.String, ast.Job] = {}
@@ -94,7 +95,7 @@ class BaseDirector(Director):
                 case 'permissions':
                     permissions_ = self.__build_permissions(workflow_dict[key])
                 case 'env':
-                    env_ = self.__build_env(workflow_dict[key])
+                    env_ = helper.build_env(workflow_dict[key], self.problems, self.RULE_NAME)
                 case 'defaults':
                     defaults_ = self.__build_defaults(workflow_dict[key])
                 case 'concurrency':
@@ -131,9 +132,6 @@ class BaseDirector(Director):
         self, workflow_dict: Dict[ast.String, Any]
     ) -> ast.Permissions:
         return ast.Permissions(None)
-
-    def __build_env(self, workflow_dict: Dict[ast.String, Any]) -> ast.Env:
-        return ast.Env(None)
 
     def __build_defaults(
         self,

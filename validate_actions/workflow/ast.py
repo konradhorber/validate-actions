@@ -1,7 +1,8 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import Optional, Dict, List
 from enum import Enum, auto
+from typing import Dict, List, Optional
+
 from yaml import ScalarToken, Token
 
 
@@ -126,8 +127,24 @@ class Defaults:
 
 @dataclass(frozen=True)
 class Env:
-    tbd: None
+    variables: Dict['String', 'String']
 
+    def get(self, key: str) -> Optional['String']:
+        """Gets a variable value by key string if it exists."""
+        string_key = String(key, Pos(0, 0))
+        return self.variables.get(string_key)
+
+    def __getitem__(self, key: str) -> 'String':
+        """Dictionary-like access to environment variables."""
+        try:
+            string_key = String(key, Pos(0, 0))
+            return self.variables[string_key]
+        except KeyError:
+            raise KeyError(f"Environment variable '{key}' not found")
+
+    def __contains__(self, key: str) -> bool:
+        """Checks if environment contains a variable by key string."""
+        return key in self.variables
 
 @dataclass(frozen=True)
 class Concurrency:
@@ -148,7 +165,7 @@ class Job:
     environment_: Optional[None] = None
     concurrency_: Optional[None] = None
     outputs_: Optional[None] = None
-    env_: Optional[None] = None
+    env_: Optional['Env'] = None
     defaults_: Optional[None] = None
     timeout_minutes_: Optional[float] = None
     strategy_: Optional[None] = None
@@ -166,7 +183,7 @@ class Step:
     id_: Optional[str] = None
     if_: Optional[str] = None
     name_: Optional[str] = None
-    env_: Optional[None] = None
+    env_: Optional['Env'] = None
     continue_on_error_: Optional[bool] = None
     timeout_minutes_: Optional[float] = None
 
@@ -219,3 +236,15 @@ class String:
         """Creates a String instance from a PyYAML ScalarToken.
         """
         return cls(token.value, Pos.from_token(token))
+
+    def __eq__(self, other):
+        """Compare only based on string content."""
+        if isinstance(other, String):
+            return self.string == other.string
+        elif isinstance(other, str):
+            return self.string == other
+        return NotImplemented
+
+    def __hash__(self):
+        """Hash only based on string content."""
+        return hash(self.string)
