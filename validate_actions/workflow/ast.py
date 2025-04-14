@@ -146,6 +146,7 @@ class Env:
         """Checks if environment contains a variable by key string."""
         return key in self.variables
 
+
 @dataclass(frozen=True)
 class Concurrency:
     tbd: None
@@ -180,12 +181,12 @@ class Job:
 class Step:
     pos: 'Pos'
     exec: 'Exec'
-    id_: Optional[str] = None
-    if_: Optional[str] = None
-    name_: Optional[str] = None
+    id_: Optional['String'] = None
+    if_: Optional['String'] = None
+    name_: Optional['String'] = None
     env_: Optional['Env'] = None
     continue_on_error_: Optional[bool] = None
-    timeout_minutes_: Optional[float] = None
+    timeout_minutes_: Optional[int] = None
 
 
 @dataclass(frozen=True)
@@ -196,19 +197,19 @@ class Exec(ABC):
 @dataclass(frozen=True)
 class ExecAction(Exec):
     pos: 'Pos'
-    uses_: str
+    uses_: 'String'
     # empty dict if no inputs
-    with_: Dict[str, str]
-    with_args_: Optional[str] = None
-    with_entrypoint_: Optional[str] = None
+    with_: Dict['String', 'String']
+    with_args_: Optional['String'] = None
+    with_entrypoint_: Optional['String'] = None
 
 
 @dataclass(frozen=True)
 class ExecRun(Exec):
     pos: 'Pos'
-    run_: str
-    shell_: Optional[str] = None
-    working_directory_: Optional[str] = None
+    run_: 'String'
+    shell_: Optional['String'] = None
+    working_directory_: Optional['String'] = None
 # endregion Jobs
 
 

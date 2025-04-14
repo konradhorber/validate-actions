@@ -164,44 +164,43 @@ class BaseJobsBuilder(JobsBuilder):
             key_str = key.string
             match key_str:
                 case 'id':
-                    id_ = step_token_tree[key].string
+                    id_ = step_token_tree[key]
                 case 'if':
-                    if_ = step_token_tree[key].string
+                    if_ = step_token_tree[key]
                 case 'name':
-                    name_ = step_token_tree[key].string
+                    name_ = step_token_tree[key]
                 case 'uses':
-                    uses_ = step_token_tree[key].string
+                    uses_ = step_token_tree[key]
                     exec_pos = ast.Pos(
                         line=key.pos.line,
                         col=key.pos.col
                     )
                 case 'run':
-                    run_ = step_token_tree[key].string
+                    run_ = step_token_tree[key]
                     exec_pos = ast.Pos(
                         line=key.pos.line,
                         col=key.pos.col
                     )
                 case 'working-directory':
-                    working_directory_ = step_token_tree[key].string
+                    working_directory_ = step_token_tree[key]
                 case 'shell':
-                    shell_ = step_token_tree[key].string
+                    shell_ = step_token_tree[key]
                 case 'with':
                     for with_key, with_value in step_token_tree[key].items():
                         with_key_str = with_key.string
-                        with_value_str = with_value.string
 
                         if with_key_str == 'args':
-                            with_args_ = with_value_str
+                            with_args_ = with_value
                         elif with_key_str == 'entrypoint':
-                            with_entrypoint_ = with_value_str
+                            with_entrypoint_ = with_value
                         else:
-                            with_[with_key_str] = with_value_str
+                            with_[with_key] = with_value
                 case 'env':
                     env_ = helper.build_env(step_token_tree[key], self.problems, self.RULE_NAME)
                 case 'continue-on-error':
-                    continue_on_error_ = step_token_tree[key].string
+                    continue_on_error_ = step_token_tree[key]
                 case 'timeout-minutes':
-                    timeout_minutes_ = step_token_tree[key].string
+                    timeout_minutes_ = step_token_tree[key]  # TODO types
                 case _:
                     self.problems.append(LintProblem(
                         pos=key.pos,

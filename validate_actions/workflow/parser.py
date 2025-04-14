@@ -1,10 +1,12 @@
-import yaml
-from validate_actions.workflow.ast import String, Pos
-from validate_actions.lint_problem import LintProblem
-from abc import ABC, abstractmethod
-from typing import Dict, List, Tuple, Any
-from pathlib import Path
 import sys
+from abc import ABC, abstractmethod
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
+
+import yaml
+
+from validate_actions.lint_problem import LintProblem
+from validate_actions.workflow.ast import Pos, String
 
 
 class YAMLParser(ABC):
@@ -208,9 +210,7 @@ class PyYAMLParser(YAMLParser):
 
         # value is a scalar
         if isinstance(token, yaml.ScalarToken):
-            value = self.__parse_bool(token)
-            if not isinstance(value, bool):
-                value = String.from_token(value)
+            value = self.__parse_scalar_value(token)
 
         # value is a nested block mapping
         elif isinstance(token, yaml.BlockMappingStartToken):
@@ -386,11 +386,8 @@ class PyYAMLParser(YAMLParser):
                 index += 1
                 next_token = tokens[index]
                 if isinstance(next_token, yaml.ScalarToken):
-                    value = self.__parse_bool(next_token)
-                    if not isinstance(value, bool):
-                        mapping[key] = String.from_token(next_token)
-                    else:
-                        mapping[key] = value
+                    value = self.__parse_scalar_value(next_token)
+                    mapping[key] = value
                 elif isinstance(next_token, yaml.FlowMappingStartToken):
                     mapping[key], index = self.__parse_flow_mapping(
                         tokens,
@@ -489,9 +486,7 @@ class PyYAMLParser(YAMLParser):
         token = tokens[index]
         value: Any
         if isinstance(token, yaml.ScalarToken):
-            value = self.__parse_bool(token)
-            if not isinstance(value, bool):
-                value = String.from_token(token)
+            value = self.__parse_scalar_value(token)
         elif isinstance(token, yaml.FlowMappingStartToken):
             value, index = self.__parse_flow_mapping(tokens, index)
         elif isinstance(token, yaml.FlowSequenceStartToken):
@@ -506,16 +501,35 @@ class PyYAMLParser(YAMLParser):
 
         return value, index
 
-    def __parse_bool(
+    def __parse_scalar_value(
         self,
         token: yaml.ScalarToken
     ):
+        """Parse a scalar token into the appropriate Python type (bool, int, float, or String).
+
+        Args:
+            token (yaml.ScalarToken): The scalar token to parse.
+
+        Returns:
+            Any: The parsed value as the appropriate Python type.
+        """
         val = token.value
+
+        # Boolean handling
         if isinstance(val, bool):
             return val
         elif val == 'true':
             return True
         elif val == 'false':
             return False
-        else:
-            return token
+
+        # Number handling
+        try:
+            # First try to parse as int if possible
+            if str(int(float(val))) == val:
+                return int(val)
+            # Otherwise parse as float
+            return float(val)
+        except (ValueError, TypeError):
+            # If not a boolean or number, return as String
+            return String.from_token(token)

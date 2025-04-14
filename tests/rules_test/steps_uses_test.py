@@ -1,6 +1,5 @@
-from validate_actions import rules
-from validate_actions import LintProblem
 from tests.helper import parse_workflow_string
+from validate_actions import LintProblem, rules
 
 
 # with

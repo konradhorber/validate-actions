@@ -1,9 +1,9 @@
+from typing import Any, Dict, Generator, List, Optional, Tuple, Union
+
 from validate_actions.lint_problem import LintProblem
-from validate_actions.rules.support_functions import parse_action
 from validate_actions.rules import Rule
-from validate_actions.workflow.ast import Workflow, ExecAction
-from typing import Generator, Union, Tuple, List, Dict, Any, Optional
-from validate_actions.workflow.ast import String
+from validate_actions.rules.support_functions import parse_action
+from validate_actions.workflow.ast import ExecAction, String, Workflow
 
 
 class JobsStepsUses(Rule):
@@ -90,12 +90,12 @@ class JobsStepsUses(Rule):
         Yields:
             LintProblem: Warning if version is not specified.
         """
-        if '@' not in action.uses_:
+        if '@' not in action.uses_.string:
             yield LintProblem(
                     action.pos,
                     'warning',
                     (
-                        f'Using specific version of {action.uses_} is '
+                        f'Using specific version of {action.uses_.string} is '
                         f'recommended @version'
                     ),
                     JobsStepsUses.NAME
@@ -117,14 +117,14 @@ class JobsStepsUses(Rule):
                 metadata is fetched successfully.
             LintProblem: Warning if metadata cannot be fetched.
         """
-        action_metadata = parse_action(action.uses_)
+        action_metadata = parse_action(action.uses_.string)
 
         if action_metadata is None:
             return LintProblem(
                 action.pos,
                 'warning',
                 (
-                    f"Couldn't fetch metadata for {action.uses_}. "
+                    f"Couldn't fetch metadata for {action.uses_.string}. "
                     "Continuing validation without"
                 ),
                 JobsStepsUses.NAME
@@ -158,7 +158,7 @@ class JobsStepsUses(Rule):
             action.pos,
             'error',
             (
-                f'{action.uses_} misses required inputs: '
+                f'{action.uses_.string} misses required inputs: '
                 f'{prettyprint_required_inputs}'
             ),
             JobsStepsUses.NAME
@@ -208,6 +208,6 @@ class JobsStepsUses(Rule):
                 yield LintProblem(
                     action.pos,
                     'error',
-                    f'{action.uses_} uses unknown input: {input}',
+                    f'{action.uses_.string} uses unknown input: {input.string}',
                     JobsStepsUses.NAME
                 )
