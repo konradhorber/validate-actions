@@ -16,7 +16,6 @@ class JobsStepsUses(Rule):
     @staticmethod
     def check(
         workflow: 'Workflow',
-        schema: Optional[Dict[String, Any]] = None
     ) -> Generator[LintProblem, None, None]:
         """
         Validates all actions in the workflow.
