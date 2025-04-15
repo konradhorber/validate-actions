@@ -1,9 +1,13 @@
-import yaml
-import validate_actions.parser as parser
-import json
-import validate_actions.rules as rules
+from pathlib import Path
+from typing import List
+
+from validate_actions import rules
 from validate_actions.lint_problem import LintProblem
-import importlib.resources as pkg_resources
+from validate_actions.workflow import helper
+from validate_actions.workflow.director import BaseDirector
+from validate_actions.workflow.events_builder import BaseEventsBuilder
+from validate_actions.workflow.jobs_builder import BaseJobsBuilder
+from validate_actions.workflow.parser import PyYAMLParser
 
 PROBLEM_LEVELS = {
     0: None,
@@ -14,44 +18,33 @@ PROBLEM_LEVELS = {
     'error': 2,
 }
 
-def run(input):
-    content = input.read()
-    return _run(content)
-    
-def _run(buffer):
-    l = list(get_actions_error(buffer))
-    for problem in l:
-        if problem == None:
-            l.remove(problem)
-    syntax_error = get_syntax_error(buffer)
-    if syntax_error:
-        l.append(syntax_error)
-    return l
 
-def get_syntax_error(buffer):
-    assert hasattr(buffer, '__getitem__'), \
-        '_run() argument must be a buffer, to be parsed multiple times. Not a stream'
-    try:
-        list(yaml.parse(buffer, Loader=yaml.BaseLoader))
-    except yaml.error.MarkedYAMLError as e:
-        return LintProblem(e.problem_mark.line,
-                           e.problem_mark.column,
-                           'error',
-                           'syntax error: ' + e.problem,
-                           'syntax')
+def run(file: Path) -> List[LintProblem]:
+    workflow_schema = helper.get_workflow_schema('github-workflow.json')
+    problems: List[LintProblem] = []
+    parser = PyYAMLParser()
+    events_builder = BaseEventsBuilder(problems, workflow_schema)
+    jobs_builder = BaseJobsBuilder(problems, workflow_schema)
+    director = BaseDirector(
+        workflow_file=file,
+        parser=parser,
+        problems=problems,
+        events_builder=events_builder,
+        jobs_builder=jobs_builder,
+    )
+
+    workflow, problems = director.build()
+
+    for rule in ACTIONS_ERROR_RULES:
+        problems.extend(rule.check(workflow))
+
+    # TODO fix this mess
+    for problem in problems:
+        if problem is None:
+            problems.remove(problem)
+    return problems
+
 
 ACTIONS_ERROR_RULES = [
-    rules.jobs_steps_uses,
-    rules.event_trigger,
+    rules.JobsStepsUses
     ]
-
-def get_actions_error(buffer):
-    tokens = list(parser.tokenize(buffer))
-    schema = get_workflow_schema('github-workflow.json')
-    for rule in ACTIONS_ERROR_RULES:
-        yield from rule.check(tokens, schema)
-        
-def get_workflow_schema(file):
-    schema_path = pkg_resources.files('validate_actions.resources').joinpath(file)
-    with schema_path.open('r', encoding='utf-8') as f:
-        return json.load(f)

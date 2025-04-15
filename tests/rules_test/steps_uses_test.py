@@ -1,11 +1,10 @@
-import validate_actions.rules.jobs_steps_uses as jobs_steps_uses
-import validate_actions.parser as parser
-from validate_actions.lint_problem import LintProblem
-from validate_actions import parser
+from tests.helper import parse_workflow_string
+from validate_actions import LintProblem, rules
+
 
 # with
 def test_unknown_action_throws_warning():
-    workflow = """
+    workflow_string = """
 name: test
 jobs:
   build:
@@ -16,8 +15,8 @@ jobs:
         with:
           unknown_input: 'test'
 """
-    tokens = list(parser.tokenize(workflow))
-    gen = jobs_steps_uses.check(tokens,'')
+    workflow, problems = parse_workflow_string(workflow_string)
+    gen = rules.JobsStepsUses.check(workflow)
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], LintProblem)
@@ -38,6 +37,7 @@ jobs:
 """
     throws_single_error(workflow)
 
+
 def test_required_input_correct_with():
     workflow = """
 name: test
@@ -47,10 +47,11 @@ jobs:
     steps:
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
-        with: 
+        with:
           status: 'test'
 """
     throws_no_error(workflow)
+
 
 def test_required_input_but_wrong_with_ending_directly():
     workflow = """
@@ -61,11 +62,12 @@ jobs:
     steps:
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
-        with: 
+        with:
           fields: 'test'
 """
     throws_single_error(workflow)
-    
+
+
 def test_required_input_but_wrong_with_block_continues():
     workflow = """
 name: test
@@ -75,11 +77,12 @@ jobs:
     steps:
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
-        with: 
+        with:
           fields: 'test'
       - run: npm install
 """
     throws_single_error(workflow)
+
 
 def test_required_input_correct_with_multiple_inputs():
     workflow = """
@@ -90,11 +93,12 @@ jobs:
     steps:
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
-        with: 
+        with:
           fields: 'test'
           status: 'correct'
 """
     throws_no_error(workflow)
+
 
 def test_required_input_but_wrong_multiple_inputs():
     workflow = """
@@ -105,13 +109,13 @@ jobs:
     steps:
       - name: Notify Slack
         uses: 8398a7/action-slack@v3
-        with: 
+        with:
           fields: 'test'
           custom_payload: 'test'
 """
     throws_single_error(workflow)
-
 # endregion required inputs
+
 
 # region all inputs
 def test_uses_existent_optional_input():
@@ -128,8 +132,9 @@ jobs:
 """
     throws_no_error(workflow)
 
+
 def test_uses_non_existent_input_first():
-    workflow = """
+    workflow_string = """
 name: test
 jobs:
   build:
@@ -137,21 +142,22 @@ jobs:
     steps:
       - name: Notify Slack
         uses: 8398a7/action-slack@v2
-        with: 
+        with:
           wrong_input: 'test'
           status: 'test'
 """
-    tokens = list(parser.tokenize(workflow))
-    gen = jobs_steps_uses.check(tokens, None)
+    workflow, problems = parse_workflow_string(workflow_string)
+    gen = rules.JobsStepsUses.check(workflow)
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], LintProblem)
     assert result[0].rule == 'jobs-steps-uses'
-    assert result[0].line == 9
+    assert result[0].line == 7
     assert result[0].desc == "8398a7/action-slack@v2 uses unknown input: wrong_input"
 
+
 def test_uses_non_existent_input_second():
-    workflow = """
+    workflow_string = """
 name: test
 jobs:
   build:
@@ -159,31 +165,33 @@ jobs:
     steps:
       - name: Notify Slack
         uses: 8398a7/action-slack@v2
-        with: 
+        with:
           status: 'test'
           wrong_input: 'test'
 """
-    tokens = list(parser.tokenize(workflow))
-    gen = jobs_steps_uses.check(tokens, None)
+    workflow, problems = parse_workflow_string(workflow_string)
+    gen = rules.JobsStepsUses.check(workflow)
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], LintProblem)
     assert result[0].rule == 'jobs-steps-uses'
-    assert result[0].line == 10
+    assert result[0].line == 7
     assert result[0].desc == "8398a7/action-slack@v2 uses unknown input: wrong_input"
 
 # endregion all inputs
 
-def throws_single_error(workflow: str):
-    tokens = list(parser.tokenize(workflow))
-    gen = jobs_steps_uses.check(tokens,'')
+
+def throws_single_error(workflow_string: str):
+    workflow, problems = parse_workflow_string(workflow_string)
+    gen = rules.JobsStepsUses.check(workflow)
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], LintProblem)
     assert result[0].rule == 'jobs-steps-uses'
 
-def throws_no_error(workflow: str):
-    tokens = list(parser.tokenize(workflow))
-    gen = jobs_steps_uses.check(tokens, '')
+
+def throws_no_error(workflow_string: str):
+    workflow, problems = parse_workflow_string(workflow_string)
+    gen = rules.JobsStepsUses.check(workflow)
     result = list(gen)
     assert result == []

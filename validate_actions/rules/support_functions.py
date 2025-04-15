@@ -1,7 +1,13 @@
-import yaml
-from typing import Iterable
+
 import logging
+from typing import Iterable
+
 import requests
+import yaml
+
+# TODO fix and upgrade this mess
+
+
 
 def find_index_of(value: str, token_type: yaml.Token, tokens: list[yaml.Token]) -> Iterable[int]:
     for i, token in enumerate(tokens):
