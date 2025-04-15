@@ -1,8 +1,8 @@
-from validate_actions.workflow import ast
-from validate_actions.lint_problem import LintProblem
-from validate_actions.rules.support_functions import get_workflow_schema
-from typing import Dict, Any, List, Union, Optional, cast, Tuple
 from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
+
+from validate_actions.lint_problem import LintProblem
+from validate_actions.workflow import ast
 
 
 class EventsBuilder(ABC):
@@ -14,7 +14,7 @@ class EventsBuilder(ABC):
     """
     RULE_NAME = 'events-syntax-error'
 
-    def __init__(self, problems: List[LintProblem]) -> None:
+    def __init__(self, problems: List[LintProblem], schema: Dict[str, Any]) -> None:
         """Initialize the builder with a list to track syntax problems in
         workflow file.
 
@@ -23,7 +23,6 @@ class EventsBuilder(ABC):
                 encountered during the workflow file parsing.
         """
         self.problems = problems
-        schema = get_workflow_schema('github-workflow.json')
         self.ALL_EVENTS = schema['definitions']['event']['enum']
 
     @abstractmethod
@@ -48,9 +47,10 @@ class EventsBuilder(ABC):
 class BaseEventsBuilder(EventsBuilder):
     def __init__(
         self,
-        problems: List[LintProblem]
+        problems: List[LintProblem],
+        schema: Dict[str, Any],
     ) -> None:
-        super().__init__(problems)
+        super().__init__(problems, schema)
 
     def build(
         self,

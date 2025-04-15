@@ -1,3 +1,2 @@
-from . import workflow
+from . import rules, workflow
 from .lint_problem import LintProblem
-from . import rules

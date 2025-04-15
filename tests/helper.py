@@ -30,8 +30,11 @@ def parse_workflow_string(
     try:
         yaml_parser = validate_actions.workflow.PyYAMLParser()
         problems: List[validate_actions.LintProblem] = []
-        events_builder = validate_actions.workflow.BaseEventsBuilder(problems)
-        jobs_builder = validate_actions.workflow.BaseJobsBuilder(problems)
+        schema = (
+            validate_actions.workflow.helper.get_workflow_schema('github-workflow.json')
+        )
+        events_builder = validate_actions.workflow.BaseEventsBuilder(problems, schema)
+        jobs_builder = validate_actions.workflow.BaseJobsBuilder(problems, schema)
 
         director = validate_actions.workflow.BaseDirector(
             temp_file_path,

@@ -74,7 +74,7 @@ class BaseDirector(Director):
         name_ = None
         run_name_ = None
         on_: List[ast.Event] = []
-        permissions_ = None
+        permissions_ = ast.Permissions()
         env_: Optional[ast.Env] = None
         defaults_ = None
         concurrency_ = None
@@ -93,7 +93,9 @@ class BaseDirector(Director):
                 case 'on':
                     on_ = self.events_builder.build(workflow_dict[key])
                 case 'permissions':
-                    permissions_ = self.__build_permissions(workflow_dict[key])
+                    permissions_ = helper.build_permissions(
+                        workflow_dict[key], self.problems, self.RULE_NAME
+                    )
                 case 'env':
                     env_ = helper.build_env(workflow_dict[key], self.problems, self.RULE_NAME)
                 case 'defaults':
@@ -127,11 +129,6 @@ class BaseDirector(Director):
             defaults_=defaults_,
             concurrency_=concurrency_
         ), self.problems
-
-    def __build_permissions(
-        self, workflow_dict: Dict[ast.String, Any]
-    ) -> ast.Permissions:
-        return ast.Permissions(None)
 
     def __build_defaults(
         self,

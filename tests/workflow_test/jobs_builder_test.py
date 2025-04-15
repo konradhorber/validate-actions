@@ -1,4 +1,5 @@
 from tests.helper import parse_workflow_string
+from validate_actions.workflow import ast
 
 
 def test_job_env():
@@ -80,3 +81,65 @@ jobs:
     continue_on_error_ = workflow_out.jobs_['build'].steps_[0].continue_on_error_
     assert problems == []
     assert continue_on_error_ is True
+
+
+def test_job_permissions_single():
+    workflow_string = """
+on: push
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+      pull-requests: read
+      pull_request_review: none
+
+    steps:
+      - uses: actions/stale@v9
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    permissions_ = workflow_out.jobs_['stale'].permissions_
+    assert problems[0].desc == "Invalid permission: pull_request_review"
+    assert permissions_.issues_ == ast.Permission.write
+    assert permissions_.pull_requests_ == ast.Permission.read
+    assert permissions_.id_token_ == ast.Permission.none
+    assert permissions_.contents_ == ast.Permission.write
+
+
+def test_job_permissions_bulk():
+    workflow_string = """
+on: push
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+
+    permissions: read-all
+
+    steps:
+      - uses: actions/stale@v9
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    permissions_ = workflow_out.jobs_['stale'].permissions_
+    assert problems == []
+    assert permissions_.issues_ == ast.Permission.read
+    assert permissions_.pull_requests_ == ast.Permission.read
+
+
+def test_job_permissions_none():
+    workflow_string = """
+on: push
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+
+    permissions: {}
+
+    steps:
+      - uses: actions/stale@v9
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    permissions_ = workflow_out.jobs_['stale'].permissions_
+    assert problems == []
+    assert permissions_.issues_ == ast.Permission.none
+    assert permissions_.pull_requests_ == ast.Permission.none

@@ -21,9 +21,11 @@ class BaseJobsBuilder(JobsBuilder):
     def __init__(
         self,
         problems: List[LintProblem],
+        schema: Dict[str, Any],
     ) -> None:
         self.problems = problems
         self.RULE_NAME = 'jobs-syntax-error'
+        self.schema = schema
 
     def build(
         self,
@@ -44,8 +46,8 @@ class BaseJobsBuilder(JobsBuilder):
             col=job_id.pos.col,
         )
         job_id_ = job_id.string
-        name_ = None
-        permissions_ = None
+        name_: Optional[ast.String] = None
+        permissions_: ast.Permissions = ast.Permissions()
         needs_ = None
         if_ = None
         runs_on_ = None
@@ -55,7 +57,7 @@ class BaseJobsBuilder(JobsBuilder):
         env_: Optional[ast.Env] = None
         defaults_ = None
         steps_ = []
-        timeout_minutes_ = None
+        timeout_minutes_: Optional[int] = None
         strategy_ = None
         container_ = None
         services_ = None
@@ -66,9 +68,11 @@ class BaseJobsBuilder(JobsBuilder):
         for key in job_dict:
             match key.string:
                 case 'name':
-                    name_ = job_dict[key].string
+                    name_ = job_dict[key]
                 case 'permissions':
-                    pass
+                    permissions_ = helper.build_permissions(
+                        job_dict[key], self.problems, self.RULE_NAME
+                    )
                 case 'needs':
                     pass
                 case 'if':
@@ -88,7 +92,7 @@ class BaseJobsBuilder(JobsBuilder):
                 case 'steps':
                     steps_ = self.__build_steps(job_dict[key])
                 case 'timeout-minutes':
-                    timeout_minutes_ = job_dict[key].string
+                    timeout_minutes_ = job_dict[key]
                 case 'strategy':
                     pass
                 case 'container':
@@ -200,7 +204,7 @@ class BaseJobsBuilder(JobsBuilder):
                 case 'continue-on-error':
                     continue_on_error_ = step_token_tree[key]
                 case 'timeout-minutes':
-                    timeout_minutes_ = step_token_tree[key]  # TODO types
+                    timeout_minutes_ = step_token_tree[key]
                 case _:
                     self.problems.append(LintProblem(
                         pos=key.pos,

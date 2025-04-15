@@ -7,12 +7,39 @@ from yaml import ScalarToken, Token
 
 
 @dataclass(frozen=True)
+class Permission(Enum):
+    none = auto()
+    read = auto()
+    write = auto()
+
+
+# TODO solution for default values, currently using default permissive
+@dataclass(frozen=True)
+class Permissions:
+    actions_: 'Permission' = Permission.write
+    attestations_: 'Permission' = Permission.write
+    checks_: 'Permission' = Permission.write
+    contents_: 'Permission' = Permission.write
+    deployments_: 'Permission' = Permission.write
+    id_token_: 'Permission' = Permission.none
+    issues_: 'Permission' = Permission.write
+    metadata_: 'Permission' = Permission.read  # TODO conflicting docs
+    models_: 'Permission' = Permission.none  # TODO conflicting docs
+    discussions_: 'Permission' = Permission.write
+    packages_: 'Permission' = Permission.write
+    pages_: 'Permission' = Permission.write
+    pull_requests_: 'Permission' = Permission.write
+    security_events_: 'Permission' = Permission.write
+    statuses_: 'Permission' = Permission.write
+
+
+@dataclass(frozen=True)
 class Workflow:
     on_: List['Event']
     jobs_: Dict['String', 'Job']
     name_: Optional[str] = None
     run_name_: Optional[str] = None
-    permissions_: Optional['Permissions'] = None
+    permissions_: 'Permissions' = Permissions()
     env_: Optional['Env'] = None
     defaults_: Optional['Defaults'] = None
     concurrency_: Optional['Concurrency'] = None
@@ -116,11 +143,6 @@ class WorkflowDispatchInputType(Enum):
 
 
 @dataclass(frozen=True)
-class Permissions:
-    tbd: None
-
-
-@dataclass(frozen=True)
 class Defaults:
     tbd: None
 
@@ -158,8 +180,8 @@ class Job:
     pos: 'Pos'
     job_id_: str
     steps_: List['Step']
-    name_: Optional[str] = None
-    permissions_: Optional[None] = None
+    name_: Optional['String'] = None
+    permissions_: Permissions = Permissions()
     needs_: Optional[None] = None
     if_: Optional[None] = None
     runs_on_: Optional[None] = None
@@ -168,7 +190,7 @@ class Job:
     outputs_: Optional[None] = None
     env_: Optional['Env'] = None
     defaults_: Optional[None] = None
-    timeout_minutes_: Optional[float] = None
+    timeout_minutes_: Optional[int] = None
     strategy_: Optional[None] = None
     container_: Optional[None] = None
     services_: Optional[None] = None
