@@ -1,7 +1,7 @@
 from typing import Any, Dict, Generator, List, Optional, Tuple, Union
 
 from validate_actions.lint_problem import LintProblem
-from validate_actions.rules import Rule
+from validate_actions.rules.rule import Rule
 from validate_actions.rules.support_functions import parse_action
 from validate_actions.workflow.ast import ExecAction, String, Workflow
 

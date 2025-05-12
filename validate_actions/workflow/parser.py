@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Tuple
 import yaml
 
 from validate_actions.lint_problem import LintProblem
-from validate_actions.workflow.ast import Pos, String
+from validate_actions.workflow.ast import Pos, Reference, String
 
 
 class YAMLParser(ABC):
@@ -154,11 +154,11 @@ class PyYAMLParser(YAMLParser):
                 next_token = tokens[index]
 
                 if isinstance(next_token, yaml.ScalarToken):
-                    key = String.from_token(next_token)
+                    key = self.__parse_str(next_token)
 
                 else:
                     self.problems.append(LintProblem(
-                        pos=Pos.from_token(next_token),
+                        pos=self.__parse_pos(next_token),
                         desc=error_desc,
                         level='error',
                         rule=self.RULE
@@ -173,7 +173,7 @@ class PyYAMLParser(YAMLParser):
 
             else:
                 self.problems.append(LintProblem(
-                    pos=Pos.from_token(token),
+                    pos=self.__parse_pos(token),
                     desc=error_desc,
                     level='error',
                     rule=self.RULE
@@ -184,7 +184,7 @@ class PyYAMLParser(YAMLParser):
         # If we reach here, it means there's an unexpected error in the
         # block mapping
         self.problems.append(LintProblem(
-            pos=Pos.from_token(tokens[index]),
+            pos=self.__parse_pos(tokens[index]),
             desc=error_desc,
             level='error',
             rule=self.RULE
@@ -239,7 +239,7 @@ class PyYAMLParser(YAMLParser):
         # illegal token at value position
         else:
             self.problems.append(LintProblem(
-                pos=Pos.from_token(tokens[index]),
+                pos=self.__parse_pos(tokens[index]),
                 desc='Error parsing block value',
                 level='error',
                 rule=self.RULE
@@ -286,7 +286,7 @@ class PyYAMLParser(YAMLParser):
         # If we reach here, it means there's an unexpected error in the
         # block sequence
         self.problems.append(LintProblem(
-            pos=Pos.from_token(tokens[index]),
+            pos=self.__parse_pos(tokens[index]),
             desc='Error parsing block sequence',
             level='error',
             rule=self.RULE
@@ -329,7 +329,7 @@ class PyYAMLParser(YAMLParser):
         # If we reach here, it means there's an unexpected error in the
         # block sequence
         self.problems.append(LintProblem(
-                pos=Pos.from_token(tokens[index]),
+                pos=self.__parse_pos(tokens[index]),
                 desc='Error parsing block sequence',
                 level='error',
                 rule=self.RULE
@@ -372,11 +372,11 @@ class PyYAMLParser(YAMLParser):
                 next_token = tokens[index]
 
                 if isinstance(next_token, yaml.ScalarToken):
-                    key = String.from_token(next_token)
+                    key = self.__parse_str(next_token)
 
                 else:
                     self.problems.append(LintProblem(
-                        pos=Pos.from_token(next_token),
+                        pos=self.__parse_pos(next_token),
                         desc=error_desc,
                         level='error',
                         rule=self.RULE
@@ -400,7 +400,7 @@ class PyYAMLParser(YAMLParser):
                     )
                 else:
                     self.problems.append(LintProblem(
-                        pos=Pos.from_token(next_token),
+                        pos=self.__parse_pos(next_token),
                         desc=error_desc,
                         level='error',
                         rule=self.RULE
@@ -408,7 +408,7 @@ class PyYAMLParser(YAMLParser):
 
             else:
                 self.problems.append(LintProblem(
-                    pos=Pos.from_token(token),
+                    pos=self.__parse_pos(token),
                     desc=error_desc,
                     level='error',
                     rule=self.RULE
@@ -419,7 +419,7 @@ class PyYAMLParser(YAMLParser):
         # If we reach here, it means there's an unexpected error in the
         # flow mapping
         self.problems.append(LintProblem(
-            pos=Pos.from_token(tokens[index]),
+            pos=self.__parse_pos(tokens[index]),
             desc=error_desc,
             level='error',
             rule=self.RULE
@@ -461,7 +461,7 @@ class PyYAMLParser(YAMLParser):
             index += 1
 
         self.problems.append(LintProblem(
-            pos=Pos.from_token(tokens[index]),
+            pos=self.__parse_pos(tokens[index]),
             desc='Error parsing flow sequence',
             level='error',
             rule=self.RULE
@@ -493,7 +493,7 @@ class PyYAMLParser(YAMLParser):
             value, index = self.__parse_flow_sequence(tokens, index)
         else:
             self.problems.append(LintProblem(
-                pos=Pos.from_token(token),
+                pos=self.__parse_pos(token),
                 desc='Error parsing flow value',
                 level='error',
                 rule=self.RULE
@@ -532,4 +532,32 @@ class PyYAMLParser(YAMLParser):
             return float(val)
         except (ValueError, TypeError):
             # If not a boolean or number, return as String
-            return String.from_token(token)
+            return self.__parse_str(token)
+
+    def __parse_str(self, token: yaml.ScalarToken) -> String:
+        """
+        Reads a string and returns a String or Reference object.
+        """
+        token_string: str = token.value
+        token_pos = self.__parse_pos(token)
+
+        if token_string.startswith('${{') and token_string.endswith('}}'):
+            # Strip the delimiters and whitespace
+            inner = token_string
+            inner = token_string[3:-2]
+            inner = inner.strip()
+            parts = inner.split('.')
+
+            return Reference(
+                pos=token_pos,
+                string=token_string,
+                parts=parts,
+            )
+        else:
+            return String(token_string, token_pos)
+
+    def __parse_pos(self, token: yaml.Token) -> Pos:
+        """
+        Reads a token and returns a Pos object.
+        """
+        return Pos(token.start_mark.line, token.start_mark.column)

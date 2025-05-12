@@ -1,8 +1,11 @@
-from abc import ABC, abstractmethod
-from typing import Generator
+from __future__ import annotations
 
-from validate_actions.lint_problem import LintProblem
-from validate_actions.workflow.ast import Workflow
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Generator
+
+if TYPE_CHECKING:
+    from validate_actions.lint_problem import LintProblem
+    from validate_actions.workflow.ast import Workflow
 
 
 class Rule(ABC):

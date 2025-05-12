@@ -1,2 +1,3 @@
-from .rule import Rule
-from .jobs_steps_uses import JobsStepsUses
+from validate_actions.rules.jobs_steps_uses import JobsStepsUses
+from validate_actions.rules.rule import Rule
+from validate_actions.rules.steps_io_match import StepsIOMatch
