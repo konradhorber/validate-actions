@@ -24,7 +24,7 @@ def test_no_io_match():
           with:
             name: my-artifact
             path: ${{ steps.step1.outputs.some_output }}  # Reference to output from a uses step (which doesn't exist)
-"""
+    """
     workflow, problems = parse_workflow_string(workflow_string)
     gen = rules.StepsIOMatch.check(workflow)
     result = list(gen)
@@ -56,8 +56,40 @@ def test_a_io_match():
           with:
             name: my-artifact
             path: ${{ steps.step1.outputs.ref }}
-"""
+    """
     workflow, problems = parse_workflow_string(workflow_string)
     gen = rules.StepsIOMatch.check(workflow)
     result = list(gen)
     assert len(result) == 0
+
+
+def test_no_step_with_that_id():
+    workflow_string = """
+    name: 'Test Steps IO Match with uses'
+
+    on: workflow_dispatch
+
+    jobs:
+      test-job:
+        runs-on: ubuntu-latest
+        steps:
+        - id: step1
+          name: 'Checkout code'
+          uses: actions/checkout@v4
+
+        - id: step2
+          name: 'Upload artifact'
+          uses: actions/upload-artifact@v3
+          with:
+            name: my-artifact
+            path: ${{ steps.stepOne.outputs.ref }}
+    """
+    workflow, problems = parse_workflow_string(workflow_string)
+    gen = rules.StepsIOMatch.check(workflow)
+    result = list(gen)
+    assert len(result) == 1
+    assert isinstance(result[0], LintProblem)
+    assert result[0].rule == 'steps-io-match'
+    assert result[0].level == 'error'
+    assert result[0].desc == "Step 'stepOne' in job 'test-job' does not exist"
+    assert result[0].line == 18
