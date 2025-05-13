@@ -1,11 +1,9 @@
-from validate_actions.workflow.ast import Pos
-
 
 # TODO fix this 
 class LintProblem:
     """Represents a linting problem"""
     def __init__(self, 
-                 pos: Pos, 
+                 pos, 
                  level: str, 
                  desc: str, 
                  rule: str):

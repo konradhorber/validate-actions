@@ -1,7 +1,7 @@
 from typing import Any, Dict, Generator, List, Optional, Tuple, Union
 
 from validate_actions.lint_problem import LintProblem
-from validate_actions.rules import Rule
+from validate_actions.rules.rule import Rule
 from validate_actions.rules.support_functions import parse_action
 from validate_actions.workflow.ast import ExecAction, String, Workflow
 
@@ -16,7 +16,6 @@ class JobsStepsUses(Rule):
     @staticmethod
     def check(
         workflow: 'Workflow',
-        schema: Optional[Dict[String, Any]] = None
     ) -> Generator[LintProblem, None, None]:
         """
         Validates all actions in the workflow.

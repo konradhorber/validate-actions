@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from validate_actions.workflow.ast import Workflow
-from validate_actions.lint_problem import LintProblem
-from validate_actions.workflow.ast import String
-from typing import Optional, Generator, Dict, Any
+from typing import TYPE_CHECKING, Generator
+
+if TYPE_CHECKING:
+    from validate_actions.lint_problem import LintProblem
+    from validate_actions.workflow.ast import Workflow
 
 
 class Rule(ABC):
@@ -10,8 +13,7 @@ class Rule(ABC):
     @staticmethod
     @abstractmethod
     def check(
-        workflow: Workflow, 
-        schema: Optional[Dict[String, Any]] = None
+        workflow: Workflow
     ) -> Generator[LintProblem, None, None]:
         """
         Perform checks on the given workflow and schema, yielding LintProblem]

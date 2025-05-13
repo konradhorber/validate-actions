@@ -271,3 +271,10 @@ class String:
     def __hash__(self):
         """Hash only based on string content."""
         return hash(self.string)
+
+
+@dataclass(frozen=True)
+class Reference(String):
+    pos: 'Pos'
+    string: str
+    parts: List[str]
