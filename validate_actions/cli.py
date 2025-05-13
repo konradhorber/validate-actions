@@ -1,11 +1,12 @@
 import sys
 from pathlib import Path
-from typing import Tuple
+from typing import List, Tuple, Union
 
 import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from validate_actions import linter
+from validate_actions.lint_problem import LintProblem
 
 
 class CLI:
@@ -29,7 +30,7 @@ class CLI:
         'neutral': '\033[2m',
     }
 
-    def start(self):
+    def start(self) -> None:
         project_root = self.find_workflows()
         if not project_root:
             print(
@@ -41,7 +42,7 @@ class CLI:
         directory = project_root / '.github/workflows'
         self.run_directory(directory)
 
-    def find_workflows(self, marker='.github'):
+    def find_workflows(self, marker='.github') -> Union[Path, None]:
         start_dir = Path.cwd()
         for directory in [start_dir] + list(start_dir.parents)[:2]:
             if (directory / marker).is_dir():
@@ -90,7 +91,7 @@ class CLI:
 
         return prob_level, n_error, n_warning
 
-    def show_problems(self, problems, file):
+    def show_problems(self, problems: List[LintProblem], file: Path) -> int:
         max_level = 0
 
         print()
@@ -108,7 +109,7 @@ class CLI:
         problem_level = linter.PROBLEM_LEVELS[max_level]
         return problem_level
 
-    def show_return_message(self, return_code, n_error, n_warning):
+    def show_return_message(self, return_code: int, n_error: int, n_warning: int) -> None:
         style = self.STYLE[return_code]
 
         print()
@@ -118,7 +119,7 @@ class CLI:
         )
         print()
 
-    def standard_color(self, problem, filename):
+    def standard_color(self, problem: LintProblem, filename: Path) -> str:
         line = (
             f'  {self.STYLE["neutral"]}{problem.line + 1}:{problem.column + 1}'
             f'{self.STYLE["format_end"]}'
