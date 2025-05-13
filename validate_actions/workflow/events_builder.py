@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
-from validate_actions.lint_problem import LintProblem
+from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow import ast
 
 
@@ -14,12 +14,12 @@ class EventsBuilder(ABC):
     """
     RULE_NAME = 'events-syntax-error'
 
-    def __init__(self, problems: List[LintProblem], schema: Dict[str, Any]) -> None:
+    def __init__(self, problems: Problems, schema: Dict[str, Any]) -> None:
         """Initialize the builder with a list to track syntax problems in
         workflow file.
 
         Args:
-            problems (List[LintProblem]): list to store syntax problems
+            problems (Problems): list to store syntax problems
                 encountered during the workflow file parsing.
         """
         self.problems = problems
@@ -47,7 +47,7 @@ class EventsBuilder(ABC):
 class BaseEventsBuilder(EventsBuilder):
     def __init__(
         self,
-        problems: List[LintProblem],
+        problems: Problems,
         schema: Dict[str, Any],
     ) -> None:
         super().__init__(problems, schema)
@@ -76,10 +76,10 @@ class BaseEventsBuilder(EventsBuilder):
             case list():
                 for event in events_in:
                     if isinstance(event, dict) | isinstance(event, list):
-                        self.problems.append(LintProblem(
+                        self.problems.append(Problem(
                             pos=event.pos,
                             desc="Only flat list of events allowed",
-                            level='error',
+                            level=ProblemLevel.ERR,
                             rule=self.RULE_NAME
                         ))
                     elif isinstance(event, ast.String):
@@ -88,10 +88,10 @@ class BaseEventsBuilder(EventsBuilder):
                             events.append(event_out)
 
             case _:
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=events_in.pos,
                     desc="Invalid event structure",
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE_NAME
                 ))
 
@@ -117,19 +117,19 @@ class BaseEventsBuilder(EventsBuilder):
             case 'push':
                 event_out = ast.TagsPathsBranchesFilterEvent(id=event)
             case 'schedule':
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=event.pos,
                     desc="Schedule event must have a cron expression",
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE_NAME
                 ))
             case 'workflow_call':
                 event_out = ast.WorkflowCallEvent(id=event)
             case 'workflow_run':
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=event.pos,
                     desc="workflow_run event must have a workflow set",
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE_NAME
                 ))
             case 'workflow_dispatch':
@@ -137,10 +137,10 @@ class BaseEventsBuilder(EventsBuilder):
             case s if s in self.ALL_EVENTS:
                 event_out = ast.Event(id=event)
             case _:
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=event.pos,
                     desc=f"Unknown event type: {event.string}",
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE_NAME
                 ))
         return event_out
@@ -193,10 +193,10 @@ class BaseEventsBuilder(EventsBuilder):
                     event_in, event_in_value
                 )
             case _:
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=event_in.pos,
                     desc=f"Unknown event type: {event_in.string}",
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE_NAME
                 ))
         return event_out
@@ -229,10 +229,10 @@ class BaseEventsBuilder(EventsBuilder):
                 case 'branches-ignore':
                     branches_ignore_ = filter_list
                 case _:
-                    self.problems.append(LintProblem(
+                    self.problems.append(Problem(
                         pos=filter.pos,
                         desc=f"Unknown event filter key: {filter.string}",
-                        level='error',
+                        level=ProblemLevel.ERR,
                         rule=self.RULE_NAME
                     ))
         return ast.BranchesFilterEvent(
@@ -279,10 +279,10 @@ class BaseEventsBuilder(EventsBuilder):
             elif filter.string == 'paths-ignore':
                 paths_ignore_ = filter_list
             else:
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=filter.pos,
                     desc=f"Unknown event filter key: {filter.string}",
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE_NAME
                 ))
 
@@ -340,10 +340,10 @@ class BaseEventsBuilder(EventsBuilder):
             if filter.string == 'tags-ignore':
                 tags_ignore_ = filter_list
             else:
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=filter.pos,
                     desc=f"Unknown event filter key: {filter.string}",
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE_NAME
                 ))
 
@@ -386,10 +386,10 @@ class BaseEventsBuilder(EventsBuilder):
                 or cron_k.string != 'cron'
                 or not isinstance(cron_v, ast.String)
             ):
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=event_type.pos,
                     desc="Schedule event must have a valid cron expression",
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE_NAME
                 ))
             else:
@@ -431,13 +431,13 @@ class BaseEventsBuilder(EventsBuilder):
                 case 'secrets':
                     secrets_ = self.__buildWorkflowCallEventSecrets(value)
                 case _:
-                    self.problems.append(LintProblem(
+                    self.problems.append(Problem(
                         pos=key.pos,
                         desc=(
                             "Unknown workflow_call event attribute "
                             f"{key.string}"
                         ),
-                        level='error',
+                        level=ProblemLevel.ERR,
                         rule=self.RULE_NAME
                     ))
 
@@ -526,10 +526,10 @@ class BaseEventsBuilder(EventsBuilder):
                     elif key_name == 'required':
                         required_ = cast(bool, value)
                 else:
-                    self.problems.append(LintProblem(
+                    self.problems.append(Problem(
                         pos=key.pos,
                         desc=error_msg,
-                        level='error',
+                        level=ProblemLevel.ERR,
                         rule=self.RULE_NAME
                     ))
         return {
@@ -585,32 +585,32 @@ class BaseEventsBuilder(EventsBuilder):
                         if s in ast.WorkflowCallInputType.__members__:
                             type_ = ast.WorkflowCallInputType[s]
                         else:
-                            self.problems.append(LintProblem(
+                            self.problems.append(Problem(
                                 pos=key.pos,
                                 desc=error_msg,
-                                level='error',
+                                level=ProblemLevel.ERR,
                                 rule=self.RULE_NAME
                             ))
                 else:
-                    self.problems.append(LintProblem(
+                    self.problems.append(Problem(
                         pos=key.pos,
                         desc=error_msg,
-                        level='error',
+                        level=ProblemLevel.ERR,
                         rule=self.RULE_NAME
                     ))
             else:
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=key.pos,
                     desc=f"Unknown workflow_call property: {key_name}",
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE_NAME
                 ))
 
         if type_ is None:
-            self.problems.append(LintProblem(
+            self.problems.append(Problem(
                 pos=input_name.pos,
                 desc="workflow_call event input type is required",
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=self.RULE_NAME
             ))
             return None
@@ -684,21 +684,21 @@ class BaseEventsBuilder(EventsBuilder):
                 case 'description':
                     description_ = value
                 case _:
-                    self.problems.append(LintProblem(
+                    self.problems.append(Problem(
                         pos=key.pos,
                         desc=(
                             "Unknown workflow_call event output attribute: "
                             f"{key.string}"
                         ),
-                        level='error',
+                        level=ProblemLevel.ERR,
                         rule=self.RULE_NAME
                     ))
 
         if not isinstance(value_, ast.String):
-            self.problems.append(LintProblem(
+            self.problems.append(Problem(
                 pos=output_name.pos,
                 desc="workflow_call event output value is required",
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=self.RULE_NAME
             ))
             return None
@@ -750,10 +750,10 @@ class BaseEventsBuilder(EventsBuilder):
                     elif key.string == 'required' and isinstance(value, bool):
                         required_ = value
                     else:
-                        self.problems.append(LintProblem(
+                        self.problems.append(Problem(
                             pos=key.pos,
                             desc=error_desc,
-                            level='error',
+                            level=ProblemLevel.ERR,
                             rule=self.RULE_NAME
                         ))
                 secret = ast.WorkflowCallEventSecret(
@@ -762,10 +762,10 @@ class BaseEventsBuilder(EventsBuilder):
                     required_=required_
                 )
             else:
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=secret_id.pos,
                     desc=error_desc,
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE_NAME
                 ))
                 continue
@@ -810,18 +810,18 @@ class BaseEventsBuilder(EventsBuilder):
             if key.string == 'workflows':
                 workflows_ = value
             else:
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=key.pos,
                     desc=f"Unknown event filter key: {key.string}",
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE_NAME
                 ))
 
         if len(workflows_) == 0:
-            self.problems.append(LintProblem(
+            self.problems.append(Problem(
                 pos=event_type.pos,
                 desc="workflow_run event requires workflow specification",
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=self.RULE_NAME
             ))
             return None
@@ -854,10 +854,10 @@ class BaseEventsBuilder(EventsBuilder):
             if key.string == 'inputs':
                 inputs_ = self.__build_WorkflowDispatchEventInputs(value)
             else:
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=key.pos,
                     desc=f"Unknown workflow_dispatch attribute: {key.string}",
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE_NAME
                 ))
 
@@ -948,34 +948,34 @@ class BaseEventsBuilder(EventsBuilder):
                         if s in ast.WorkflowDispatchInputType.__members__:
                             type_ = ast.WorkflowDispatchInputType[s]
                         else:
-                            self.problems.append(LintProblem(
+                            self.problems.append(Problem(
                                 pos=key.pos,
                                 desc=error_msg,
-                                level='error',
+                                level=ProblemLevel.ERR,
                                 rule=self.RULE_NAME
                             ))
                     elif key_name == 'options':
                         options_ = cast(list, value)
                 else:
-                    self.problems.append(LintProblem(
+                    self.problems.append(Problem(
                         pos=key.pos,
                         desc=error_msg,
-                        level='error',
+                        level=ProblemLevel.ERR,
                         rule=self.RULE_NAME
                     ))
             else:
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=key.pos,
                     desc=f"Unknown workflow_dispatch property: {key_name}",
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE_NAME
                 ))
 
         if type_ is None:
-            self.problems.append(LintProblem(
+            self.problems.append(Problem(
                 pos=input_name.pos,
                 desc="workflow_dispatch event input type is required",
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=self.RULE_NAME
             ))
             return None
@@ -983,21 +983,21 @@ class BaseEventsBuilder(EventsBuilder):
         # validate options
         choice_type = ast.WorkflowDispatchInputType.choice.name
         if type_.name == choice_type and options_ is None:
-            self.problems.append(LintProblem(
+            self.problems.append(Problem(
                 pos=input_name.pos,
                 desc="workflow_dispatch event input options is required",
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=self.RULE_NAME
             ))
             return None
         if options_ is not None and type_.name != choice_type:
-            self.problems.append(LintProblem(
+            self.problems.append(Problem(
                 pos=input_name.pos,
                 desc=(
                     "workflow_dispatch event input options is only "
                     "valid for type choice"
                 ),
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=self.RULE_NAME
             ))
             return None
@@ -1038,10 +1038,10 @@ class BaseEventsBuilder(EventsBuilder):
             if key.string == 'types':
                 types_ = value
             else:
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=key.pos,
                     desc=f"Unknown event filter key: {key.string}",
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE_NAME
                 ))
 

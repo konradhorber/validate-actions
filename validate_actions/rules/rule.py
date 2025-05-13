@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Generator
 
 if TYPE_CHECKING:
-    from validate_actions.lint_problem import LintProblem
+    from validate_actions.problems import Problem
     from validate_actions.workflow.ast import Workflow
 
 
@@ -14,9 +14,9 @@ class Rule(ABC):
     @abstractmethod
     def check(
         workflow: Workflow
-    ) -> Generator[LintProblem, None, None]:
+    ) -> Generator[Problem, None, None]:
         """
-        Perform checks on the given workflow and schema, yielding LintProblem]
+        Perform checks on the given workflow and schema, yielding Problem
         instances.
         """
         pass

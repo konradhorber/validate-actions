@@ -225,5 +225,6 @@ def test_no_on():
 name: test
 """
     workflow, problems = parse_workflow_string(workflow_string)
+    problems = problems.problems
     assert len(problems) == 1
-    assert isinstance(problems[0], validate_actions.LintProblem)
+    assert isinstance(problems[0], validate_actions.Problem)

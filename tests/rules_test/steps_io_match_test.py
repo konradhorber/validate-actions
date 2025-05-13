@@ -1,7 +1,8 @@
 # flake8: noqa: E501
 
 from tests.helper import parse_workflow_string
-from validate_actions import LintProblem, rules
+from validate_actions import rules
+from validate_actions.problems import Problem, ProblemLevel
 
 
 def test_no_io_match():
@@ -29,11 +30,11 @@ def test_no_io_match():
     gen = rules.StepsIOMatch.check(workflow)
     result = list(gen)
     assert len(result) == 1
-    assert isinstance(result[0], LintProblem)
+    assert isinstance(result[0], Problem)
     assert result[0].rule == 'steps-io-match'
-    assert result[0].level == 'error'
+    assert result[0].level == ProblemLevel.ERR
     assert result[0].desc == "'some_output' not as 'outputs' in 'step1'"
-    assert result[0].line == 18
+    assert result[0].pos.line == 18
 
 
 def test_a_io_match():
@@ -88,8 +89,8 @@ def test_no_step_with_that_id():
     gen = rules.StepsIOMatch.check(workflow)
     result = list(gen)
     assert len(result) == 1
-    assert isinstance(result[0], LintProblem)
+    assert isinstance(result[0], Problem)
     assert result[0].rule == 'steps-io-match'
-    assert result[0].level == 'error'
+    assert result[0].level == ProblemLevel.ERR
     assert result[0].desc == "Step 'stepOne' in job 'test-job' does not exist"
-    assert result[0].line == 18
+    assert result[0].pos.line == 18

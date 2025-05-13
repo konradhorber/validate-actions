@@ -19,7 +19,7 @@ jobs:
 """
     workflow_out, problems = parse_workflow_string(workflow_string)
     env_ = workflow_out.env_
-    assert problems == []
+    assert len(problems.problems) == 0
     assert env_.get('GITHUB_TOKEN').string == '${{ secrets.GITHUB_TOKEN }}'
     assert env_.get('FIRST_NAME').string == 'Mona'
     assert env_.get('LAST_NAME').string == 'Octocat'

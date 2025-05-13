@@ -1,8 +1,7 @@
 from pathlib import Path
-from typing import List
 
 from validate_actions import rules
-from validate_actions.lint_problem import LintProblem
+from validate_actions.problems import Problems
 from validate_actions.workflow import helper
 from validate_actions.workflow.director import BaseDirector
 from validate_actions.workflow.events_builder import BaseEventsBuilder
@@ -19,9 +18,9 @@ PROBLEM_LEVELS = {
 }
 
 
-def run(file: Path) -> List[LintProblem]:
+def run(file: Path) -> Problems:
     workflow_schema = helper.get_workflow_schema('github-workflow.json')
-    problems: List[LintProblem] = []
+    problems: Problems = Problems()
     parser = PyYAMLParser()
     events_builder = BaseEventsBuilder(problems, workflow_schema)
     jobs_builder = BaseJobsBuilder(problems, workflow_schema)
@@ -36,12 +35,12 @@ def run(file: Path) -> List[LintProblem]:
     workflow, problems = director.build()
 
     for rule in ACTIONS_ERROR_RULES:
-        problems.extend(rule.check(workflow))
+        list_of_problems = rule.check(workflow)
+        for problem in list_of_problems:
+            if problem is None:
+                continue
+            problems.append(problem)
 
-    # TODO fix this mess
-    for problem in problems:
-        if problem is None:
-            problems.remove(problem)
     return problems
 
 

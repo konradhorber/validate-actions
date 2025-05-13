@@ -9,7 +9,7 @@ def parse_workflow_string(
     workflow_string: str
 ) -> Tuple[
     validate_actions.workflow.Workflow,
-    List[validate_actions.LintProblem]
+    validate_actions.Problems
 ]:
     """
     Helper function to parse a workflow string into a Workflow object.
@@ -29,7 +29,7 @@ def parse_workflow_string(
 
     try:
         yaml_parser = validate_actions.workflow.PyYAMLParser()
-        problems: List[validate_actions.LintProblem] = []
+        problems = validate_actions.Problems()
         schema = (
             validate_actions.workflow.helper.get_workflow_schema('github-workflow.json')
         )

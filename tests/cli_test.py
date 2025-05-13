@@ -1,7 +1,7 @@
 import tempfile
 from pathlib import Path
 
-from validate_actions import linter
+from validate_actions import ProblemLevel, linter
 
 
 def test_run():
@@ -35,13 +35,14 @@ jobs:
     finally:
         temp_file_path.unlink(missing_ok=True)
 
-    sorted_problems = sorted(problems, key=lambda x: (x.line, x.column))
+    problems.sort()
+    problems_list = problems.problems
 
-    assert len(sorted_problems) == 4
+    assert len(problems_list) == 4
     rule_event = 'events-syntax-error'
     rule_input = 'jobs-steps-uses'
-    assert sorted_problems[0].rule == rule_event
-    assert sorted_problems[1].rule == rule_input
-    assert sorted_problems[1].level == 'warning'
-    assert sorted_problems[2].rule == rule_input
-    assert sorted_problems[3].rule == rule_input
+    assert problems_list[0].rule == rule_event
+    assert problems_list[1].rule == rule_input
+    assert problems_list[1].level == ProblemLevel.WAR
+    assert problems_list[2].rule == rule_input
+    assert problems_list[3].rule == rule_input

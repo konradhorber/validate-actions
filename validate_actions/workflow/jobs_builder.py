@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
-from validate_actions.lint_problem import LintProblem
+from validate_actions.pos import Pos
+from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow import ast, helper
 
 
@@ -20,7 +21,7 @@ class JobsBuilder(ABC):
 class BaseJobsBuilder(JobsBuilder):
     def __init__(
         self,
-        problems: List[LintProblem],
+        problems: Problems,
         schema: Dict[str, Any],
     ) -> None:
         self.problems = problems
@@ -41,7 +42,7 @@ class BaseJobsBuilder(JobsBuilder):
         job_dict: Dict[ast.String, Any],
         job_id: ast.String
     ) -> ast.Job:
-        pos = ast.Pos(
+        pos = Pos(
             line=job_id.pos.line,
             col=job_id.pos.col,
         )
@@ -106,10 +107,10 @@ class BaseJobsBuilder(JobsBuilder):
                 case 'secrets':
                     pass
                 case _:
-                    self.problems.append(LintProblem(
+                    self.problems.append(Problem(
                         pos=key.pos,
                         desc=f"Unknown job key: {key.string}",
-                        level='error',
+                        level=ProblemLevel.ERR,
                         rule=self.RULE_NAME
                     ))
 
@@ -146,7 +147,7 @@ class BaseJobsBuilder(JobsBuilder):
         return steps_out
 
     def __build_step(self, step_token_tree: Dict[ast.String, Any]) -> ast.Step:
-        pos: ast.Pos
+        pos: Pos
         id_ = None
         if_ = None
         name_ = None
@@ -161,7 +162,7 @@ class BaseJobsBuilder(JobsBuilder):
         continue_on_error_ = None
         timeout_minutes_ = None
 
-        exec_pos: ast.Pos
+        exec_pos: Pos
 
         # build step inputs
         for key in step_token_tree:
@@ -175,13 +176,13 @@ class BaseJobsBuilder(JobsBuilder):
                     name_ = step_token_tree[key]
                 case 'uses':
                     uses_ = step_token_tree[key]
-                    exec_pos = ast.Pos(
+                    exec_pos = Pos(
                         line=key.pos.line,
                         col=key.pos.col
                     )
                 case 'run':
                     run_ = step_token_tree[key]
-                    exec_pos = ast.Pos(
+                    exec_pos = Pos(
                         line=key.pos.line,
                         col=key.pos.col
                     )
@@ -206,33 +207,33 @@ class BaseJobsBuilder(JobsBuilder):
                 case 'timeout-minutes':
                     timeout_minutes_ = step_token_tree[key]
                 case _:
-                    self.problems.append(LintProblem(
+                    self.problems.append(Problem(
                         pos=key.pos,
                         desc=f"Unknown step key: {key_str}",
-                        level='error',
+                        level=ProblemLevel.ERR,
                         rule=self.RULE_NAME
                     ))
 
         exec: ast.Exec
         first_key_of_steps = next(iter(step_token_tree))
-        pos = ast.Pos(
+        pos = Pos(
             line=first_key_of_steps.pos.line,
             col=first_key_of_steps.pos.col
         )
 
         # create uses xor run exec for step
         if uses_ is None and run_ is None:
-            self.problems.append(LintProblem(
+            self.problems.append(Problem(
                 pos=pos,
                 desc="Step must have either 'uses' or 'run' key",
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=self.RULE_NAME
             ))
         elif uses_ is not None and run_ is not None:
-            self.problems.append(LintProblem(
+            self.problems.append(Problem(
                 pos=pos,
                 desc="Step cannot have both 'uses' and 'run' keys",
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=self.RULE_NAME
             ))
         elif uses_ is not None:
