@@ -62,7 +62,7 @@ class StepsIOMatch(Rule):
                 yield Problem(
                     rule=StepsIOMatch.NAME,
                     desc=(
-                        f"Step '{step.name_}' in job '{job.job_id_}' has an "
+                        f"Step in job '{job.job_id_}' has an "
                         f"input '{input.string}' that does not match any step output"
                     ),
                     level=ProblemLevel.ERR,
@@ -108,7 +108,6 @@ class StepsIOMatch(Rule):
                     rule=StepsIOMatch.NAME,
                     desc=(
                         f"'{ref.string}' refers to non-existent '{ref_step_attr}' in step "
-                        f"'{step.name_}'"
                     ),
                     level=ProblemLevel.ERR,
                     pos=ref.pos,
@@ -127,7 +126,7 @@ class StepsIOMatch(Rule):
         else:
             yield Problem(
                 rule=StepsIOMatch.NAME,
-                desc=f"'{ref_step_var}' does not exist in step '{step.name_}'",
+                desc=f"'{ref_step_var}' does not exist in step",
                 level=ProblemLevel.ERR,
                 pos=ref.pos,
             )

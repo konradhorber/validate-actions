@@ -11,7 +11,8 @@ from validate_actions.workflow.parser import PyYAMLParser
 
 class Validator:
     ACTIONS_ERROR_RULES = [
-        rules.JobsStepsUses
+        rules.JobsStepsUses,
+        rules.StepsIOMatch
     ]
 
     @staticmethod
