@@ -44,6 +44,10 @@ class StepsIOMatch(Rule):
             section = input.parts[0]
             if section == 'env':
                 pass
+            elif section == 'github':
+                pass
+            elif section == 'matrix':
+                pass
             elif section == 'secrets':
                 pass
             elif section == 'jobs':
