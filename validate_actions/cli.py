@@ -5,8 +5,8 @@ from typing import Tuple
 import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from validate_actions import linter
 from validate_actions.problems import Problem, ProblemLevel, Problems
+from validate_actions.validator import Validator
 
 
 class CLI:
@@ -85,7 +85,7 @@ class CLI:
         sys.exit(return_code)
 
     def run(self, file: Path) -> Tuple[ProblemLevel, int, int]:
-        problems = linter.run(file)
+        problems = Validator.run(file)
 
         problems.sort()
 

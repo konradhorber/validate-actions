@@ -1,7 +1,7 @@
 import tempfile
 from pathlib import Path
 
-from validate_actions import ProblemLevel, linter
+from validate_actions import ProblemLevel, validator
 
 
 def test_run():
@@ -31,7 +31,7 @@ jobs:
         temp_file_path = Path(temp_file.name)
 
     try:
-        problems = linter.run(temp_file_path)
+        problems = validator.Validator.run(temp_file_path)
     finally:
         temp_file_path.unlink(missing_ok=True)
 
