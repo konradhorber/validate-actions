@@ -18,7 +18,7 @@ jobs:
 """
     workflow_out, problems = parse_workflow_string(workflow_string)
     env_ = workflow_out.jobs_['build'].env_
-    assert problems == []
+    assert problems.problems == []
     assert env_.get('GITHUB_TOKEN').string == '${{ secrets.GITHUB_TOKEN }}'
     assert env_.get('FIRST_NAME').string == 'Mona'
     assert env_.get('LAST_NAME').string == 'Octocat'
@@ -41,7 +41,7 @@ jobs:
 """
     workflow_out, problems = parse_workflow_string(workflow_string)
     env_ = workflow_out.jobs_['build'].steps_[0].env_
-    assert problems == []
+    assert problems.problems == []
     assert env_.get('GITHUB_TOKEN').string == '${{ secrets.GITHUB_TOKEN }}'
     assert env_.get('FIRST_NAME').string == 'Mona'
     assert env_.get('LAST_NAME').string == 'Octocat'
@@ -61,7 +61,7 @@ jobs:
 """
     workflow_out, problems = parse_workflow_string(workflow_string)
     timeout_minutes_ = workflow_out.jobs_['build'].steps_[0].timeout_minutes_
-    assert problems == []
+    assert problems.problems == []
     assert timeout_minutes_ == 10
 
 
@@ -79,7 +79,7 @@ jobs:
 """
     workflow_out, problems = parse_workflow_string(workflow_string)
     continue_on_error_ = workflow_out.jobs_['build'].steps_[0].continue_on_error_
-    assert problems == []
+    assert problems.problems == []
     assert continue_on_error_ is True
 
 
@@ -100,7 +100,7 @@ jobs:
 """
     workflow_out, problems = parse_workflow_string(workflow_string)
     permissions_ = workflow_out.jobs_['stale'].permissions_
-    assert problems[0].desc == "Invalid permission: pull_request_review"
+    assert problems.problems[0].desc == "Invalid permission: pull_request_review"
     assert permissions_.issues_ == ast.Permission.write
     assert permissions_.pull_requests_ == ast.Permission.read
     assert permissions_.id_token_ == ast.Permission.none
@@ -121,7 +121,7 @@ jobs:
 """
     workflow_out, problems = parse_workflow_string(workflow_string)
     permissions_ = workflow_out.jobs_['stale'].permissions_
-    assert problems == []
+    assert problems.problems == []
     assert permissions_.issues_ == ast.Permission.read
     assert permissions_.pull_requests_ == ast.Permission.read
 
@@ -140,6 +140,6 @@ jobs:
 """
     workflow_out, problems = parse_workflow_string(workflow_string)
     permissions_ = workflow_out.jobs_['stale'].permissions_
-    assert problems == []
+    assert problems.problems == []
     assert permissions_.issues_ == ast.Permission.none
     assert permissions_.pull_requests_ == ast.Permission.none

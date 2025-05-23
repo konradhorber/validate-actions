@@ -3,7 +3,9 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Dict, List, Optional
 
-from yaml import ScalarToken, Token
+from yaml import ScalarToken
+
+from validate_actions.pos import Pos
 
 
 @dataclass(frozen=True)
@@ -233,17 +235,6 @@ class ExecRun(Exec):
     shell_: Optional['String'] = None
     working_directory_: Optional['String'] = None
 # endregion Jobs
-
-
-@dataclass(frozen=True)
-class Pos:
-    line: int
-    col: int
-
-    @classmethod
-    def from_token(cls, token: Token) -> 'Pos':
-        """Creates a Pos instance from a YAML token."""
-        return cls(token.start_mark.line, token.start_mark.column)
 
 
 @dataclass(frozen=True)

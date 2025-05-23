@@ -3,7 +3,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import validate_actions.workflow.ast as ast
-from validate_actions.lint_problem import LintProblem
+from validate_actions.pos import Pos
+from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow import helper
 from validate_actions.workflow.events_builder import EventsBuilder
 from validate_actions.workflow.jobs_builder import JobsBuilder
@@ -12,12 +13,12 @@ from validate_actions.workflow.parser import YAMLParser
 
 class Director(ABC):
     @abstractmethod
-    def build(self) -> Tuple[ast.Workflow, List[LintProblem]]:
+    def build(self) -> Tuple[ast.Workflow, Problems]:
         """
         Build a structured workflow representation from the input YAML file.
 
         Returns:
-            Tuple[Workflow, List[LintProblem]]: A tuple containing the built
+            Tuple[Workflow, Problems]: A tuple containing the built
                 Workflow object and a list of any lint problems found during
                 parsing.
         """
@@ -38,7 +39,7 @@ class BaseDirector(Director):
         self,
         workflow_file: Path,
         parser: YAMLParser,
-        problems: List[LintProblem],
+        problems: Problems,
         events_builder: EventsBuilder,
         jobs_builder: JobsBuilder,
     ) -> None:
@@ -59,7 +60,7 @@ class BaseDirector(Director):
         self.events_builder = events_builder
         self.jobs_builder = jobs_builder
 
-    def build(self) -> Tuple[ast.Workflow, List[LintProblem]]:
+    def build(self) -> Tuple[ast.Workflow, Problems]:
         """Parse the workflow file and build a structured workflow
         representation.
 
@@ -67,7 +68,7 @@ class BaseDirector(Director):
         validating the structure and collecting any problems encountered.
 
         Returns:
-            Tuple[Workflow, List[LintProblem]]: A tuple containing the built
+            Tuple[Workflow, Problems]: A tuple containing the built
                 Workflow object and a list of any lint problems found during
                 parsing.
         """
@@ -105,17 +106,17 @@ class BaseDirector(Director):
                 case 'jobs':
                     jobs_ = self.jobs_builder.build(workflow_dict[key])
                 case _:
-                    self.problems.append(LintProblem(
+                    self.problems.append(Problem(
                         pos=key.pos,
                         desc=f"Unknown top-level workflow key: {key.string}",
-                        level='error',
+                        level=ProblemLevel.ERR,
                         rule=self.RULE_NAME
                     ))
         if not on_ or not jobs_:
-            self.problems.append(LintProblem(
-                pos=ast.Pos(0, 0),
+            self.problems.append(Problem(
+                pos=Pos(0, 0),
                 desc="Workflow must have at least one 'on' event and one job.",
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=self.RULE_NAME
             ))
 

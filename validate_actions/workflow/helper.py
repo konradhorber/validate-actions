@@ -1,15 +1,16 @@
 import dataclasses
 import importlib.resources as pkg_resources
 import json
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 
-from validate_actions.lint_problem import LintProblem
+from validate_actions.pos import Pos
+from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow import ast
 
 
 def build_env(
     env_vars: Dict[ast.String, Any],
-    problems: List[LintProblem],
+    problems: Problems,
     RULE_NAME: str
 ) -> Optional[ast.Env]:
     env_vars_out: Dict[ast.String, ast.String] = {}
@@ -17,17 +18,17 @@ def build_env(
         if isinstance(key, ast.String) and isinstance(env_vars[key], ast.String):
             env_vars_out[key] = env_vars[key]
         else:
-            problems.append(LintProblem(
+            problems.append(Problem(
                 pos=key.pos,
                 desc=f"Invalid environment variable value: {key.string}",
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=RULE_NAME
             ))
     if len(env_vars_out) == 0:
-        problems.append(LintProblem(
-            pos=ast.Pos(0, 0),
+        problems.append(Problem(
+            pos=Pos(0, 0),
             desc="No valid environment variables found.",
-            level='error',
+            level=ProblemLevel.ERR,
             rule=RULE_NAME
         ))
         return None
@@ -36,7 +37,7 @@ def build_env(
 
 def build_permissions(
     permissions_in: Union[Dict[ast.String, Any], ast.String],
-    problems: List[LintProblem],
+    problems: Problems,
     RULE_NAME: str
 ) -> ast.Permissions:
     permissions_data = {}
@@ -48,10 +49,10 @@ def build_permissions(
         elif permissions_in.string == "write-all":
             permission_value = ast.Permission.write
         else:
-            problems.append(LintProblem(
+            problems.append(Problem(
                 pos=permissions_in.pos,
                 desc=f"Invalid permission value: {permissions_in.string}",
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=RULE_NAME
             ))
             return ast.Permissions()
@@ -72,29 +73,29 @@ def build_permissions(
                 try:
                     permission = ast.Permission[val.string]
                 except KeyError:
-                    problems.append(LintProblem(
+                    problems.append(Problem(
                         pos=key.pos,
                         desc=f"Invalid permission value: {val.string}",
-                        level='error',
+                        level=ProblemLevel.ERR,
                         rule=RULE_NAME
                     ))
                     continue
 
                 if key_str_conv not in possible_permission_fields:
-                    problems.append(LintProblem(
+                    problems.append(Problem(
                         pos=key.pos,
                         desc=f"Invalid permission: {key.string}",
-                        level='error',
+                        level=ProblemLevel.ERR,
                         rule=RULE_NAME
                     ))
                     continue
 
                 permissions_data[key_str_conv] = permission
             else:
-                problems.append(LintProblem(
+                problems.append(Problem(
                     pos=key.pos,
                     desc="Invalid permission",
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=RULE_NAME
                 ))
 

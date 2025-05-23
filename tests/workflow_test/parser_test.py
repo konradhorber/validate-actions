@@ -1,4 +1,5 @@
 from tests.helper import parse_workflow_string
+from validate_actions.pos import Pos
 from validate_actions.workflow import ast
 
 
@@ -28,7 +29,7 @@ jobs:
         'ref',
     ]
     should_be = ast.Reference(
-        pos=ast.Pos(line=14, col=16),
+        pos=Pos(line=14, col=16),
         string='${{ steps.step1.outputs.ref }}',
         parts=parts,
     )

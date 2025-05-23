@@ -2,122 +2,138 @@ import sys
 from pathlib import Path
 from typing import Tuple
 
+import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from validate_actions import linter
-
-STYLE = {
-    0: {
-        'color_bold': '\033[1;92m',
-        'color': '\033[92m',
-        'sign': '✓'
-    },
-    1: {
-        'color_bold': '\033[1;31m',
-        'color': '\033[31m',
-        'sign': '✗'
-    },
-    2: {
-        'color_bold': '\033[1;33m',
-        'color': '\033[33m',
-        'sign': '⚠'
-    },
-    'format_end': '\033[0m',
-    'neutral': '\033[2m',
-}
+from validate_actions.problems import Problem, ProblemLevel, Problems
+from validate_actions.validator import Validator
 
 
-class Format:
-    @staticmethod
-    def standard_color(problem, filename):
+class CLI:
+    STYLE = {
+        ProblemLevel.NON: {
+            'color_bold': '\033[1;92m',
+            'color': '\033[92m',
+            'sign': '✓'
+        },
+        ProblemLevel.ERR: {
+            'color_bold': '\033[1;31m',
+            'color': '\033[31m',
+            'sign': '✗'
+        },
+        ProblemLevel.WAR: {
+            'color_bold': '\033[1;33m',
+            'color': '\033[33m',
+            'sign': '⚠'
+        }
+    }
+    DEF_STYLE = {
+        'format_end': '\033[0m',
+        'neutral': '\033[2m',
+    }
+
+    def start(self) -> None:
+        project_root = self.find_workflows()
+        if not project_root:
+            print(
+                f'{self.DEF_STYLE["neutral"]}Could not find workflows directory. '
+                f'Please run this script from the root of your project.'
+                f'{self.DEF_STYLE["format_end"]}'
+            )
+            raise typer.Exit(1)
+        directory = project_root / '.github/workflows'
+        self.run_directory(directory)
+
+    def find_workflows(self, marker='.github'):
+        start_dir = Path.cwd()
+        for directory in [start_dir] + list(start_dir.parents)[:2]:
+            if (directory / marker).is_dir():
+                return directory
+        return None
+
+    def run_directory(self, directory: Path) -> None:
+        max_level = ProblemLevel.NON
+        total_errors = 0
+        total_warnings = 0
+
+        prob_level: ProblemLevel
+        files = list(directory.glob('*.yml')) + list(directory.glob('*.yaml'))
+        for file in files:
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                transient=True
+            ) as progress:
+                progress.add_task(description=f'Validating {file.name}...', total=None)
+                prob_level, n_errors, n_warnings = self.run(file)
+            max_level = ProblemLevel(max(max_level.value, prob_level.value))
+            total_errors += n_errors
+            total_warnings += n_warnings
+
+        self.show_end_msg(max_level, total_errors, total_warnings)
+
+        match max_level:
+            case ProblemLevel.NON:
+                return_code = 0
+            case ProblemLevel.WAR:
+                return_code = 2
+            case ProblemLevel.ERR:
+                return_code = 1
+            case _:
+                raise ValueError(f"Invalid problem level: {max_level}")
+
+        sys.exit(return_code)
+
+    def run(self, file: Path) -> Tuple[ProblemLevel, int, int]:
+        problems = Validator.run(file)
+
+        problems.sort()
+
+        self.show_problems(problems, file)
+
+        return problems.max_level, problems.n_error, problems.n_warning
+
+    def show_problems(self, problems: Problems, file: Path) -> None:
+        print()
+        print(f'\033[4m{file}\033[0m')
+
+        for problem in problems.problems:
+            print(self.standard_color(problem, file))
+
+        if problems.max_level == ProblemLevel.NON:
+            print(
+                f'  {self.DEF_STYLE["neutral"]}{self.STYLE[ProblemLevel.NON]["sign"]} All checks '
+                f'passed\033[0m'
+            )
+
+    def standard_color(self, problem: Problem, filename: Path) -> str:
         line = (
-            f'  {STYLE["neutral"]}{problem.line + 1}:{problem.column + 1}'
-            f'{STYLE["format_end"]}'
+            f'  {self.DEF_STYLE["neutral"]}{problem.pos.line + 1}:{problem.pos.col + 1}'
+            f'{self.DEF_STYLE["format_end"]}'
         )
         line += max(20 - len(line), 0) * ' '
-        if problem.level == 'warning':
-            line += f'{STYLE[2]["color"]}{problem.level}{STYLE["format_end"]}'
-        else:
-            line += f'{STYLE[1]["color"]}{problem.level}{STYLE["format_end"]}'
+        war = ProblemLevel.WAR
+        err = ProblemLevel.ERR
+        if problem.level == war:
+            level_str = 'warning'
+            line += f'{self.STYLE[war]["color"]}{level_str}{self.DEF_STYLE["format_end"]}'
+        elif problem.level == err:
+            level_str = 'error'
+            line += f'{self.STYLE[err]["color"]}{level_str}{self.DEF_STYLE["format_end"]}'
         line += max(38 - len(line), 0) * ' '
         line += problem.desc
         if problem.rule:
             line += (
-                f'  {STYLE["neutral"]}({problem.rule}){STYLE["format_end"]}'
+                f'  {self.DEF_STYLE["neutral"]}({problem.rule}){self.DEF_STYLE["format_end"]}'
             )
         return line
 
+    def show_end_msg(self, max_level: ProblemLevel, n_error: int, n_warning: int) -> None:
+        style = self.STYLE[max_level]
 
-def run_directory(directory: Path) -> None:
-    max_level = 0
-    total_errors = 0
-    total_warnings = 0
-
-    prob_level = 0
-    files = list(directory.glob('*.yml')) + list(directory.glob('*.yaml'))
-    for file in files:
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            transient=True
-        ) as progress:
-            progress.add_task(description=f'Validating {file.name}...',
-                              total=None)
-            prob_level, n_errors, n_warnings = run(file)
-        max_level = max(max_level, linter.PROBLEM_LEVELS[prob_level])
-        total_errors += n_errors
-        total_warnings += n_warnings
-
-    if max_level == linter.PROBLEM_LEVELS['error']:
-        return_code = 1
-    elif max_level == linter.PROBLEM_LEVELS['warning']:
-        return_code = 2
-    else:
-        return_code = 0
-
-    show_return_message(return_code, total_errors, total_warnings)
-
-    sys.exit(return_code)
-
-
-def run(file: Path) -> Tuple[int, int, int]:
-    problems = linter.run(file)
-
-    sorted_problems = sorted(problems, key=lambda x: (x.line, x.column))
-
-    prob_level = show_problems(sorted_problems, file)
-
-    n_error = sum(1 for p in sorted_problems if p.level == 'error')
-    n_warning = sum(1 for p in sorted_problems if p.level == 'warning')
-
-    return prob_level, n_error, n_warning
-
-
-def show_problems(problems, file):
-    max_level = 0
-
-    print()
-    print(f'\033[4m{file}\033[0m')
-
-    for problem in problems:
-        max_level = max(max_level, linter.PROBLEM_LEVELS[problem.level])
-        print(Format.standard_color(problem, file))
-
-    if max_level == 0:
+        print()
         print(
-            f'  {STYLE["neutral"]}{STYLE[0]["sign"]} All checks passed\033[0m'
+            f'{style["color_bold"]}{style["sign"]} {n_error+n_warning} problems '
+            f'({n_error} errors, {n_warning} warnings){self.DEF_STYLE["format_end"]}'
         )
-
-    problem_level = linter.PROBLEM_LEVELS[max_level]
-    return problem_level
-
-
-def show_return_message(return_code, n_error, n_warning):
-    style = STYLE[return_code]
-
-    print()
-    print(
-        f'{style["color_bold"]}{style["sign"]} {n_error+n_warning} problems '
-        f'({n_error} errors, {n_warning} warnings){STYLE["format_end"]}'
-    )
-    print()
+        print()

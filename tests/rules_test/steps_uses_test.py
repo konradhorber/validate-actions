@@ -1,5 +1,5 @@
 from tests.helper import parse_workflow_string
-from validate_actions import LintProblem, rules
+from validate_actions import Problem, ProblemLevel, rules
 
 
 # with
@@ -19,9 +19,9 @@ jobs:
     gen = rules.JobsStepsUses.check(workflow)
     result = list(gen)
     assert len(result) == 1
-    assert isinstance(result[0], LintProblem)
+    assert isinstance(result[0], Problem)
     assert result[0].rule == 'jobs-steps-uses'
-    assert result[0].level == 'warning'
+    assert result[0].level == ProblemLevel.WAR
 
 
 # region required inputs
@@ -150,9 +150,9 @@ jobs:
     gen = rules.JobsStepsUses.check(workflow)
     result = list(gen)
     assert len(result) == 1
-    assert isinstance(result[0], LintProblem)
+    assert isinstance(result[0], Problem)
     assert result[0].rule == 'jobs-steps-uses'
-    assert result[0].line == 7
+    assert result[0].pos.line == 7
     assert result[0].desc == "8398a7/action-slack@v2 uses unknown input: wrong_input"
 
 
@@ -173,9 +173,9 @@ jobs:
     gen = rules.JobsStepsUses.check(workflow)
     result = list(gen)
     assert len(result) == 1
-    assert isinstance(result[0], LintProblem)
+    assert isinstance(result[0], Problem)
     assert result[0].rule == 'jobs-steps-uses'
-    assert result[0].line == 7
+    assert result[0].pos.line == 7
     assert result[0].desc == "8398a7/action-slack@v2 uses unknown input: wrong_input"
 
 # endregion all inputs
@@ -186,7 +186,7 @@ def throws_single_error(workflow_string: str):
     gen = rules.JobsStepsUses.check(workflow)
     result = list(gen)
     assert len(result) == 1
-    assert isinstance(result[0], LintProblem)
+    assert isinstance(result[0], Problem)
     assert result[0].rule == 'jobs-steps-uses'
 
 

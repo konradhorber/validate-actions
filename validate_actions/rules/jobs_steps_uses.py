@@ -1,6 +1,6 @@
 from typing import Any, Dict, Generator, List, Optional, Tuple, Union
 
-from validate_actions.lint_problem import LintProblem
+from validate_actions.problems import Problem, ProblemLevel
 from validate_actions.rules.rule import Rule
 from validate_actions.rules.support_functions import parse_action
 from validate_actions.workflow.ast import ExecAction, String, Workflow
@@ -16,7 +16,7 @@ class JobsStepsUses(Rule):
     @staticmethod
     def check(
         workflow: 'Workflow',
-    ) -> Generator[LintProblem, None, None]:
+    ) -> Generator[Problem, None, None]:
         """
         Validates all actions in the workflow.
 
@@ -26,14 +26,14 @@ class JobsStepsUses(Rule):
                 to None.
 
         Yields:
-            LintProblem: Problems found during validation.
+            Problem: Problems found during validation.
         """
         return JobsStepsUses.check_single_action(workflow)
 
     @staticmethod
     def check_single_action(
         workflow: 'Workflow'
-    ) -> Generator[LintProblem, None, None]:
+    ) -> Generator[Problem, None, None]:
         """
         Validates actions individually without context declared by `uses:` in
         the workflow steps.
@@ -42,7 +42,7 @@ class JobsStepsUses(Rule):
             workflow (Workflow): The workflow to validate.
 
         Yields:
-            LintProblem: Problems found during validation.
+            Problem: Problems found during validation.
         """
         actions = []
         for job in workflow.jobs_.values():
@@ -54,7 +54,7 @@ class JobsStepsUses(Rule):
         for action in actions:
             yield from JobsStepsUses.not_using_version_spec(action)
             input_result = JobsStepsUses.get_inputs(action)
-            if isinstance(input_result, LintProblem):
+            if isinstance(input_result, Problem):
                 yield input_result
                 return
             else:
@@ -78,7 +78,7 @@ class JobsStepsUses(Rule):
     @staticmethod
     def not_using_version_spec(
         action: ExecAction,
-    ) -> Generator[LintProblem, None, None]:
+    ) -> Generator[Problem, None, None]:
         """
         Checks if an action specifies a version using `@version`. If not, a
         warning is generated.
@@ -87,12 +87,12 @@ class JobsStepsUses(Rule):
             action (ExecAction): The action to validate.
 
         Yields:
-            LintProblem: Warning if version is not specified.
+            Problem: Warning if version is not specified.
         """
         if '@' not in action.uses_.string:
-            yield LintProblem(
+            yield Problem(
                     action.pos,
-                    'warning',
+                    ProblemLevel.WAR,
                     (
                         f'Using specific version of {action.uses_.string} is '
                         f'recommended @version'
@@ -103,7 +103,7 @@ class JobsStepsUses(Rule):
     @staticmethod
     def get_inputs(
         action: ExecAction
-    ) -> Union[Tuple[List[str], List[str]], LintProblem]:
+    ) -> Union[Tuple[List[str], List[str]], Problem]:
         """
         Fetches metadata for an action and extracts its required and possible
         inputs.
@@ -114,14 +114,14 @@ class JobsStepsUses(Rule):
         Returns:
             Tuple[List[str], List[str]]: Required and possible inputs if
                 metadata is fetched successfully.
-            LintProblem: Warning if metadata cannot be fetched.
+            Problem: Warning if metadata cannot be fetched.
         """
         action_metadata = parse_action(action.uses_.string)
 
         if action_metadata is None:
-            return LintProblem(
+            return Problem(
                 action.pos,
-                'warning',
+                ProblemLevel.WAR,
                 (
                     f"Couldn't fetch metadata for {action.uses_.string}. "
                     "Continuing validation without"
@@ -141,7 +141,7 @@ class JobsStepsUses(Rule):
     def misses_required_input(
         action: ExecAction,
         required_inputs: list
-    ) -> Generator[LintProblem, None, None]:
+    ) -> Generator[Problem, None, None]:
         """
         Checks if an action is missing any required inputs.
 
@@ -150,12 +150,12 @@ class JobsStepsUses(Rule):
             required_inputs (list): The list of required inputs.
 
         Yields:
-            LintProblem: Error if required inputs are missing.
+            Problem: Error if required inputs are missing.
         """
         prettyprint_required_inputs = ', '.join(required_inputs)
-        yield LintProblem(
+        yield Problem(
             action.pos,
-            'error',
+            ProblemLevel.ERR,
             (
                 f'{action.uses_.string} misses required inputs: '
                 f'{prettyprint_required_inputs}'
@@ -173,7 +173,7 @@ class JobsStepsUses(Rule):
             required_inputs (list): The list of required inputs.
 
         Yields:
-            LintProblem: Error if required inputs are missing.
+            Problem: Error if required inputs are missing.
         """
         if len(required_inputs) == 0:
             return
@@ -188,7 +188,7 @@ class JobsStepsUses(Rule):
     def uses_non_defined_input(
         action: ExecAction,
         possible_inputs: List[str]
-    ) -> Generator[LintProblem, None, None]:
+    ) -> Generator[Problem, None, None]:
         """
         Checks if an action uses inputs that are not defined in its metadata.
 
@@ -197,16 +197,16 @@ class JobsStepsUses(Rule):
             possible_inputs (List[str]): The list of possible inputs.
 
         Yields:
-            LintProblem: Error if undefined inputs are used.
+            Problem: Error if undefined inputs are used.
         """
         if len(possible_inputs) == 0:
             return
 
         for input in action.with_:
             if input not in possible_inputs:
-                yield LintProblem(
+                yield Problem(
                     action.pos,
-                    'error',
+                    ProblemLevel.ERR,
                     f'{action.uses_.string} uses unknown input: {input.string}',
                     JobsStepsUses.NAME
                 )

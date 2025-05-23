@@ -5,8 +5,9 @@ from typing import Any, Dict, List, Tuple
 
 import yaml
 
-from validate_actions.lint_problem import LintProblem
-from validate_actions.workflow.ast import Pos, Reference, String
+from validate_actions.pos import Pos
+from validate_actions.problems import Problem, ProblemLevel, Problems
+from validate_actions.workflow.ast import Reference, String
 
 
 class YAMLParser(ABC):
@@ -16,14 +17,14 @@ class YAMLParser(ABC):
         ABC: Abstract base class from the abc module.
     """
     @abstractmethod
-    def parse(self, file: Path) -> Tuple[Dict[String, Any], List[LintProblem]]:
+    def parse(self, file: Path) -> Tuple[Dict[String, Any], Problems]:
         """Parse a YAML file into a structured representation.
 
         Args:
             file (Path): Path to the YAML file to parse.
 
         Returns:
-            Tuple[Dict[String, Any], List[LintProblem]]: A tuple containing
+            Tuple[Dict[String, Any], Problems]: A tuple containing
                 the parsed YAML content as a dictionary and a list of lint
                 problems found during parsing.
         """
@@ -40,17 +41,17 @@ class PyYAMLParser(YAMLParser):
     def __init__(self) -> None:
         """Initialize the PyYAMLParser.
         """
-        self.problems: List[LintProblem] = []
+        self.problems: Problems = Problems()
         self.RULE = 'actions_syntax-error'
 
-    def parse(self, file: Path) -> Tuple[Dict[String, Any], List[LintProblem]]:
+    def parse(self, file: Path) -> Tuple[Dict[String, Any], Problems]:
         """Parse a YAML file into a structured representation using PyYAML.
 
         Args:
             file (Path): Path to the YAML file to parse.
 
         Returns:
-            Tuple[Dict[String, Any], List[LintProblem]]: A tuple containing
+            Tuple[Dict[String, Any], Problems]: A tuple containing
                 the parsed YAML content as a dictionary and a list of lint
                 problems found during parsing.
         """
@@ -61,10 +62,10 @@ class PyYAMLParser(YAMLParser):
                 buffer = f.read()
         except OSError as e:
             print(e, file=sys.stderr)
-            self.problems.append(LintProblem(
+            self.problems.append(Problem(
                 pos=Pos(0, 0),
                 desc=f"Error reading from file system for {file}",
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=self.RULE
             ))
             return {}, self.problems
@@ -73,10 +74,10 @@ class PyYAMLParser(YAMLParser):
         try:
             tokens = list(yaml.scan(buffer, Loader=yaml.SafeLoader))
         except yaml.error.MarkedYAMLError as e:
-            self.problems.append(LintProblem(
+            self.problems.append(Problem(
                 pos=Pos(0, 0),
                 desc=f"Error parsing YAML file: {e}",
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=self.RULE
             ))
             return {}, self.problems
@@ -96,10 +97,10 @@ class PyYAMLParser(YAMLParser):
             elif isinstance(token, yaml.BlockEntryToken):
                 pass
             else:
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=Pos(0, 0),
                     desc=error_desc,
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE
                 ))
 
@@ -107,10 +108,10 @@ class PyYAMLParser(YAMLParser):
 
         # If we reach here, it means there's an unexpected error in the
         # workflow structure
-        self.problems.append(LintProblem(
+        self.problems.append(Problem(
             pos=Pos(0, 0),
             desc=error_desc,
-            level='error',
+            level=ProblemLevel.ERR,
             rule=self.RULE
         ))
         return {}, self.problems
@@ -157,10 +158,10 @@ class PyYAMLParser(YAMLParser):
                     key = self.__parse_str(next_token)
 
                 else:
-                    self.problems.append(LintProblem(
+                    self.problems.append(Problem(
                         pos=self.__parse_pos(next_token),
                         desc=error_desc,
-                        level='error',
+                        level=ProblemLevel.ERR,
                         rule=self.RULE
                     ))
 
@@ -172,10 +173,10 @@ class PyYAMLParser(YAMLParser):
                 mapping[key] = value
 
             else:
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=self.__parse_pos(token),
                     desc=error_desc,
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE
                 ))
 
@@ -183,10 +184,10 @@ class PyYAMLParser(YAMLParser):
 
         # If we reach here, it means there's an unexpected error in the
         # block mapping
-        self.problems.append(LintProblem(
+        self.problems.append(Problem(
             pos=self.__parse_pos(tokens[index]),
             desc=error_desc,
-            level='error',
+            level=ProblemLevel.ERR,
             rule=self.RULE
         ))
         return {}, index
@@ -238,10 +239,10 @@ class PyYAMLParser(YAMLParser):
 
         # illegal token at value position
         else:
-            self.problems.append(LintProblem(
+            self.problems.append(Problem(
                 pos=self.__parse_pos(tokens[index]),
                 desc='Error parsing block value',
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=self.RULE
             ))
 
@@ -285,10 +286,10 @@ class PyYAMLParser(YAMLParser):
 
         # If we reach here, it means there's an unexpected error in the
         # block sequence
-        self.problems.append(LintProblem(
+        self.problems.append(Problem(
             pos=self.__parse_pos(tokens[index]),
             desc='Error parsing block sequence',
-            level='error',
+            level=ProblemLevel.ERR,
             rule=self.RULE
         ))
         return [], index
@@ -328,10 +329,10 @@ class PyYAMLParser(YAMLParser):
 
         # If we reach here, it means there's an unexpected error in the
         # block sequence
-        self.problems.append(LintProblem(
+        self.problems.append(Problem(
                 pos=self.__parse_pos(tokens[index]),
                 desc='Error parsing block sequence',
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=self.RULE
             ))
         return [], index
@@ -375,10 +376,10 @@ class PyYAMLParser(YAMLParser):
                     key = self.__parse_str(next_token)
 
                 else:
-                    self.problems.append(LintProblem(
+                    self.problems.append(Problem(
                         pos=self.__parse_pos(next_token),
                         desc=error_desc,
-                        level='error',
+                        level=ProblemLevel.ERR,
                         rule=self.RULE
                     ))
 
@@ -399,18 +400,18 @@ class PyYAMLParser(YAMLParser):
                         index
                     )
                 else:
-                    self.problems.append(LintProblem(
+                    self.problems.append(Problem(
                         pos=self.__parse_pos(next_token),
                         desc=error_desc,
-                        level='error',
+                        level=ProblemLevel.ERR,
                         rule=self.RULE
                     ))
 
             else:
-                self.problems.append(LintProblem(
+                self.problems.append(Problem(
                     pos=self.__parse_pos(token),
                     desc=error_desc,
-                    level='error',
+                    level=ProblemLevel.ERR,
                     rule=self.RULE
                 ))
 
@@ -418,10 +419,10 @@ class PyYAMLParser(YAMLParser):
 
         # If we reach here, it means there's an unexpected error in the
         # flow mapping
-        self.problems.append(LintProblem(
+        self.problems.append(Problem(
             pos=self.__parse_pos(tokens[index]),
             desc=error_desc,
-            level='error',
+            level=ProblemLevel.ERR,
             rule=self.RULE
         ))
         return {}, index
@@ -460,10 +461,10 @@ class PyYAMLParser(YAMLParser):
 
             index += 1
 
-        self.problems.append(LintProblem(
+        self.problems.append(Problem(
             pos=self.__parse_pos(tokens[index]),
             desc='Error parsing flow sequence',
-            level='error',
+            level=ProblemLevel.ERR,
             rule=self.RULE
         ))
         return [], index
@@ -492,10 +493,10 @@ class PyYAMLParser(YAMLParser):
         elif isinstance(token, yaml.FlowSequenceStartToken):
             value, index = self.__parse_flow_sequence(tokens, index)
         else:
-            self.problems.append(LintProblem(
+            self.problems.append(Problem(
                 pos=self.__parse_pos(token),
                 desc='Error parsing flow value',
-                level='error',
+                level=ProblemLevel.ERR,
                 rule=self.RULE
             ))
 
