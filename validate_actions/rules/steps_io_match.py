@@ -1,9 +1,11 @@
 from typing import Dict, Generator
 
 from validate_actions.problems import Problem, ProblemLevel
+from validate_actions.rules.helper import does_expr_exist
 from validate_actions.rules.rule import Rule
 from validate_actions.rules.support_functions import parse_action
 from validate_actions.workflow import Workflow, ast
+from validate_actions.workflow.contexts import Contexts
 
 
 class StepsIOMatch(Rule):
@@ -15,20 +17,22 @@ class StepsIOMatch(Rule):
     ) -> Generator[Problem, None, None]:
         jobs: Dict[ast.String, ast.Job] = workflow.jobs_
         for job in jobs.values():
-            yield from StepsIOMatch.__check_job(job)
+            yield from StepsIOMatch.__check_job(job, contexts=workflow.contexts)
 
     @staticmethod
-    def __check_job(job: ast.Job) -> Generator[Problem, None, None]:
+    def __check_job(job: ast.Job, contexts: Contexts) -> Generator[Problem, None, None]:
         for step in job.steps_:
             yield from StepsIOMatch.__check_step_inputs(
                 step,
                 job,
+                contexts,
             )
 
     @staticmethod
     def __check_step_inputs(
         step: ast.Step,
         job: ast.Job,
+        contexts: Contexts
     ) -> Generator[Problem, None, None]:
         exec: ast.Exec = step.exec
         if not isinstance(exec, ast.ExecAction):
@@ -42,17 +46,18 @@ class StepsIOMatch(Rule):
                 continue
 
             section = input.parts[0]
-            if section == 'env':
-                pass
-            elif section == 'github':
-                pass
-            elif section == 'matrix':
-                pass
-            elif section == 'secrets':
-                pass
-            elif section == 'jobs':
-                pass
-            elif section == 'steps':
+
+            if section != 'steps':
+                expr_check = does_expr_exist(input, contexts)
+                if expr_check is not None:
+                    yield Problem(
+                        pos=input.pos,
+                        desc=expr_check.desc,
+                        level=expr_check.level,
+                        rule=expr_check.rule,
+                    )
+                    continue
+            else:
                 if len(input.parts) < 3:
                     yield Problem(
                         rule=StepsIOMatch.NAME,
@@ -62,17 +67,6 @@ class StepsIOMatch(Rule):
                     )
                     return
                 yield from StepsIOMatch.__check_steps_ref_exists(input, job)
-            else:
-                yield Problem(
-                    rule=StepsIOMatch.NAME,
-                    desc=(
-                        f"Step in job '{job.job_id_}' has an "
-                        f"input '{input.string}' that does not match any step output"
-                    ),
-                    level=ProblemLevel.ERR,
-                    pos=input.pos,
-                )
-        # TODO check if step produces correct outputs
 
     @staticmethod
     def __check_steps_ref_exists(
