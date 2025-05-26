@@ -6,6 +6,7 @@ from typing import Dict, List, Optional
 from yaml import ScalarToken
 
 from validate_actions.pos import Pos
+from validate_actions.workflow.contexts import Contexts
 
 
 @dataclass(frozen=True)
@@ -39,13 +40,13 @@ class Permissions:
 class Workflow:
     on_: List["Event"]
     jobs_: Dict["String", "Job"]
+    contexts: Contexts
     name_: Optional[str] = None
     run_name_: Optional[str] = None
     permissions_: "Permissions" = Permissions()
     env_: Optional["Env"] = None
     defaults_: Optional["Defaults"] = None
     concurrency_: Optional["Concurrency"] = None
-    contexts: Optional[Dict['str', 'Context']] = None
 
 
 # region On
@@ -274,12 +275,3 @@ class Reference(String):
     pos: "Pos"
     string: str
     parts: List[str]
-
-
-@dataclass(frozen=True)
-class Context:
-    """Defines a context node: its type, whether it's defined, and optional children."""
-
-    type_: str  # one of 'string', 'boolean', 'object', 'number'
-    defined_: bool
-    children_: Optional[Dict[str, "Context"]] = None

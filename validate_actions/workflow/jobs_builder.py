@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 from validate_actions.pos import Pos
 from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow import ast, helper
+from validate_actions.workflow.contexts import Contexts
 
 
 class JobsBuilder(ABC):
@@ -23,10 +24,12 @@ class BaseJobsBuilder(JobsBuilder):
         self,
         problems: Problems,
         schema: Dict[str, Any],
+        contexts: Contexts
     ) -> None:
         self.problems = problems
         self.RULE_NAME = 'jobs-syntax-error'
         self.schema = schema
+        self.contexts = contexts
 
     def build(
         self,
@@ -87,7 +90,9 @@ class BaseJobsBuilder(JobsBuilder):
                 case 'outputs':
                     pass
                 case 'env':
-                    env_ = helper.build_env(job_dict[key], self.problems, self.RULE_NAME)
+                    env_ = helper.build_env(
+                        job_dict[key], self.contexts, self.problems, self.RULE_NAME
+                    )
                 case 'defaults':
                     pass
                 case 'steps':
@@ -201,7 +206,9 @@ class BaseJobsBuilder(JobsBuilder):
                         else:
                             with_[with_key] = with_value
                 case 'env':
-                    env_ = helper.build_env(step_token_tree[key], self.problems, self.RULE_NAME)
+                    env_ = helper.build_env(
+                        step_token_tree[key], self.contexts, self.problems, self.RULE_NAME
+                    )
                 case 'continue-on-error':
                     continue_on_error_ = step_token_tree[key]
                 case 'timeout-minutes':
