@@ -8,6 +8,118 @@ from validate_actions.workflow import Workflow, ast
 
 class StepsIOMatch(Rule):
     NAME = 'steps-io-match'
+    CONTEXTS = {
+        'github': [
+            'action',
+            'action_path',
+            'action_ref',
+            'action_repository',
+            'action_status',
+            'actor',
+            'actor_id',
+            'api_url',
+            'base_ref',
+            'env',
+            'event',
+            'event_name',
+            'event_path',
+            'graphql_url',
+            'head_ref',
+            'job',
+            'path',
+            'ref',
+            'ref_name',
+            'ref_protected',
+            'ref_type',
+            'repository',
+            'repository_id',
+            'repository_owner',
+            'repository_owner_id',
+            'repositoryUrl',
+            'retention_days',
+            'run_id',
+            'run_number',
+            'run_attempt',
+            'secret_source',
+            'server_url',
+            'sha',
+            'token',
+            'triggering_actor',
+            'workflow',
+            'workflow_ref',
+            'workflow_sha',
+            'workspace',
+        ],
+        'env': [
+            '<env_name>',
+        ],
+        'vars': [
+            '<var>',
+        ],
+        'job': {
+            'container': [
+                'id',
+                'network',
+            ],
+            'services': {
+                '<service_id>': [
+                    'network',
+                    'ports'
+                ]
+            },
+            'status': []
+        },
+        'jobs': {
+            '<job_id>': {
+                'result': [],
+                'outputs': [
+                    '<output_name>',
+                ],
+            }
+        },
+        'steps': {
+            '<step_id>': {
+                'outputs': [
+                    '<output_name>',
+                ],
+                'conclusion': [],
+                'outcome': [],
+                },
+        },
+        'runner': [
+            'name',
+            'os',
+            'arch',
+            'temp',
+            'tool_cache',
+            'debug',
+            'environment',
+        ],
+        'secrets': [
+            'GITHUB_TOKEN',
+            '<secret_name>',
+        ],
+        'strategy': [
+            'fail-fast',
+            'job-index',
+            'job-total',
+            'max-parallel',
+        ],
+        'matrix': [
+            '<property_name>',
+        ],
+        'needs': {
+            '<job_id>': {
+                'result': [],
+                'outputs': [
+                    '<output_name>',
+                ],
+            }
+        },
+        'inputs': [
+            '<input_name>',
+        ],
+    }
 
     @staticmethod
     def check(
