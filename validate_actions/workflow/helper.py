@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, Union
 from validate_actions.pos import Pos
 from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow import ast
-from validate_actions.workflow.contexts import Context, Contexts, ContextType
+from validate_actions.workflow.contexts import Contexts, ContextType
 
 
 def build_env(
@@ -20,10 +20,10 @@ def build_env(
         if isinstance(key, ast.String):
             if isinstance(env_vars[key], ast.String): 
                 env_vars_out[key] = env_vars[key]
-                contexts.env.children_[key.string] = Context(type_=ContextType.string)
+                contexts.env.children_[key.string] = ContextType.string
             elif isinstance(env_vars[key], ast.Reference):
                 env_vars_out[key] = env_vars[key]
-                contexts.env.children_[key.string] = Context(type_=ContextType.string)
+                contexts.env.children_[key.string] = ContextType.string
             else:
                 problems.append(Problem(
                     pos=key.pos,
