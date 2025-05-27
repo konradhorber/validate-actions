@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Dict
+from typing import Dict, Optional
 
 
 @dataclass(frozen=True)
@@ -104,15 +104,13 @@ class JobContext:
 @dataclass
 class OutputsContext:
     type_: ContextType = ContextType.object
-    defined_: bool = False
-    children_: Dict[str, Context] = field(default_factory=dict)
+    children_: Dict[str, ContextType.string] = field(default_factory=dict)
 
 
 @dataclass
 class JobVarContext:
-    type_: ContextType = ContextType.object
-    defined_: bool = False
-    result: Context = Context(type_=ContextType.string)
+    type_: Optional[ContextType] = None
+    result: ContextType = ContextType.string
     outputs: OutputsContext = field(default_factory=OutputsContext)
 
 
@@ -125,14 +123,12 @@ class JobsContext:
 @dataclass
 class StepOutputsContext:
     type_: ContextType = ContextType.object
-    defined_: bool = False
     children_: Dict[str, Context] = field(default_factory=dict)
 
 
 @dataclass
 class StepVarContext:
     type_: ContextType = ContextType.object
-    defined_: bool = False
     outputs: StepOutputsContext = field(default_factory=StepOutputsContext)
     conclusion: Context = Context(type_=ContextType.string)
     outcome: Context = Context(type_=ContextType.string)
@@ -181,14 +177,12 @@ class MatrixContext:
 @dataclass
 class NeedOutputsContext:
     type_: ContextType = ContextType.object
-    defined_: bool = False
     children_: Dict[str, Context] = field(default_factory=dict)
 
 
 @dataclass
 class NeedContext:
     type_: ContextType = ContextType.object
-    defined_: bool = False
     result: Context = Context(type_=ContextType.string)
     outputs: NeedOutputsContext = field(default_factory=NeedOutputsContext)
 

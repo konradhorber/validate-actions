@@ -4,7 +4,12 @@ from typing import Any, Dict, List, Optional
 from validate_actions.pos import Pos
 from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow import ast, helper
-from validate_actions.workflow.contexts import Contexts
+from validate_actions.workflow.contexts import (
+    Contexts,
+    ContextType,
+    JobsContext,
+    JobVarContext,
+)
 
 
 class JobsBuilder(ABC):
@@ -36,14 +41,19 @@ class BaseJobsBuilder(JobsBuilder):
         jobs_dict: Dict[ast.String, Any]
     ) -> Dict[ast.String, ast.Job]:
         jobs = {}
+        jobs_context = JobsContext()
         for job_id, job_dict in jobs_dict.items():
-            jobs[job_id] = self.__build_job(job_dict, job_id)
+            job_context = JobVarContext()
+            jobs[job_id] = self.__build_job(job_dict, job_id, job_context)
+            jobs_context.children_[job_id.string] = job_context
+        self.contexts.jobs = jobs_context
         return jobs
 
     def __build_job(
         self,
         job_dict: Dict[ast.String, Any],
-        job_id: ast.String
+        job_id: ast.String,
+        job_context: JobVarContext
     ) -> ast.Job:
         pos = Pos(
             line=job_id.pos.line,
@@ -88,7 +98,7 @@ class BaseJobsBuilder(JobsBuilder):
                 case 'concurrency':
                     pass
                 case 'outputs':
-                    pass
+                    self._build_jobs_context_output(key, job_dict, job_context)
                 case 'env':
                     env_ = helper.build_env(
                         job_dict[key], self.contexts, self.problems, self.RULE_NAME
@@ -270,3 +280,44 @@ class BaseJobsBuilder(JobsBuilder):
             continue_on_error_=continue_on_error_,
             timeout_minutes_=timeout_minutes_
         )
+
+    def _build_jobs_context_output(
+        self,
+        key: ast.String,
+        job_dict: Dict[ast.String, Any],
+        job_context: JobVarContext
+    ) -> None:
+        """Generate output content for jobs context.
+
+        Args:
+            key (ast.String): The key where outputs are defined in the job.
+            job_dict (Dict[ast.String, Any]): The dictionary representing the job.
+            job_context (JobVarContext): The context for the job where outputs will be stored.
+        """
+        outputs = job_dict[key]
+
+        # check that output is mapping, should always be
+        if not isinstance(outputs, dict):
+            self.problems.append(Problem(
+                pos=key.pos,
+                desc="Outputs must be a mapping",
+                level=ProblemLevel.ERR,
+                rule=self.RULE_NAME
+            ))
+            return
+
+        outputs_context = job_context.outputs.children_
+
+        for output_name in outputs:
+            # check that output name is string, should always be
+            if not isinstance(output_name, ast.String):
+                self.problems.append(Problem(
+                    pos=key.pos,
+                    desc="Output name must be a string",
+                    level=ProblemLevel.ERR,
+                    rule=self.RULE_NAME
+                ))
+                continue
+
+            # add output_name to job context
+            outputs_context[output_name.string] = ContextType.string

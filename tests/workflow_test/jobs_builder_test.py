@@ -1,5 +1,5 @@
 from tests.helper import parse_workflow_string
-from validate_actions.workflow import ast
+from validate_actions.workflow import ast, contexts
 
 
 def test_job_env():
@@ -143,3 +143,30 @@ jobs:
     assert problems.problems == []
     assert permissions_.issues_ == ast.Permission.none
     assert permissions_.pull_requests_ == ast.Permission.none
+
+
+def test_jobs_context_builds():
+    workflow_string = """
+    on: push
+    jobs:
+      stale:
+        runs-on: ubuntu-latest
+
+        outputs:
+          stale_output: ${{ steps.one.outputs.closed-issues-prs }}
+
+        steps:
+          - id: one
+            uses: actions/stale@v9
+
+    """  # TODO check if output reference is correct
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    jobs_context = workflow_out.contexts.jobs
+    assert isinstance(jobs_context, contexts.JobsContext)
+    jobs_context_stale = jobs_context.children_['stale']
+    assert isinstance(jobs_context_stale, contexts.JobVarContext)
+    jobs_context_stale_outputs = jobs_context_stale.outputs
+    assert isinstance(jobs_context_stale_outputs, contexts.OutputsContext)
+    stale_output = jobs_context_stale_outputs.children_['stale_output']
+    assert stale_output is not None
+    assert isinstance(stale_output, contexts.ContextType)
