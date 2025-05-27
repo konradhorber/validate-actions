@@ -1,7 +1,6 @@
 from typing import Dict, Generator
 
 from validate_actions.problems import Problem, ProblemLevel
-from validate_actions.rules.helper import does_expr_exist
 from validate_actions.rules.rule import Rule
 from validate_actions.rules.support_functions import parse_action
 from validate_actions.workflow import Workflow, ast
@@ -46,18 +45,7 @@ class StepsIOMatch(Rule):
                 continue
 
             section = input.parts[0]
-
-            if section != 'steps':
-                expr_check = does_expr_exist(input, contexts)
-                if expr_check is not None:
-                    yield Problem(
-                        pos=input.pos,
-                        desc=expr_check.desc,
-                        level=expr_check.level,
-                        rule=expr_check.rule,
-                    )
-                    continue
-            else:
+            if section == 'steps':
                 if len(input.parts) < 3:
                     yield Problem(
                         rule=StepsIOMatch.NAME,
