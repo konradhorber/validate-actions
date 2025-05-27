@@ -13,7 +13,8 @@ from validate_actions.workflow.parser import PyYAMLParser
 class Validator:
     ACTIONS_ERROR_RULES = [
         rules.JobsStepsUses,
-        rules.StepsIOMatch
+        rules.StepsIOMatch,
+        rules.ExpressionsContexts,
     ]
 
     @staticmethod

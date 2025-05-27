@@ -191,15 +191,25 @@ def test_job_context_incorrect():
 
 def test_runner_context_correct():
     workflow_string = """
+    name: Build
     on: push
+
     jobs:
-      job:
+      build:
         runs-on: ubuntu-latest
         steps:
-        - uses: actions/setup-node@v4
-          with:
-            node-version: 20
-            architecture: ${{ runner.arch }}
+          - uses: actions/checkout@v4
+          - name: Build with logs
+            run: |
+              mkdir ${{ runner.temp }}/build_logs
+              echo "Logs from building" > ${{ runner.temp }}/build_logs/build.logs
+              exit 1
+          - name: Upload logs on fail
+            if: ${{ failure() }}
+            uses: actions/upload-artifact@v4
+            with:
+              name: Build failure logs
+              path: ${{ runner.temp }}/build_logs
     """
     workflow, problems = parse_workflow_string(workflow_string)
     gen = rules.ExpressionsContexts.check(workflow)
@@ -209,17 +219,25 @@ def test_runner_context_correct():
 
 def test_runner_context_wrong():
     workflow_string = """
+    name: Build
     on: push
-    env:
-      ARCH: ${{ runner.arch }}
+
     jobs:
-      job:
+      build:
         runs-on: ubuntu-latest
         steps:
-        - uses: actions/setup-node@v4
-          with:
-            node-version: 20
-            architecture: $ARCH
+          - uses: actions/checkout@v4
+          - name: Build with logs
+            run: |
+              mkdir ${{ runner.temmp }}/build_logs  # error
+              echo "Logs from building" > ${{ runner.temp }}/build_logs/build.logs
+              exit 1
+          - name: Upload logs on fail
+            if: ${{ failure() }}
+            uses: actions/upload-artifact@v4
+            with:
+              name: Build failure logs
+              path: ${{ runner.temp }}/build_logs
     """
     workflow, problems = parse_workflow_string(workflow_string)
     gen = rules.ExpressionsContexts.check(workflow)

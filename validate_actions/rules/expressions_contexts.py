@@ -4,7 +4,7 @@ from typing import Generator, Optional
 
 from validate_actions.problems import Problem, ProblemLevel
 from validate_actions.rules.rule import Rule
-from validate_actions.workflow.ast import Reference, Workflow
+from validate_actions.workflow.ast import Expression, Workflow
 from validate_actions.workflow.contexts import Contexts
 
 
@@ -24,11 +24,11 @@ class ExpressionsContexts(Rule):
     @staticmethod
     def _traverse(obj, cur_context: Contexts):
         """
-        Recursively traverse AST, yielding (Reference, Contexts) pairs.
+        Recursively traverse AST, yielding (Expression, Contexts) pairs.
         Update context when encountering a node with its own 'contexts' field.
         """
-        # direct reference: emit with current context
-        if isinstance(obj, Reference):
+        # direct Expression: emit with current context
+        if isinstance(obj, Expression):
             yield obj, cur_context
             return
         # skip walking inside the Contexts definitions themselves
@@ -62,7 +62,7 @@ class ExpressionsContexts(Rule):
 
     @staticmethod
     def does_expr_exist(
-        expr: Reference,
+        expr: Expression,
         contexts: Contexts,
     ) -> Optional[Problem]:
         # Iteratively check each part of the expression against the context tree
@@ -81,9 +81,12 @@ class ExpressionsContexts(Rule):
                 cur = getattr(cur, part)
             elif hasattr(cur, 'children_') and part in getattr(cur, 'children_'):
                 cur = cur.children_[part]
+            elif hasattr(cur, 'functions_') and part in getattr(cur, 'functions_'):
+                cur = getattr(cur, 'functions_')[part]
             elif isinstance(cur, list) and part in cur:
                 index = cur.index(part)
                 cur = cur[index]
+
             else:
                 return problem
         return None

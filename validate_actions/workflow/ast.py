@@ -242,6 +242,11 @@ class ExecRun(Exec):
 
 
 # endregion Jobs
+@dataclass(frozen=True)
+class Expression():
+    pos: "Pos"
+    string: str
+    parts: List[str]
 
 
 @dataclass(frozen=True)
@@ -252,6 +257,8 @@ class String:
     """The string value extracted from the token."""
     pos: "Pos"
     """The position of the string in the source, including line and column."""
+
+    expr: Optional[Expression] = None
 
     @classmethod
     def from_token(cls, token: ScalarToken) -> "String":
@@ -271,8 +278,3 @@ class String:
         return hash(self.string)
 
 
-@dataclass(frozen=True)
-class Reference(String):
-    pos: "Pos"
-    string: str
-    parts: List[str]

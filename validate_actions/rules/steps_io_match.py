@@ -41,24 +41,24 @@ class StepsIOMatch(Rule):
         if len(inputs) == 0:
             return
         for input in inputs.values():
-            if not isinstance(input, ast.Reference):
+            if input.expr is None:
                 continue
 
-            section = input.parts[0]
+            section = input.expr.parts[0]
             if section == 'steps':
-                if len(input.parts) < 3:
+                if len(input.expr.parts) < 3:
                     yield Problem(
                         rule=StepsIOMatch.NAME,
-                        desc=f'error in step reference {input.string}',
+                        desc=f'error in step expression {input.expr.string}',
                         level=ProblemLevel.ERR,
                         pos=input.pos,
                     )
                     return
-                yield from StepsIOMatch.__check_steps_ref_exists(input, job)
+                yield from StepsIOMatch.__check_steps_ref_exists(input.expr, job)
 
     @staticmethod
     def __check_steps_ref_exists(
-        ref: ast.Reference,
+        ref: ast.Expression,
         job: ast.Job,
     ) -> Generator[Problem, None, None]:
         referenced_step_id = ref.parts[1]
@@ -77,7 +77,7 @@ class StepsIOMatch(Rule):
 
     @staticmethod
     def __check_steps_ref_content(
-        ref: ast.Reference,
+        ref: ast.Expression,
         step: ast.Step,
         job: ast.Job,
     ) -> Generator[Problem, None, None]:

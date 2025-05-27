@@ -193,6 +193,22 @@ class InputsContext:
     children_: Dict[str, ContextType] = field(default_factory=dict)
 
 
+functions_ = {
+    'contains()': ContextType.boolean,
+    'startsWith()': ContextType.boolean,
+    'endsWith()': ContextType.boolean,
+    'format()': ContextType.string,
+    'join()': ContextType.string,
+    'toJSON()': ContextType.string,
+    'fromJSON()': ContextType.object,
+    'hashFiles()': ContextType.string,
+    'success()': ContextType.boolean,
+    'always()': ContextType.boolean,
+    'cancelled()': ContextType.boolean,
+    'failure()': ContextType.boolean,
+}
+
+
 @dataclass
 class Contexts:
     github: GithubContext = field(default_factory=GithubContext)
@@ -207,3 +223,4 @@ class Contexts:
     matrix: MatrixContext = field(default_factory=MatrixContext)
     needs: NeedsContext = field(default_factory=NeedsContext)
     inputs: InputsContext = field(default_factory=InputsContext)
+    functions_ = functions_
