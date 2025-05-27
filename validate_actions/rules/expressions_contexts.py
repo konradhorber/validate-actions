@@ -15,30 +15,50 @@ class ExpressionsContexts(Rule):
     def check(
         workflow: 'Workflow',
     ) -> Generator[Problem, None, None]:
-        for ref in ExpressionsContexts._traverse(workflow):
-            problem = ExpressionsContexts.does_expr_exist(ref, workflow.contexts)
+        # start traversal with the global workflow contexts
+        for ref, ctx in ExpressionsContexts._traverse(workflow, workflow.contexts):
+            problem = ExpressionsContexts.does_expr_exist(ref, ctx)
             if problem:
                 yield problem
 
     @staticmethod
-    def _traverse(obj):
+    def _traverse(obj, cur_context: Contexts):
+        """
+        Recursively traverse AST, yielding (Reference, Contexts) pairs.
+        Update context when encountering a node with its own 'contexts' field.
+        """
+        # direct reference: emit with current context
         if isinstance(obj, Reference):
-            yield obj
-        elif isinstance(obj, Contexts):
+            yield obj, cur_context
             return
-        elif is_dataclass(obj):
+        # skip walking inside the Contexts definitions themselves
+        if isinstance(obj, Contexts):
+            return
+        # dataclass nodes: check for own contexts, then traverse fields
+        if is_dataclass(obj):
+            # switch to local context if available
+            new_context = cur_context
+            if hasattr(obj, 'contexts') and isinstance(getattr(obj, 'contexts'), Contexts):
+                new_context = getattr(obj, 'contexts')
             for f in fields(obj):
+                if f.name == 'contexts':
+                    # do not traverse into context definitions
+                    continue
                 try:
                     val = getattr(obj, f.name)
                 except AttributeError:
                     continue
-                yield from ExpressionsContexts._traverse(val)
-        elif isinstance(obj, Mapping):
+                yield from ExpressionsContexts._traverse(val, new_context)
+            return
+        # mappings and sequences: propagate current context
+        if isinstance(obj, Mapping):
             for v in obj.values():
-                yield from ExpressionsContexts._traverse(v)
-        elif isinstance(obj, Sequence) and not isinstance(obj, (str, bytes)):
+                yield from ExpressionsContexts._traverse(v, cur_context)
+            return
+        if isinstance(obj, Sequence) and not isinstance(obj, (str, bytes)):
             for item in obj:
-                yield from ExpressionsContexts._traverse(item)
+                yield from ExpressionsContexts._traverse(item, cur_context)
+            return
 
     @staticmethod
     def does_expr_exist(
@@ -61,6 +81,9 @@ class ExpressionsContexts(Rule):
                 cur = getattr(cur, part)
             elif hasattr(cur, 'children_') and part in getattr(cur, 'children_'):
                 cur = cur.children_[part]
+            elif isinstance(cur, list) and part in cur:
+                index = cur.index(part)
+                cur = cur[index]
             else:
                 return problem
         return None

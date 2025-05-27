@@ -1,3 +1,4 @@
+import copy
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
@@ -7,8 +8,10 @@ from validate_actions.workflow import ast, helper
 from validate_actions.workflow.contexts import (
     Contexts,
     ContextType,
+    JobContext,
     JobsContext,
     JobVarContext,
+    ServiceContext,
 )
 
 
@@ -43,9 +46,9 @@ class BaseJobsBuilder(JobsBuilder):
         jobs = {}
         jobs_context = JobsContext()
         for job_id, job_dict in jobs_dict.items():
-            job_context = JobVarContext()
-            jobs[job_id] = self.__build_job(job_dict, job_id, job_context)
-            jobs_context.children_[job_id.string] = job_context
+            job_jobs_context = JobVarContext()
+            jobs[job_id] = self.__build_job(job_dict, job_id, job_jobs_context)
+            jobs_context.children_[job_id.string] = job_jobs_context
         self.contexts.jobs = jobs_context
         return jobs
 
@@ -53,7 +56,7 @@ class BaseJobsBuilder(JobsBuilder):
         self,
         job_dict: Dict[ast.String, Any],
         job_id: ast.String,
-        job_context: JobVarContext
+        job_jobs_context: JobVarContext
     ) -> ast.Job:
         pos = Pos(
             line=job_id.pos.line,
@@ -78,6 +81,7 @@ class BaseJobsBuilder(JobsBuilder):
         uses_ = None
         with_ = None
         secrets_ = None
+        job_context = JobContext()
 
         for key in job_dict:
             match key.string:
@@ -98,7 +102,7 @@ class BaseJobsBuilder(JobsBuilder):
                 case 'concurrency':
                     pass
                 case 'outputs':
-                    self._build_jobs_context_output(key, job_dict, job_context)
+                    self._build_jobs_context_output(key, job_dict, job_jobs_context)
                 case 'env':
                     env_ = helper.build_env(
                         job_dict[key], self.contexts, self.problems, self.RULE_NAME
@@ -114,7 +118,7 @@ class BaseJobsBuilder(JobsBuilder):
                 case 'container':
                     pass
                 case 'services':
-                    pass
+                    self._build_job_context_services(job_dict[key], job_context)
                 case 'uses':
                     pass
                 case 'with':
@@ -129,9 +133,13 @@ class BaseJobsBuilder(JobsBuilder):
                         rule=self.RULE_NAME
                     ))
 
+        local_contexts = copy.copy(self.contexts)
+        local_contexts.job = job_context
+
         return ast.Job(
             pos=pos,
             job_id_=job_id_,
+            contexts=local_contexts,
             name_=name_,
             permissions_=permissions_,
             needs_=needs_,
@@ -285,14 +293,14 @@ class BaseJobsBuilder(JobsBuilder):
         self,
         key: ast.String,
         job_dict: Dict[ast.String, Any],
-        job_context: JobVarContext
+        job_jobs_context: JobVarContext
     ) -> None:
         """Generate output content for jobs context.
 
         Args:
             key (ast.String): The key where outputs are defined in the job.
             job_dict (Dict[ast.String, Any]): The dictionary representing the job.
-            job_context (JobVarContext): The context for the job where outputs will be stored.
+            job_jobs_context (JobVarContext): The context for the job where outputs will be stored.
         """
         outputs = job_dict[key]
 
@@ -306,7 +314,7 @@ class BaseJobsBuilder(JobsBuilder):
             ))
             return
 
-        outputs_context = job_context.outputs.children_
+        outputs_context = job_jobs_context.outputs.children_
 
         for output_name in outputs:
             # check that output name is string, should always be
@@ -321,3 +329,35 @@ class BaseJobsBuilder(JobsBuilder):
 
             # add output_name to job context
             outputs_context[output_name.string] = ContextType.string
+
+    def _build_job_context_services(
+        self,
+        services_in: Dict[ast.String, Dict[ast.String, Any]],
+        job_context: JobContext
+    ) -> None:
+        all_service_props = ['image', 'credentials', 'env', 'ports', 'volumes', 'options']
+        for service_name, service_props in services_in.items():
+            service_context = ServiceContext()
+
+            for prop_name in service_props:
+                if prop_name.string == 'ports':
+                    port_mapping_list = service_props[prop_name]
+                    for port_mapping in port_mapping_list:
+                        port_str = port_mapping.string
+                        sep = None
+                        if ":" in port_str:
+                            sep = ":"
+                        elif "/" in port_str:
+                            sep = "/"
+
+                        left_part = port_str.split(sep)[0] if sep else port_str
+                        service_context.ports.append(left_part)
+                if prop_name.string not in all_service_props:
+                    self.problems.append(Problem(
+                        pos=service_name.pos,
+                        desc=f"Unknown property '{prop_name.string}' in services",
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE_NAME
+                    ))
+
+            job_context.services.children_[service_name.string] = service_context

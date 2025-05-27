@@ -170,3 +170,31 @@ def test_jobs_context_builds():
     stale_output = jobs_context_stale_outputs.children_['stale_output']
     assert stale_output is not None
     assert isinstance(stale_output, contexts.ContextType)
+
+
+def test_job_context_builds():
+    workflow_string = """
+    on: push
+    jobs:
+      job:
+        runs-on: ubuntu-latest
+        services:
+          nginx:
+            image: nginx
+            # Map port 8080 on the Docker host to port 80 on the nginx container
+            ports:
+              - 8080:80
+          redis:
+            image: redis
+            # Map random free TCP port on Docker host to port 6379 on redis container
+            ports:
+              - 6379/tcp
+        steps:
+          - run: |
+              echo "Redis available on 127.0.0.1:${{ job.services.redis.ports['6379'] }}"
+              echo "Nginx available on 127.0.0.1:${{ job.services.nginx.ports['80'] }}"
+
+    """
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    job_context = workflow_out.jobs_['job'].contexts.job
+    assert isinstance(job_context, contexts.JobContext)

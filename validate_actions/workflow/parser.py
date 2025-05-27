@@ -1,3 +1,4 @@
+import re
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -542,12 +543,23 @@ class PyYAMLParser(YAMLParser):
         token_string: str = token.value
         token_pos = self.__parse_pos(token)
 
+        # TODO add flexibility if contains
         if token_string.startswith('${{') and token_string.endswith('}}'):
             # Strip the delimiters and whitespace
-            inner = token_string
-            inner = token_string[3:-2]
-            inner = inner.strip()
-            parts = inner.split('.')
+            inner = token_string[3:-2].strip()
+
+            # Split on dots, but handle bracket notation separately
+            raw_parts = inner.split('.')
+            parts = []
+
+            for part in raw_parts:
+                # Check for bracket access like ports['6379']
+                match = re.match(r"(\w+)\[['\"](.+)['\"]\]", part)
+                if match:
+                    parts.append(match.group(1))  # e.g., 'ports'
+                    parts.append(match.group(2))  # e.g., '6379'
+                else:
+                    parts.append(part)
 
             return Reference(
                 pos=token_pos,

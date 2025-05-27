@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 
 @dataclass(frozen=True)
@@ -11,192 +11,186 @@ class ContextType(Enum):
     number = auto()
 
 
-@dataclass(frozen=True)
-class Context:
-    """Defines a context node: its type, whether it's defined."""
-    type_: ContextType
-
-
 @dataclass
 class GithubContext:
-    type_: ContextType = ContextType.object
-    action: Context = Context(type_=ContextType.string)
-    action_path: Context = Context(type_=ContextType.string)
-    action_ref: Context = Context(type_=ContextType.string)
-    action_repository: Context = Context(type_=ContextType.string)
-    action_status: Context = Context(type_=ContextType.string)
-    actor: Context = Context(type_=ContextType.string)
-    actor_id: Context = Context(type_=ContextType.string)
-    api_url: Context = Context(type_=ContextType.string)
-    base_ref: Context = Context(type_=ContextType.string)
-    env: Context = Context(type_=ContextType.string)
-    event: Context = Context(type_=ContextType.string)
-    event_name: Context = Context(type_=ContextType.string)
-    event_path: Context = Context(type_=ContextType.string)
-    graphql_url: Context = Context(type_=ContextType.string)
-    head_ref: Context = Context(type_=ContextType.string)
-    job: Context = Context(type_=ContextType.string)
-    path: Context = Context(type_=ContextType.string)
-    ref: Context = Context(type_=ContextType.string)
-    ref_name: Context = Context(type_=ContextType.string)
-    ref_protected: Context = Context(type_=ContextType.string)
-    ref_type: Context = Context(type_=ContextType.string)
-    repository: Context = Context(type_=ContextType.string)
-    repository_id: Context = Context(type_=ContextType.string)
-    repository_owner: Context = Context(type_=ContextType.string)
-    repository_owner_id: Context = Context(type_=ContextType.string)
-    repositoryUrl: Context = Context(type_=ContextType.string)
-    retention_days: Context = Context(type_=ContextType.string)
-    run_id: Context = Context(type_=ContextType.string)
-    run_number: Context = Context(type_=ContextType.string)
-    run_attempt: Context = Context(type_=ContextType.string)
-    secret_source: Context = Context(type_=ContextType.string)
-    server_url: Context = Context(type_=ContextType.string)
-    sha: Context = Context(type_=ContextType.string)
-    token: Context = Context(type_=ContextType.string)
-    triggering_actor: Context = Context(type_=ContextType.string)
-    workflow: Context = Context(type_=ContextType.string)
-    workflow_ref: Context = Context(type_=ContextType.string)
-    workflow_sha: Context = Context(type_=ContextType.string)
-    workspace: Context = Context(type_=ContextType.string)
+    type_: Optional[ContextType] = ContextType.object
+    action: Optional[ContextType] = ContextType.string
+    action_path: Optional[ContextType] = ContextType.string
+    action_ref: Optional[ContextType] = ContextType.string
+    action_repository: Optional[ContextType] = ContextType.string
+    action_status: Optional[ContextType] = ContextType.string
+    actor: Optional[ContextType] = ContextType.string
+    actor_id: Optional[ContextType] = ContextType.string
+    api_url: Optional[ContextType] = ContextType.string
+    base_ref: Optional[ContextType] = ContextType.string
+    env: Optional[ContextType] = ContextType.string
+    event: Optional[ContextType] = ContextType.string
+    event_name: Optional[ContextType] = ContextType.string
+    event_path: Optional[ContextType] = ContextType.string
+    graphql_url: Optional[ContextType] = ContextType.string
+    head_ref: Optional[ContextType] = ContextType.string
+    job: Optional[ContextType] = ContextType.string
+    path: Optional[ContextType] = ContextType.string
+    ref: Optional[ContextType] = ContextType.string
+    ref_name: Optional[ContextType] = ContextType.string
+    ref_protected: Optional[ContextType] = ContextType.string
+    ref_type: Optional[ContextType] = ContextType.string
+    repository: Optional[ContextType] = ContextType.string
+    repository_id: Optional[ContextType] = ContextType.string
+    repository_owner: Optional[ContextType] = ContextType.string
+    repository_owner_id: Optional[ContextType] = ContextType.string
+    repositoryUrl: Optional[ContextType] = ContextType.string
+    retention_days: Optional[ContextType] = ContextType.string
+    run_id: Optional[ContextType] = ContextType.string
+    run_number: Optional[ContextType] = ContextType.string
+    run_attempt: Optional[ContextType] = ContextType.string
+    secret_source: Optional[ContextType] = ContextType.string
+    server_url: Optional[ContextType] = ContextType.string
+    sha: Optional[ContextType] = ContextType.string
+    token: Optional[ContextType] = ContextType.string
+    triggering_actor: Optional[ContextType] = ContextType.string
+    workflow: Optional[ContextType] = ContextType.string
+    workflow_ref: Optional[ContextType] = ContextType.string
+    workflow_sha: Optional[ContextType] = ContextType.string
+    workspace: Optional[ContextType] = ContextType.string
 
 
 @dataclass
 class EnvContext:
-    type_: ContextType = ContextType.object
-    children_: Dict[str, Context] = field(default_factory=dict)
+    type_: Optional[ContextType] = ContextType.object
+    children_: Dict[str, ContextType] = field(default_factory=dict)
 
 
 @dataclass
 class VarsContext:
-    type_: ContextType = ContextType.object
-    children_: Dict[str, Context] = field(default_factory=dict)
+    type_: Optional[ContextType] = ContextType.object
+    children_: Dict[str, ContextType] = field(default_factory=dict)
 
 
 @dataclass
 class ContainerContext:
-    type_: ContextType = ContextType.object
-    id: Context = Context(type_=ContextType.string)
-    network: Context = Context(type_=ContextType.string)
+    type_: Optional[ContextType] = ContextType.object
+    id: Optional[ContextType] = ContextType.string
+    network: Optional[ContextType] = ContextType.string
 
 
 @dataclass
 class ServiceContext:
-    type_: ContextType = ContextType.object
-    network: Context = Context(type_=ContextType.string)
-    ports: Context = Context(type_=ContextType.string)
+    type_: Optional[ContextType] = None
+    network: Optional[ContextType] = ContextType.string
+    ports: List[str] = field(default_factory=list)
 
 
 @dataclass
 class ServicesContext:
-    type_: ContextType = ContextType.object
+    type_: Optional[ContextType] = ContextType.object
     children_: Dict[str, ServiceContext] = field(default_factory=dict)
 
 
 @dataclass
 class JobContext:
-    type_: ContextType = ContextType.object
+    type_: Optional[ContextType] = ContextType.object
     container: ContainerContext = field(default_factory=ContainerContext)
     services: ServicesContext = field(default_factory=ServicesContext)
-    status: Context = Context(type_=ContextType.object)
+    status: Optional[ContextType] = ContextType.string
 
 
 @dataclass
 class OutputsContext:
-    type_: ContextType = ContextType.object
-    children_: Dict[str, ContextType.string] = field(default_factory=dict)
+    type_: Optional[ContextType] = ContextType.object
+    children_: Dict[str, ContextType] = field(default_factory=dict)
 
 
 @dataclass
 class JobVarContext:
     type_: Optional[ContextType] = None
-    result: ContextType = ContextType.string
+    result: Optional[ContextType] = ContextType.string
     outputs: OutputsContext = field(default_factory=OutputsContext)
 
 
 @dataclass
 class JobsContext:
-    type_: ContextType = ContextType.object
+    type_: Optional[ContextType] = ContextType.object
     children_: Dict[str, JobVarContext] = field(default_factory=dict)
 
 
 @dataclass
 class StepOutputsContext:
-    type_: ContextType = ContextType.object
-    children_: Dict[str, Context] = field(default_factory=dict)
+    type_: Optional[ContextType] = ContextType.object
+    children_: Dict[str, ContextType] = field(default_factory=dict)
 
 
 @dataclass
 class StepVarContext:
-    type_: ContextType = ContextType.object
+    type_: Optional[ContextType] = ContextType.object
     outputs: StepOutputsContext = field(default_factory=StepOutputsContext)
-    conclusion: Context = Context(type_=ContextType.string)
-    outcome: Context = Context(type_=ContextType.string)
+    conclusion: Optional[ContextType] = ContextType.string
+    outcome: Optional[ContextType] = ContextType.string
 
 
 @dataclass
 class StepsContext:
-    type_: ContextType = ContextType.object
+    type_: Optional[ContextType] = ContextType.object
     children_: Dict[str, StepVarContext] = field(default_factory=dict)
 
 
 @dataclass
 class RunnerContext:
-    type_: ContextType = ContextType.object
-    name: Context = Context(type_=ContextType.string)
-    os: Context = Context(type_=ContextType.string)
-    arch: Context = Context(type_=ContextType.string)
-    temp: Context = Context(type_=ContextType.string)
-    tool_cache: Context = Context(type_=ContextType.string)
-    debug: Context = Context(type_=ContextType.string)
-    environment: Context = Context(type_=ContextType.string)
+    type_: Optional[ContextType] = ContextType.object
+    name: Optional[ContextType] = ContextType.string
+    os: Optional[ContextType] = ContextType.string
+    arch: Optional[ContextType] = ContextType.string
+    temp: Optional[ContextType] = ContextType.string
+    tool_cache: Optional[ContextType] = ContextType.string
+    debug: Optional[ContextType] = ContextType.string
+    environment: Optional[ContextType] = ContextType.string
 
 
 @dataclass
 class SecretsContext:
-    type_: ContextType = ContextType.object
-    GITHUB_TOKEN: Context = Context(type_=ContextType.string)
-    children_: Dict[str, Context] = field(default_factory=dict)
+    type_: Optional[ContextType] = ContextType.object
+    GITHUB_TOKEN: Optional[ContextType] = ContextType.string
+    children_: Dict[str, ContextType] = field(default_factory=dict)
 
 
 @dataclass
 class StrategyContext:
-    type_: ContextType = ContextType.object
-    fail_fast: Context = Context(type_=ContextType.string)
-    job_index: Context = Context(type_=ContextType.string)
-    job_total: Context = Context(type_=ContextType.string)
-    max_parallel: Context = Context(type_=ContextType.string)
+    type_: Optional[ContextType] = ContextType.object
+    fail_fast: Optional[ContextType] = ContextType.string
+    job_index: Optional[ContextType] = ContextType.string
+    job_total: Optional[ContextType] = ContextType.string
+    max_parallel: Optional[ContextType] = ContextType.string
 
 
 @dataclass
 class MatrixContext:
-    type_: ContextType = ContextType.object
-    children_: Dict[str, Context] = field(default_factory=dict)
+    type_: Optional[ContextType] = ContextType.object
+    children_: Dict[str, ContextType] = field(default_factory=dict)
 
 
 @dataclass
 class NeedOutputsContext:
-    type_: ContextType = ContextType.object
-    children_: Dict[str, Context] = field(default_factory=dict)
+    type_: Optional[ContextType] = ContextType.object
+    children_: Dict[str, ContextType] = field(default_factory=dict)
 
 
 @dataclass
 class NeedContext:
-    type_: ContextType = ContextType.object
-    result: Context = Context(type_=ContextType.string)
+    type_: Optional[ContextType] = ContextType.object
+    result: Optional[ContextType] = ContextType.string
     outputs: NeedOutputsContext = field(default_factory=NeedOutputsContext)
 
 
 @dataclass
 class NeedsContext:
-    type_: ContextType = ContextType.object
+    type_: Optional[ContextType] = ContextType.object
     children_: Dict[str, NeedContext] = field(default_factory=dict)
 
 
 @dataclass
 class InputsContext:
-    type_: ContextType = ContextType.object
-    children_: Dict[str, Context] = field(default_factory=dict)
+    type_: Optional[ContextType] = ContextType.object
+    children_: Dict[str, ContextType] = field(default_factory=dict)
 
 
 @dataclass
@@ -204,7 +198,7 @@ class Contexts:
     github: GithubContext = field(default_factory=GithubContext)
     env: EnvContext = field(default_factory=EnvContext)
     vars: VarsContext = field(default_factory=VarsContext)
-    job: JobContext = field(default_factory=JobContext)
+    job: Optional[JobContext] = None
     jobs: JobsContext = field(default_factory=JobsContext)
     steps: StepsContext = field(default_factory=StepsContext)
     runner: RunnerContext = field(default_factory=RunnerContext)

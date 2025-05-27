@@ -129,3 +129,61 @@ def test_env_match():
     gen = rules.ExpressionsContexts.check(workflow)
     result = list(gen)
     assert len(result) == 1
+
+
+def test_job_context_correct():
+    workflow_string = """
+    on: push
+    jobs:
+      job:
+        runs-on: ubuntu-latest
+        services:
+          nginx:
+            image: nginx
+            # Map port 8080 on the Docker host to port 80 on the nginx container
+            ports:
+              - 8080:80
+          redis:
+            image: redis
+            # Map random free TCP port on Docker host to port 6379 on redis container
+            ports:
+              - 6379/tcp
+        steps:
+        - name: Start MongoDB
+          uses: supercharge/mongodb-github-action@1.12.0
+          with:
+            mongodb-port: ${{ job.services.redis.ports['6379'] }}
+    """
+    workflow, problems = parse_workflow_string(workflow_string)
+    gen = rules.ExpressionsContexts.check(workflow)
+    result = list(gen)
+    assert result == []
+
+
+def test_job_context_incorrect():
+    workflow_string = """
+    on: push
+    jobs:
+      job:
+        runs-on: ubuntu-latest
+        services:
+          nginx:
+            image: nginx
+            # Map port 8080 on the Docker host to port 80 on the nginx container
+            ports:
+              - 8080:80
+          redis:
+            image: redis
+            # Map random free TCP port on Docker host to port 6379 on redis container
+            ports:
+              - 6379/tcp
+        steps:
+        - name: Start MongoDB
+          uses: supercharge/mongodb-github-action@1.12.0
+          with:
+            mongodb-port: ${{ job.services.redis.ports['379'] }}
+    """
+    workflow, problems = parse_workflow_string(workflow_string)
+    gen = rules.ExpressionsContexts.check(workflow)
+    result = list(gen)
+    assert len(result) == 1

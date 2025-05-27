@@ -186,6 +186,7 @@ class Job:
     pos: "Pos"
     job_id_: str
     steps_: List["Step"]
+    contexts: Contexts
     name_: Optional["String"] = None
     permissions_: Permissions = Permissions()
     needs_: Optional[None] = None
