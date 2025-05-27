@@ -201,7 +201,7 @@ class Contexts:
     job: Optional[JobContext] = None
     jobs: JobsContext = field(default_factory=JobsContext)
     steps: StepsContext = field(default_factory=StepsContext)
-    runner: RunnerContext = field(default_factory=RunnerContext)
+    runner: Optional[RunnerContext] = None
     secrets: SecretsContext = field(default_factory=SecretsContext)
     strategy: StrategyContext = field(default_factory=StrategyContext)
     matrix: MatrixContext = field(default_factory=MatrixContext)

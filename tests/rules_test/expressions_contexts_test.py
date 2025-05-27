@@ -187,3 +187,41 @@ def test_job_context_incorrect():
     gen = rules.ExpressionsContexts.check(workflow)
     result = list(gen)
     assert len(result) == 1
+
+
+def test_runner_context_correct():
+    workflow_string = """
+    on: push
+    jobs:
+      job:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/setup-node@v4
+          with:
+            node-version: 20
+            architecture: ${{ runner.arch }}
+    """
+    workflow, problems = parse_workflow_string(workflow_string)
+    gen = rules.ExpressionsContexts.check(workflow)
+    result = list(gen)
+    assert len(result) == 0
+
+
+def test_runner_context_wrong():
+    workflow_string = """
+    on: push
+    env:
+      ARCH: ${{ runner.arch }}
+    jobs:
+      job:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/setup-node@v4
+          with:
+            node-version: 20
+            architecture: $ARCH
+    """
+    workflow, problems = parse_workflow_string(workflow_string)
+    gen = rules.ExpressionsContexts.check(workflow)
+    result = list(gen)
+    assert len(result) == 1

@@ -11,6 +11,7 @@ from validate_actions.workflow.contexts import (
     JobContext,
     JobsContext,
     JobVarContext,
+    RunnerContext,
     ServiceContext,
 )
 
@@ -82,6 +83,7 @@ class BaseJobsBuilder(JobsBuilder):
         with_ = None
         secrets_ = None
         job_context = JobContext()
+        runner_context = RunnerContext()
 
         for key in job_dict:
             match key.string:
@@ -135,6 +137,7 @@ class BaseJobsBuilder(JobsBuilder):
 
         local_contexts = copy.copy(self.contexts)
         local_contexts.job = job_context
+        local_contexts.runner = runner_context
 
         return ast.Job(
             pos=pos,
