@@ -74,9 +74,12 @@ class ExpressionsContexts(Rule):
             level=ProblemLevel.ERR,
             rule=ExpressionsContexts.NAME,
         )
+        web_contexts_not_to_check = ['vars', 'secrets', 'inputs']
         if not parts:
             return problem
         for part in parts:
+            if part in web_contexts_not_to_check:
+                continue
             if hasattr(cur, part):
                 cur = getattr(cur, part)
             elif hasattr(cur, 'children_') and part in getattr(cur, 'children_'):
