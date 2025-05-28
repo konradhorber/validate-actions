@@ -1,3 +1,5 @@
+# flake8: noqa: E501
+
 from tests.helper import parse_workflow_string
 from validate_actions.workflow import ast, contexts
 
@@ -198,3 +200,71 @@ def test_job_context_builds():
     workflow_out, problems = parse_workflow_string(workflow_string)
     job_context = workflow_out.jobs_['job'].contexts.job
     assert isinstance(job_context, contexts.JobContext)
+
+
+def test_strategy():
+    workflow_string = """
+    on: push
+    jobs:
+      example_matrix:
+        strategy:
+          matrix:
+            os: [windows-latest, ubuntu-latest]
+            node: [14, 16]
+            include:
+              - os: windows-latest
+                node: 16
+                npm: 6
+          fail-fast: true
+          max-parallel: 6
+        runs-on: ${{ matrix.os }}
+        steps:
+          - uses: actions/setup-node@v4
+            with:
+              node-version: ${{ matrix.node }}
+          - if: ${{ matrix.npm }}
+            run: npm install -g npm@${{ matrix.npm }}
+          - run: npm --version
+    """
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert problems.problems == []
+
+    strategy = workflow_out.jobs_['example_matrix'].strategy_
+    assert strategy is not None
+    assert strategy.fail_fast_ is True
+    assert strategy.max_parallel_ == 6
+
+    # Expected combinations:
+    # {os: windows-latest, node: 14}
+    # {os: windows-latest, node: 16, npm: 6} (from include)
+    # {os: ubuntu-latest, node: 14}
+    # {os: ubuntu-latest, node: 16}
+
+    combinations = strategy.combinations
+    assert len(combinations) == 4
+
+    expected_combinations = [
+        {'os': 'windows-latest', 'node': '14'},
+        {'os': 'windows-latest', 'node': '16', 'npm': '6'},
+        {'os': 'ubuntu-latest', 'node': '14'},
+        {'os': 'ubuntu-latest', 'node': '16'},
+    ]
+
+    # Convert ast.String in combinations to simple dicts for easier comparison
+    parsed_combinations = []
+    for combo_dict in combinations:
+        parsed_combo = {k.string: v.string for k, v in combo_dict.items()}
+        parsed_combinations.append(parsed_combo)
+
+    for expected_combo in expected_combinations:
+        assert expected_combo in parsed_combinations, f"Expected combination {expected_combo} not found"
+
+    # Check matrix context
+    matrix_context = workflow_out.jobs_['example_matrix'].contexts.matrix
+    assert matrix_context is not None
+    assert 'os' in matrix_context.children_
+    assert 'node' in matrix_context.children_
+    assert 'npm' in matrix_context.children_
+    assert matrix_context.children_['os'] == contexts.ContextType.string
+    assert matrix_context.children_['node'] == contexts.ContextType.string
+    assert matrix_context.children_['npm'] == contexts.ContextType.string

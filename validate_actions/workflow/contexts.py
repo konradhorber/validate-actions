@@ -156,10 +156,10 @@ class SecretsContext:
 @dataclass
 class StrategyContext:
     type_: Optional[ContextType] = ContextType.object
-    fail_fast: Optional[ContextType] = ContextType.string
-    job_index: Optional[ContextType] = ContextType.string
-    job_total: Optional[ContextType] = ContextType.string
-    max_parallel: Optional[ContextType] = ContextType.string
+    fail_fast: Optional[ContextType] = ContextType.boolean
+    job_index: Optional[ContextType] = ContextType.number
+    job_total: Optional[ContextType] = ContextType.number
+    max_parallel: Optional[ContextType] = ContextType.number
 
 
 @dataclass
@@ -219,8 +219,8 @@ class Contexts:
     steps: StepsContext = field(default_factory=StepsContext)
     runner: Optional[RunnerContext] = None
     secrets: SecretsContext = field(default_factory=SecretsContext)
-    strategy: StrategyContext = field(default_factory=StrategyContext)
-    matrix: MatrixContext = field(default_factory=MatrixContext)
+    strategy: Optional[StrategyContext] = None
+    matrix: Optional[MatrixContext] = None
     needs: NeedsContext = field(default_factory=NeedsContext)
     inputs: InputsContext = field(default_factory=InputsContext)
     functions_ = functions_

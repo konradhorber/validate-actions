@@ -180,6 +180,14 @@ class Concurrency:
     tbd: None
 
 
+@dataclass(frozen=True)
+class Strategy:
+    pos: "Pos"
+    combinations: List[Dict["String", "String"]]
+    fail_fast_: Optional[bool]
+    max_parallel_: Optional[int]
+
+
 # region Jobs
 @dataclass(frozen=True)
 class Job:
@@ -198,7 +206,7 @@ class Job:
     env_: Optional["Env"] = None
     defaults_: Optional[None] = None
     timeout_minutes_: Optional[int] = None
-    strategy_: Optional[None] = None
+    strategy_: Optional[Strategy] = None
     container_: Optional[None] = None
     services_: Optional[None] = None
     uses_: Optional[None] = None

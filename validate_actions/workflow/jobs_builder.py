@@ -1,6 +1,6 @@
 import copy
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 from validate_actions.pos import Pos
 from validate_actions.problems import Problem, ProblemLevel, Problems
@@ -11,8 +11,10 @@ from validate_actions.workflow.contexts import (
     JobContext,
     JobsContext,
     JobVarContext,
+    MatrixContext,
     RunnerContext,
     ServiceContext,
+    StrategyContext,
 )
 
 
@@ -76,7 +78,7 @@ class BaseJobsBuilder(JobsBuilder):
         defaults_ = None
         steps_ = []
         timeout_minutes_: Optional[int] = None
-        strategy_ = None
+        strategy_: Optional[ast.Strategy] = None
         container_ = None
         services_ = None
         uses_ = None
@@ -121,7 +123,7 @@ class BaseJobsBuilder(JobsBuilder):
                 case 'timeout-minutes':
                     timeout_minutes_ = job_dict[key]
                 case 'strategy':
-                    pass
+                    strategy_ = self._build_strategy(key, job_dict, local_contexts)
                 case 'container':
                     pass
                 case 'services':
@@ -163,6 +165,321 @@ class BaseJobsBuilder(JobsBuilder):
             with_=with_,
             secrets_=secrets_
         )
+
+    def _build_strategy(
+        self,
+        key: ast.String,
+        job_dict: Dict[ast.String, Any],
+        local_contexts: Contexts
+    ) -> Optional[ast.Strategy]:
+        strategy_data = job_dict[key]
+        if not isinstance(strategy_data, dict):
+            self.problems.append(Problem(
+                pos=key.pos,
+                desc="Strategy must be a mapping",
+                level=ProblemLevel.ERR,
+                rule=self.RULE_NAME
+            ))
+            return None
+
+        combinations_ = None
+        fail_fast_ = None
+        max_parallel_ = None
+
+        for strategy_key, strategy_value in strategy_data.items():
+            if strategy_key.string == 'matrix':
+                if not isinstance(strategy_value, dict):
+                    self.problems.append(Problem(
+                        pos=strategy_key.pos,
+                        desc="Strategy matrix must be a mapping",
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE_NAME
+                    ))
+                    continue
+                combinations_ = self._build_matrix_combinations(
+                    strategy_key, strategy_value, local_contexts
+                    )
+            elif strategy_key.string == 'fail-fast':
+                if not isinstance(strategy_value, bool):
+                    self.problems.append(Problem(
+                        pos=strategy_key.pos,
+                        desc="Strategy fail-fast must be a boolean",
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE_NAME
+                    ))
+                    continue
+                fail_fast_ = strategy_value
+            elif strategy_key.string == 'max-parallel':
+                if not isinstance(strategy_value, int):
+                    self.problems.append(Problem(
+                        pos=strategy_key.pos,
+                        desc="Strategy max-parallel must be an integer",
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE_NAME
+                    ))
+                    continue
+                max_parallel_ = strategy_value
+            else:
+                self.problems.append(Problem(
+                    pos=strategy_key.pos,
+                    desc=f"Unknown strategy key: {strategy_key.string}",
+                    level=ProblemLevel.ERR,
+                    rule=self.RULE_NAME
+                ))
+
+        if combinations_ is None:
+            # If matrix is not defined, but strategy key is present,
+            # it could be just for fail-fast or max-parallel.
+            # However, official docs imply matrix is usually there if strategy is used.
+            # For now, let's allow strategy without matrix if other keys are present.
+            # If only 'strategy:' is present with no sub-keys, it's an error.
+            if not fail_fast_ and not max_parallel_ and not strategy_data.items():
+                self.problems.append(Problem(
+                    pos=key.pos,
+                    desc="Strategy block is empty or invalid.",
+                    level=ProblemLevel.ERR,
+                    rule=self.RULE_NAME
+                ))
+                return None
+            combinations_ = []  # Default to empty list if no matrix defined
+
+        local_contexts.strategy = StrategyContext()
+        return ast.Strategy(
+            pos=key.pos,
+            combinations=combinations_,
+            fail_fast_=fail_fast_,
+            max_parallel_=max_parallel_
+        )
+
+    def _parse_matrix_item_list(
+        self,
+        parent_key: ast.String,  # Key of 'include' or 'exclude'
+        items_data: List[Any],
+        item_type_str: str  # "include" or "exclude"
+    ) -> List[Dict[ast.String, ast.String]]:
+        parsed_items: List[Dict[ast.String, ast.String]] = []
+        for item in items_data:
+            if not isinstance(item, dict):
+                self.problems.append(Problem(
+                    pos=parent_key.pos,
+                    desc=f"Each item in matrix {item_type_str} must be a mapping.",
+                    level=ProblemLevel.ERR,
+                    rule=self.RULE_NAME
+                ))
+                continue
+
+            current_item_map: Dict[ast.String, ast.String] = {}
+            valid_item = True
+            for k, v in item.items():
+                if not isinstance(k, ast.String):
+                    self.problems.append(Problem(
+                        pos=parent_key.pos,
+                        desc=f"Key in matrix {item_type_str} item must be a string.",
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE_NAME
+                    ))
+                    valid_item = False
+                    break
+
+                val_str: str
+                val_pos: Pos
+                if isinstance(v, ast.String):
+                    val_str = v.string
+                    val_pos = v.pos
+                elif isinstance(v, (str, int, float, bool)):
+                    val_str = str(v)
+                    val_pos = k.pos  # Best guess for pos if not ast.String
+                else:
+                    self.problems.append(Problem(
+                        pos=k.pos,
+                        desc=(
+                            f"Value for '{k.string}' in matrix {item_type_str} item must be a"
+                            f" scalar (string, number, boolean)."
+                        ),
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE_NAME
+                    ))
+                    valid_item = False
+                    break
+                current_item_map[k] = ast.String(val_str, val_pos)
+
+            if valid_item and current_item_map:
+                parsed_items.append(current_item_map)
+        return parsed_items
+
+    def _build_matrix_combinations(
+        self,
+        matrix_key: ast.String,
+        matrix_data: Dict[ast.String, Any],
+        local_contexts: Contexts
+    ) -> List[Dict[ast.String, ast.String]]:
+        matrix_combinations: List[Dict[ast.String, ast.String]] = []
+        include_items: List[Dict[ast.String, ast.String]] = []
+        exclude_items: List[Dict[ast.String, ast.String]] = []
+        matrix_axes: Dict[ast.String, List[Any]] = {}
+
+        for key, value in matrix_data.items():
+            if key.string == 'include':
+                if not isinstance(value, list):
+                    self.problems.append(Problem(
+                        pos=key.pos,
+                        desc="Matrix include must be a list of mappings",
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE_NAME
+                    ))
+                    continue
+                include_items = self._parse_matrix_item_list(key, value, "include")
+            elif key.string == 'exclude':
+                if not isinstance(value, list):
+                    self.problems.append(Problem(
+                        pos=key.pos,
+                        desc="Matrix exclude must be a list of mappings",
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE_NAME
+                    ))
+                    continue
+                exclude_items = self._parse_matrix_item_list(key, value, "exclude")
+            else:
+                # This is a matrix axis
+                if not isinstance(value, list):
+                    self.problems.append(Problem(
+                        pos=key.pos,
+                        desc=f"Matrix axis '{key.string}' must be a list",
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE_NAME
+                    ))
+                    continue
+                matrix_axes[key] = value
+
+        # Generate base matrix combinations from axes
+        if matrix_axes:
+            axis_names = list(matrix_axes.keys())
+            import itertools
+
+            # Ensure all values in axes are appropriate (e.g. ast.String or scalar)
+            # For simplicity, we assume they are, or further validation is needed here
+            raw_product = list(itertools.product(*[matrix_axes[k] for k in axis_names]))
+            for combo_values in raw_product:
+                current_combo: Dict[ast.String, ast.String] = {}
+                valid_combo = True
+                for i, axis_name_key in enumerate(axis_names):
+                    val = combo_values[i]
+                    val_str: str
+                    val_pos: Pos
+                    if isinstance(val, ast.String):
+                        val_str = val.string
+                        val_pos = val.pos
+                    elif isinstance(val, (str, int, float, bool)):
+                        val_str = str(val)
+                        val_pos = axis_name_key.pos  # Best guess
+                    else:
+                        # This case should ideally be caught by earlier validation if axis values
+                        # are restricted
+                        self.problems.append(Problem(
+                            pos=axis_name_key.pos,
+                            desc=f"Unsupported value type in matrix axis '{axis_name_key.string}'",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME
+                        ))
+                        valid_combo = False
+                        break
+                    current_combo[axis_name_key] = ast.String(val_str, val_pos)
+                if valid_combo:
+                    matrix_combinations.append(current_combo)
+
+        # Apply include
+        if include_items:
+            if not matrix_combinations:  # If only include is present
+                matrix_combinations.extend(include_items)
+            else:
+                new_combinations_with_include = []
+                for base_combo in matrix_combinations:
+                    added_to_this_base = False
+                    for include_item in include_items:
+                        # Check if include_item can extend base_combo without overwrite
+                        # or if include_item's matching keys match base_combo's values
+                        merged_combo = base_combo.copy()
+                        can_merge_or_match = True
+                        temp_include_copy = include_item.copy()
+
+                        for bk, bv in base_combo.items():
+                            if bk in temp_include_copy:
+                                if temp_include_copy[bk] != bv:  # Overwrite with different value
+                                    can_merge_or_match = False
+                                    break
+                                del temp_include_copy[bk]  # Key matched, remove from temp_include
+
+                        if can_merge_or_match:  # Add remaining new keys from include
+                            merged_combo.update(temp_include_copy)
+                            new_combinations_with_include.append(merged_combo)
+                            added_to_this_base = True
+
+                    if not added_to_this_base:  # If no include item specifically targeted this
+                        new_combinations_with_include.append(base_combo)
+
+                # Add include items that are entirely new (didn't merge with any base)
+                for include_item in include_items:
+                    is_completely_new = True
+                    for combo in new_combinations_with_include:  # Check against already merged
+                        # An include_item is new if it's not a subset of any existing combo
+                        # AND no existing combo is a subset of it (unless it's an exact match)
+
+                        # Simplified: if this include_item (or one that contains it) isn't already
+                        is_present = True
+                        for ik, iv in include_item.items():
+                            if ik not in combo or combo[ik] != iv:
+                                is_present = False
+                                break
+                        if is_present and len(include_item) <= len(combo):
+                            is_completely_new = False
+                            break
+                    if is_completely_new:
+                        new_combinations_with_include.append(include_item)
+                matrix_combinations = new_combinations_with_include
+
+        # Apply exclude
+        if exclude_items:
+            final_combinations = []
+            for combo in matrix_combinations:
+                is_excluded = False
+                for exclude_item in exclude_items:
+                    match = True  # Assume it matches until a mismatch is found
+                    if not exclude_item:
+                        continue  # Skip empty exclude item
+
+                    for k_exc, v_exc in exclude_item.items():
+                        if k_exc not in combo or combo[k_exc] != v_exc:
+                            match = False
+                            break
+                    if match:  # If all keys in exclude_item match the combo
+                        is_excluded = True
+                        break
+                if not is_excluded:
+                    final_combinations.append(combo)
+            matrix_combinations = final_combinations
+
+        if not matrix_combinations and (matrix_axes or include_items):
+            self.problems.append(Problem(
+                pos=matrix_key.pos,
+                desc="Matrix definition resulted in no job combinations after include/exclude.",
+                level=ProblemLevel.WAR,
+                rule=self.RULE_NAME
+            ))
+
+        # Update matrix context
+        if local_contexts.matrix is None:
+            local_contexts.matrix = MatrixContext()
+
+        # Add all unique keys from all final combinations to the context
+        all_matrix_keys: Set[str] = set()
+        for combo in matrix_combinations:
+            for k_combo in combo.keys():
+                all_matrix_keys.add(k_combo.string)
+
+        for key_str in all_matrix_keys:
+            local_contexts.matrix.children_[key_str] = ContextType.string
+
+        return matrix_combinations
 
     def __build_steps(
         self,
