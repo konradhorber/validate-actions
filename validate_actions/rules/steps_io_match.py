@@ -41,6 +41,8 @@ class StepsIOMatch(Rule):
         if len(inputs) == 0:
             return
         for input in inputs.values():
+            if not isinstance(input, ast.String):
+                continue
             if input.expr is None:
                 continue
 
