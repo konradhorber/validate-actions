@@ -85,6 +85,10 @@ class BaseJobsBuilder(JobsBuilder):
         job_context = JobContext()
         runner_context = RunnerContext()
 
+        local_contexts = copy.copy(self.contexts)
+        local_contexts.job = job_context
+        local_contexts.runner = runner_context
+
         for key in job_dict:
             match key.string:
                 case 'name':
@@ -106,13 +110,14 @@ class BaseJobsBuilder(JobsBuilder):
                 case 'outputs':
                     self._build_jobs_context_output(key, job_dict, job_jobs_context)
                 case 'env':
+                    local_contexts.env = copy.deepcopy(local_contexts.env)
                     env_ = helper.build_env(
-                        job_dict[key], self.contexts, self.problems, self.RULE_NAME
+                        job_dict[key], local_contexts, self.problems, self.RULE_NAME
                     )
                 case 'defaults':
                     pass
                 case 'steps':
-                    steps_ = self.__build_steps(job_dict[key])
+                    steps_ = self.__build_steps(job_dict[key], local_contexts)
                 case 'timeout-minutes':
                     timeout_minutes_ = job_dict[key]
                 case 'strategy':
@@ -134,10 +139,6 @@ class BaseJobsBuilder(JobsBuilder):
                         level=ProblemLevel.ERR,
                         rule=self.RULE_NAME
                     ))
-
-        local_contexts = copy.copy(self.contexts)
-        local_contexts.job = job_context
-        local_contexts.runner = runner_context
 
         return ast.Job(
             pos=pos,
@@ -165,14 +166,19 @@ class BaseJobsBuilder(JobsBuilder):
 
     def __build_steps(
         self,
-        steps_in: List[Dict[ast.String, Any]]
+        steps_in: List[Dict[ast.String, Any]],
+        job_local_context: Contexts
     ) -> List[ast.Step]:
         steps_out: List[ast.Step] = []
         for step in steps_in:
-            steps_out.append(self.__build_step(step))
+            steps_out.append(self.__build_step(step, job_local_context))
         return steps_out
 
-    def __build_step(self, step_token_tree: Dict[ast.String, Any]) -> ast.Step:
+    def __build_step(
+        self,
+        step_token_tree: Dict[ast.String, Any],
+        job_local_context: Contexts
+    ) -> ast.Step:
         pos: Pos
         id_ = None
         if_ = None
@@ -189,6 +195,8 @@ class BaseJobsBuilder(JobsBuilder):
         timeout_minutes_ = None
 
         exec_pos: Pos
+
+        local_context = job_local_context
 
         # build step inputs
         for key in step_token_tree:
@@ -227,8 +235,10 @@ class BaseJobsBuilder(JobsBuilder):
                         else:
                             with_[with_key] = with_value
                 case 'env':
+                    local_context = copy.copy(local_context)
+                    local_context.env = copy.deepcopy(local_context.env)
                     env_ = helper.build_env(
-                        step_token_tree[key], self.contexts, self.problems, self.RULE_NAME
+                        step_token_tree[key], local_context, self.problems, self.RULE_NAME
                     )
                 case 'continue-on-error':
                     continue_on_error_ = step_token_tree[key]
@@ -283,6 +293,7 @@ class BaseJobsBuilder(JobsBuilder):
         # create step
         return ast.Step(
             pos=pos,
+            contexts=local_context,
             id_=id_,
             if_=if_,
             name_=name_,

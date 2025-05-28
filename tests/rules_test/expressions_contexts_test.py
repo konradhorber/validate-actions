@@ -130,6 +130,64 @@ def test_env_match():
     result = list(gen)
     assert len(result) == 1
 
+def test_local_env():
+    workflow_string = """
+    name: 'Test Steps IO Match with uses'
+
+    on: workflow_dispatch
+    
+    env:
+      global_path: 'path/to/artifact'
+
+    jobs:
+      test-job:
+        runs-on: ubuntu-latest
+        env:
+          job_path: 'path/to/job_artifact'  # job-level env var
+        steps:
+        - id: step1
+          name: 'Upload artifact'
+          uses: actions/upload-artifact@v3
+          with:
+            name: global-artifact
+            path: ${{ env.global_path }}  # Reference to output from env var
+        - id: step2
+          name: 'Upload artifact'
+          uses: actions/upload-artifact@v3
+          with:
+            name: job-artifact
+            path: ${{ env.job_path }}  # job-level
+        - id: step3
+          name: 'Upload artifact'
+          uses: actions/upload-artifact@v3
+          env:
+            step_path: 'path/to/step_artifact'  # step-level env var
+          with:
+            name: step-artifact
+            path: ${{ env.step_path }}  # step-level
+        - id: step4
+          name: 'Upload artifact'
+          uses: actions/upload-artifact@v3
+          with:
+            name: step-artifact
+            path: ${{ env.step_path }}  # step-level wrong, not in this step
+      test-job2:
+        runs-on: ubuntu-latest
+        steps:
+        - id: step5
+          name: 'Upload artifact'
+          uses: actions/upload-artifact@v3
+          with:
+            name: job2-artifact
+            name: ${{ env.job_path }}  # job-level wrong, not in this job
+    """
+    workflow, problems = parse_workflow_string(workflow_string)
+    gen = rules.ExpressionsContexts.check(workflow)
+    result = list(gen)
+    assert len(result) == 2
+    assert result[0].pos.line == 39
+    assert result[1].pos.line == 48
+
 
 def test_job_context_correct():
     workflow_string = """

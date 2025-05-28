@@ -210,6 +210,7 @@ class Job:
 class Step:
     pos: "Pos"
     exec: "Exec"
+    contexts: "Contexts"
     id_: Optional["String"] = None
     if_: Optional["String"] = None
     name_: Optional["String"] = None
@@ -276,5 +277,3 @@ class String:
     def __hash__(self):
         """Hash only based on string content."""
         return hash(self.string)
-
-
