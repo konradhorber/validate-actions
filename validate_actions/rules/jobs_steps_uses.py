@@ -157,7 +157,7 @@ class JobsStepsUses(Rule):
             action.pos,
             ProblemLevel.ERR,
             (
-                f'{action.uses_.string} misses required inputs: '
+                f'{action.uses_.string} requires inputs: '
                 f'{prettyprint_required_inputs}'
             ),
             JobsStepsUses.NAME

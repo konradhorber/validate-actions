@@ -1,6 +1,6 @@
 import tempfile
 from pathlib import Path
-from typing import List, Tuple
+from typing import Tuple
 
 import validate_actions
 
@@ -33,15 +33,17 @@ def parse_workflow_string(
         schema = (
             validate_actions.workflow.helper.get_workflow_schema('github-workflow.json')
         )
+        contexts = validate_actions.workflow.Contexts()
         events_builder = validate_actions.workflow.BaseEventsBuilder(problems, schema)
-        jobs_builder = validate_actions.workflow.BaseJobsBuilder(problems, schema)
+        jobs_builder = validate_actions.workflow.BaseJobsBuilder(problems, schema, contexts)
 
         director = validate_actions.workflow.BaseDirector(
             temp_file_path,
             yaml_parser,
             problems,
             events_builder,
-            jobs_builder
+            jobs_builder,
+            contexts,
         )
         return director.build()
     finally:

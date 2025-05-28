@@ -6,28 +6,39 @@ from typing import Any, Dict, Optional, Union
 from validate_actions.pos import Pos
 from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow import ast
+from validate_actions.workflow.contexts import Contexts, ContextType
 
 
 def build_env(
     env_vars: Dict[ast.String, Any],
+    contexts: Contexts,
     problems: Problems,
     RULE_NAME: str
 ) -> Optional[ast.Env]:
     env_vars_out: Dict[ast.String, ast.String] = {}
     for key in env_vars:
-        if isinstance(key, ast.String) and isinstance(env_vars[key], ast.String):
-            env_vars_out[key] = env_vars[key]
+        if isinstance(key, ast.String):
+            if isinstance(env_vars[key], ast.String): 
+                env_vars_out[key] = env_vars[key]
+                contexts.env.children_[key.string] = ContextType.string
+            else:
+                problems.append(Problem(
+                    pos=key.pos,
+                    desc=f"Invalid environment variable value: {key.string}",
+                    level=ProblemLevel.ERR,
+                    rule=RULE_NAME
+                ))
         else:
             problems.append(Problem(
                 pos=key.pos,
-                desc=f"Invalid environment variable value: {key.string}",
+                desc="Invalid environment variable value",
                 level=ProblemLevel.ERR,
                 rule=RULE_NAME
             ))
     if len(env_vars_out) == 0:
         problems.append(Problem(
             pos=Pos(0, 0),
-            desc="No valid environment variables found.",
+            desc="No valid environment variables found",
             level=ProblemLevel.ERR,
             rule=RULE_NAME
         ))

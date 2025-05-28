@@ -1,5 +1,7 @@
+# flake8: noqa: E501
+
 from tests.helper import parse_workflow_string
-from validate_actions.workflow import ast
+from validate_actions.workflow import ast, contexts
 
 
 def test_job_env():
@@ -143,3 +145,126 @@ jobs:
     assert problems.problems == []
     assert permissions_.issues_ == ast.Permission.none
     assert permissions_.pull_requests_ == ast.Permission.none
+
+
+def test_jobs_context_builds():
+    workflow_string = """
+    on: push
+    jobs:
+      stale:
+        runs-on: ubuntu-latest
+
+        outputs:
+          stale_output: ${{ steps.one.outputs.closed-issues-prs }}
+
+        steps:
+          - id: one
+            uses: actions/stale@v9
+
+    """  # TODO check if output reference is correct
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    jobs_context = workflow_out.contexts.jobs
+    assert isinstance(jobs_context, contexts.JobsContext)
+    jobs_context_stale = jobs_context.children_['stale']
+    assert isinstance(jobs_context_stale, contexts.JobVarContext)
+    jobs_context_stale_outputs = jobs_context_stale.outputs
+    assert isinstance(jobs_context_stale_outputs, contexts.OutputsContext)
+    stale_output = jobs_context_stale_outputs.children_['stale_output']
+    assert stale_output is not None
+    assert isinstance(stale_output, contexts.ContextType)
+
+
+def test_job_context_builds():
+    workflow_string = """
+    on: push
+    jobs:
+      job:
+        runs-on: ubuntu-latest
+        services:
+          nginx:
+            image: nginx
+            # Map port 8080 on the Docker host to port 80 on the nginx container
+            ports:
+              - 8080:80
+          redis:
+            image: redis
+            # Map random free TCP port on Docker host to port 6379 on redis container
+            ports:
+              - 6379/tcp
+        steps:
+          - run: |
+              echo "Redis available on 127.0.0.1:${{ job.services.redis.ports['6379'] }}"
+              echo "Nginx available on 127.0.0.1:${{ job.services.nginx.ports['80'] }}"
+
+    """
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    job_context = workflow_out.jobs_['job'].contexts.job
+    assert isinstance(job_context, contexts.JobContext)
+
+
+def test_strategy():
+    workflow_string = """
+    on: push
+    jobs:
+      example_matrix:
+        strategy:
+          matrix:
+            os: [windows-latest, ubuntu-latest]
+            node: [14, 16]
+            include:
+              - os: windows-latest
+                node: 16
+                npm: 6
+          fail-fast: true
+          max-parallel: 6
+        runs-on: ${{ matrix.os }}
+        steps:
+          - uses: actions/setup-node@v4
+            with:
+              node-version: ${{ matrix.node }}
+          - if: ${{ matrix.npm }}
+            run: npm install -g npm@${{ matrix.npm }}
+          - run: npm --version
+    """
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert problems.problems == []
+
+    strategy = workflow_out.jobs_['example_matrix'].strategy_
+    assert strategy is not None
+    assert strategy.fail_fast_ is True
+    assert strategy.max_parallel_ == 6
+
+    # Expected combinations:
+    # {os: windows-latest, node: 14}
+    # {os: windows-latest, node: 16, npm: 6} (from include)
+    # {os: ubuntu-latest, node: 14}
+    # {os: ubuntu-latest, node: 16}
+
+    combinations = strategy.combinations
+    assert len(combinations) == 4
+
+    expected_combinations = [
+        {'os': 'windows-latest', 'node': '14'},
+        {'os': 'windows-latest', 'node': '16', 'npm': '6'},
+        {'os': 'ubuntu-latest', 'node': '14'},
+        {'os': 'ubuntu-latest', 'node': '16'},
+    ]
+
+    # Convert ast.String in combinations to simple dicts for easier comparison
+    parsed_combinations = []
+    for combo_dict in combinations:
+        parsed_combo = {k.string: v.string for k, v in combo_dict.items()}
+        parsed_combinations.append(parsed_combo)
+
+    for expected_combo in expected_combinations:
+        assert expected_combo in parsed_combinations, f"Expected combination {expected_combo} not found"
+
+    # Check matrix context
+    matrix_context = workflow_out.jobs_['example_matrix'].contexts.matrix
+    assert matrix_context is not None
+    assert 'os' in matrix_context.children_
+    assert 'node' in matrix_context.children_
+    assert 'npm' in matrix_context.children_
+    assert matrix_context.children_['os'] == contexts.ContextType.string
+    assert matrix_context.children_['node'] == contexts.ContextType.string
+    assert matrix_context.children_['npm'] == contexts.ContextType.string

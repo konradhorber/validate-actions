@@ -28,9 +28,13 @@ jobs:
         'outputs',
         'ref',
     ]
-    should_be = ast.Reference(
+    should_be = ast.String(
         pos=Pos(line=14, col=16),
         string='${{ steps.step1.outputs.ref }}',
-        parts=parts,
+        expr=ast.Expression(
+            pos=Pos(line=14, col=16),
+            string='${{ steps.step1.outputs.ref }}',
+            parts=parts,
+        ),
     )
     assert ref == should_be

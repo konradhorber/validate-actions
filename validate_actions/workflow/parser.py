@@ -1,3 +1,4 @@
+import re
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -7,7 +8,7 @@ import yaml
 
 from validate_actions.pos import Pos
 from validate_actions.problems import Problem, ProblemLevel, Problems
-from validate_actions.workflow.ast import Reference, String
+from validate_actions.workflow.ast import Expression, String
 
 
 class YAMLParser(ABC):
@@ -537,25 +538,37 @@ class PyYAMLParser(YAMLParser):
 
     def __parse_str(self, token: yaml.ScalarToken) -> String:
         """
-        Reads a string and returns a String or Reference object.
+        Reads a string and returns a String object.
         """
         token_string: str = token.value
         token_pos = self.__parse_pos(token)
+        expr = None
 
-        if token_string.startswith('${{') and token_string.endswith('}}'):
-            # Strip the delimiters and whitespace
-            inner = token_string
-            inner = token_string[3:-2]
-            inner = inner.strip()
-            parts = inner.split('.')
+        # look for a reference anywhere in the string
+        pattern = r'\${{\s*(.*?)\s*}}'
+        match = re.search(pattern, token_string)
+        if match:
+            # extract the inner expression
+            inner = match.group(1)
 
-            return Reference(
+            # Split on dots, but handle bracket notation separately
+            raw_parts = inner.split('.')
+            parts = []
+
+            for part in raw_parts:
+                # Check for bracket access like ports['6379']
+                match = re.match(r"(\w+)\[['\"](.+)['\"]\]", part)
+                if match:
+                    parts.append(match.group(1))  # e.g., 'ports'
+                    parts.append(match.group(2))  # e.g., '6379'
+                else:
+                    parts.append(part)
+            expr = Expression(
                 pos=token_pos,
-                string=token_string,
+                string=inner,
                 parts=parts,
             )
-        else:
-            return String(token_string, token_pos)
+        return String(token_string, token_pos, expr)
 
     def __parse_pos(self, token: yaml.Token) -> Pos:
         """

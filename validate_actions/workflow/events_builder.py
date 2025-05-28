@@ -337,7 +337,7 @@ class BaseEventsBuilder(EventsBuilder):
         for filter, filter_list in addl_filters.items():
             if filter.string == 'tags':
                 tags_ = filter_list
-            if filter.string == 'tags-ignore':
+            elif filter.string == 'tags-ignore':
                 tags_ignore_ = filter_list
             else:
                 self.problems.append(Problem(

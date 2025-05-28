@@ -6,6 +6,7 @@ import validate_actions.workflow.ast as ast
 from validate_actions.pos import Pos
 from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow import helper
+from validate_actions.workflow.contexts import Contexts
 from validate_actions.workflow.events_builder import EventsBuilder
 from validate_actions.workflow.jobs_builder import JobsBuilder
 from validate_actions.workflow.parser import YAMLParser
@@ -42,6 +43,7 @@ class BaseDirector(Director):
         problems: Problems,
         events_builder: EventsBuilder,
         jobs_builder: JobsBuilder,
+        contexts: Contexts,
     ) -> None:
         """Initialize a WorkflowBuilder instance.
 
@@ -59,6 +61,7 @@ class BaseDirector(Director):
         self.problems = problems
         self.events_builder = events_builder
         self.jobs_builder = jobs_builder
+        self.contexts = contexts
 
     def build(self) -> Tuple[ast.Workflow, Problems]:
         """Parse the workflow file and build a structured workflow
@@ -98,7 +101,9 @@ class BaseDirector(Director):
                         workflow_dict[key], self.problems, self.RULE_NAME
                     )
                 case 'env':
-                    env_ = helper.build_env(workflow_dict[key], self.problems, self.RULE_NAME)
+                    env_ = helper.build_env(
+                        workflow_dict[key], self.contexts, self.problems, self.RULE_NAME
+                    )
                 case 'defaults':
                     defaults_ = self.__build_defaults(workflow_dict[key])
                 case 'concurrency':
@@ -128,7 +133,8 @@ class BaseDirector(Director):
             permissions_=permissions_,
             env_=env_,
             defaults_=defaults_,
-            concurrency_=concurrency_
+            concurrency_=concurrency_,
+            contexts=self.contexts,
         ), self.problems
 
     def __build_defaults(
