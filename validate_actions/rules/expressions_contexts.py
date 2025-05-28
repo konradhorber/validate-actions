@@ -74,6 +74,11 @@ class ExpressionsContexts(Rule):
             level=ProblemLevel.ERR,
             rule=ExpressionsContexts.NAME,
         )
+        operators = ['!', '<=', '<', '>=', '>', '==', '!=', '&&', '||']
+
+        if any(op in expr.string for op in operators):  # TODO
+            return None
+
         web_contexts_not_to_check = ['vars', 'secrets', 'inputs', 'needs', 'steps']
         # TODO unshelf needs and steps
         if not parts:
