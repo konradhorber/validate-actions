@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from validate_actions import rules
+from validate_actions.fix.fixer import Fixer
 from validate_actions.problems import Problems
 from validate_actions.workflow import helper
 from validate_actions.workflow.contexts import Contexts
@@ -18,7 +19,7 @@ class Validator:
     ]
 
     @staticmethod
-    def run(file: Path) -> Problems:
+    def run(file: Path, fix: bool) -> Problems:
         workflow_schema = helper.get_workflow_schema('github-workflow.json')
         problems: Problems = Problems()
         contexts = Contexts()
@@ -42,5 +43,11 @@ class Validator:
                 if problem is None:
                     continue
                 problems.append(problem)
+
+        if fix:
+            for problem in problems.problems:
+                fixed: bool = Fixer.fix(problem, workflow, file)
+                if fixed:
+                    problems.remove(problem)
 
         return problems
