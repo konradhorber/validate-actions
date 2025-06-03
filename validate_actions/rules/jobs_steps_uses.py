@@ -16,6 +16,7 @@ class JobsStepsUses(Rule):
     @staticmethod
     def check(
         workflow: 'Workflow',
+        fix: bool
     ) -> Generator[Problem, None, None]:
         """
         Validates all actions in the workflow.

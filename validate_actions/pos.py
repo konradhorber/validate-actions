@@ -3,10 +3,11 @@ from dataclasses import dataclass
 from yaml import Token
 
 
-@dataclass(frozen=True)
+@dataclass
 class Pos:
     line: int
     col: int
+    idx: int = 0
 
     @classmethod
     def from_token(cls, token: Token) -> 'Pos':

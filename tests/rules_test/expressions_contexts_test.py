@@ -1,5 +1,8 @@
 # flake8: noqa: E501
 
+import tempfile
+from pathlib import Path
+
 from tests.helper import parse_workflow_string
 from validate_actions import rules
 from validate_actions.problems import Problem, ProblemLevel
@@ -38,7 +41,7 @@ def test_job_outputs_input_match():
           run: echo "secondword=world" >> $GITHUB_OUTPUT
     """
     workflow_matches, problems_matches = parse_workflow_string(workflow_matches_string)
-    gen_matches = rules.ExpressionsContexts.check(workflow_matches)
+    gen_matches = rules.ExpressionsContexts.check(workflow_matches, False)
     result_matches = list(gen_matches)
     assert result_matches == []
     
@@ -74,7 +77,7 @@ def test_job_outputs_input_match():
           run: echo "secondword=world" >> $GITHUB_OUTPUT
     """
     workflow_doesnt_match, problems_doesnt_match = parse_workflow_string(workflow_doesnt_match_string)
-    gen_doesnt_match = rules.ExpressionsContexts.check(workflow_doesnt_match)
+    gen_doesnt_match = rules.ExpressionsContexts.check(workflow_doesnt_match, False)
     result_doesnt_match = list(gen_doesnt_match)
     assert len(result_doesnt_match) == 1
     assert result_doesnt_match[0].rule == 'expressions-contexts'
@@ -101,7 +104,7 @@ def test_env_match():
             path: ${{ env.my_var }}  # Reference to output from env var
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.StepsIOMatch.check(workflow)
+    gen = rules.StepsIOMatch.check(workflow, False)
     result = list(gen)
     assert result == []
     
@@ -126,7 +129,7 @@ def test_env_match():
             path: ${{ env.myvar }}  # Reference to output from non-existent env var
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.ExpressionsContexts.check(workflow)
+    gen = rules.ExpressionsContexts.check(workflow, False)
     result = list(gen)
     assert len(result) == 1
 
@@ -182,7 +185,7 @@ def test_local_env():
             name: ${{ env.job_path }}  # job-level wrong, not in this job
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.ExpressionsContexts.check(workflow)
+    gen = rules.ExpressionsContexts.check(workflow, False)
     result = list(gen)
     assert len(result) == 2
     assert result[0].pos.line == 39
@@ -213,7 +216,7 @@ def test_job_context_correct():
             mongodb-port: ${{ job.services.redis.ports['6379'] }}
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.ExpressionsContexts.check(workflow)
+    gen = rules.ExpressionsContexts.check(workflow, False)
     result = list(gen)
     assert result == []
 
@@ -242,7 +245,7 @@ def test_job_context_incorrect():
             mongodb-port: ${{ job.services.redis.ports['379'] }}
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.ExpressionsContexts.check(workflow)
+    gen = rules.ExpressionsContexts.check(workflow, False)
     result = list(gen)
     assert len(result) == 1
 
@@ -270,7 +273,7 @@ def test_runner_context_correct():
               path: ${{ runner.temp }}/build_logs
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.ExpressionsContexts.check(workflow)
+    gen = rules.ExpressionsContexts.check(workflow, False)
     result = list(gen)
     assert len(result) == 0
 
@@ -298,7 +301,7 @@ def test_runner_context_wrong():
               path: ${{ runner.temp }}/build_logs
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.ExpressionsContexts.check(workflow)
+    gen = rules.ExpressionsContexts.check(workflow, False)
     result = list(gen)
     assert len(result) == 1
 
@@ -336,6 +339,86 @@ def test_web_context():
         who-to-greet: ${{ vars.GREET_NAME }}
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.ExpressionsContexts.check(workflow)
+    gen = rules.ExpressionsContexts.check(workflow, False)
     result = list(gen)
     assert result == []
+
+
+def test_fix_expression_context_typo():
+    workflow_string_with_typo = """
+    name: Build
+    on: push
+
+    jobs:
+      build:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - name: Build with logs
+            run: |
+              mkdir ${{ runer.temp }}/build_logs
+              echo "Logs from building" > ${{ runner.temp }}/build_logs/build.logs
+              exit 1
+          - name: Upload logs on fail
+            if: ${{ failure() }}
+            uses: actions/upload-artifact@v4
+            with:
+              name: Build failure logs
+              path: ${{ runner.temp }}/build_logs
+    """
+    expected_workflow_string_fixed = """
+    name: Build
+    on: push
+
+    jobs:
+      build:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - name: Build with logs
+            run: |
+              mkdir ${{ runner.temp }}/build_logs
+              echo "Logs from building" > ${{ runner.temp }}/build_logs/build.logs
+              exit 1
+          - name: Upload logs on fail
+            if: ${{ failure() }}
+            uses: actions/upload-artifact@v4
+            with:
+              name: Build failure logs
+              path: ${{ runner.temp }}/build_logs
+    """
+
+    temp_file_path = None
+    try:
+        # Create a named temporary file
+        with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.yml', encoding='utf-8') as f:
+            f.write(workflow_string_with_typo)
+            temp_file_path = Path(f.name)
+
+        # Parse the workflow string (content is what matters for parsing positions)
+        workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typo)
+        
+        # Assuming the parser itself doesn't find problems with this specific typo,
+        # or that such problems are not relevant to this test's focus.
+        # If initial_problems could contain the typo, you might want to assert its presence here.
+
+        # IMPORTANT: Set the path attribute on the workflow object to the temp file
+        workflow_obj.path = temp_file_path
+
+        # Run the check with fix=True
+        # The check function modifies the file in place if a fix is applied
+        problems_after_fix = list(rules.ExpressionsContexts.check(workflow_obj, fix=True))
+
+        # Assert that the problem was fixed and no problem is reported for this specific issue
+        assert not problems_after_fix, f"Expected no problems after fix, but got: {problems_after_fix}"
+
+        # Read the content of the modified file
+        fixed_content = temp_file_path.read_text(encoding='utf-8')
+
+        # Assert that the file content is as expected
+        # Using strip() to handle potential differences in trailing newlines
+        assert fixed_content.strip() == expected_workflow_string_fixed.strip()
+
+    finally:
+        if temp_file_path:
+            temp_file_path.unlink(missing_ok=True)

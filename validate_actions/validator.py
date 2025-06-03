@@ -1,8 +1,10 @@
 from pathlib import Path
+from typing import List, Type
 
 from validate_actions import rules
 from validate_actions.fix.fixer import Fixer
 from validate_actions.problems import Problems
+from validate_actions.rules.rule import Rule
 from validate_actions.workflow import helper
 from validate_actions.workflow.contexts import Contexts
 from validate_actions.workflow.director import BaseDirector
@@ -12,7 +14,7 @@ from validate_actions.workflow.parser import PyYAMLParser
 
 
 class Validator:
-    ACTIONS_ERROR_RULES = [
+    ACTIONS_ERROR_RULES: List[Type[Rule]] = [
         rules.JobsStepsUses,
         rules.StepsIOMatch,
         rules.ExpressionsContexts,
@@ -38,16 +40,10 @@ class Validator:
         workflow, problems = director.build()
 
         for rule in Validator.ACTIONS_ERROR_RULES:
-            list_of_problems = rule.check(workflow)
+            list_of_problems = rule.check(workflow, fix)
             for problem in list_of_problems:
                 if problem is None:
                     continue
                 problems.append(problem)
-
-        if fix:
-            for problem in problems.problems:
-                fixed: bool = Fixer.fix(problem, workflow, file)
-                if fixed:
-                    problems.remove(problem)
 
         return problems

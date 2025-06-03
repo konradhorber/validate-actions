@@ -16,7 +16,7 @@ jobs:
           unknown_input: 'test'
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.JobsStepsUses.check(workflow)
+    gen = rules.JobsStepsUses.check(workflow, False)
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], Problem)
@@ -147,7 +147,7 @@ jobs:
           status: 'test'
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.JobsStepsUses.check(workflow)
+    gen = rules.JobsStepsUses.check(workflow, False)
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], Problem)
@@ -170,7 +170,7 @@ jobs:
           wrong_input: 'test'
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.JobsStepsUses.check(workflow)
+    gen = rules.JobsStepsUses.check(workflow, False)
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], Problem)
@@ -183,7 +183,7 @@ jobs:
 
 def throws_single_error(workflow_string: str):
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.JobsStepsUses.check(workflow)
+    gen = rules.JobsStepsUses.check(workflow, False)
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], Problem)
@@ -192,6 +192,6 @@ def throws_single_error(workflow_string: str):
 
 def throws_no_error(workflow_string: str):
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.JobsStepsUses.check(workflow)
+    gen = rules.JobsStepsUses.check(workflow, False)
     result = list(gen)
     assert result == []

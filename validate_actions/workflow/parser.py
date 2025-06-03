@@ -1,3 +1,4 @@
+import copy
 import re
 import sys
 from abc import ABC, abstractmethod
@@ -540,33 +541,69 @@ class PyYAMLParser(YAMLParser):
         """
         Reads a string and returns a String object.
         """
+        full_str: str = token.start_mark.buffer
         token_string: str = token.value
-        token_pos = self.__parse_pos(token)
+        token_full_str = full_str[token.start_mark.index:token.end_mark.index]
+        # token_pos is the start of the entire scalar string token
+        token_pos = self.__parse_pos(token) 
         expr = None
 
-        # look for a reference anywhere in the string
+        # look for a reference anywhere in the string (original regex)
         pattern = r'\${{\s*(.*?)\s*}}'
-        match = re.search(pattern, token_string)
-        if match:
-            # extract the inner expression
-            inner = match.group(1)
+        match_obj = re.search(pattern, token_full_str)
 
-            # Split on dots, but handle bracket notation separately
-            raw_parts = inner.split('.')
-            parts = []
+        if match_obj:
+            # extract the inner expression string
+            inner_content_str = match_obj.group(1)
+            # Determine the character index of the start of inner_content_str within token_string
+            inner_content_start_char_idx = match_obj.start(1)
 
-            for part in raw_parts:
-                # Check for bracket access like ports['6379']
-                match = re.match(r"(\w+)\[['\"](.+)['\"]\]", part)
-                if match:
-                    parts.append(match.group(1))  # e.g., 'ports'
-                    parts.append(match.group(2))  # e.g., '6379'
+            # Split on dots
+            raw_parts_list = inner_content_str.split('.')
+            parts_ast_nodes = []
+
+            # Tracks the current character offset from the beginning of inner_content_str
+            current_char_offset_in_inner_content = 0
+
+            cur_tok_pos = copy.copy(token_pos)
+            cur_tok_pos.idx = token.start_mark.index
+            for i, part_segment_str in enumerate(raw_parts_list):
+                # Calculate the absolute character index of this part_segment_str's start in the original token_string
+                part_segment_start_abs_idx = inner_content_start_char_idx + current_char_offset_in_inner_content
+                
+                # Check for bracket access like object['property'] (corrected regex)
+                bracket_match_obj = re.match(r"(\w+)\[['\"](.+)['\"]\]", part_segment_str)
+                
+                if bracket_match_obj:
+                    main_name_str = bracket_match_obj.group(1)  # e.g., 'ports'
+                    # main_name_str starts at the beginning of part_segment_str
+                    cur_tok_pos.idx += part_segment_start_abs_idx
+                    parts_ast_nodes.append(String(main_name_str, cur_tok_pos))
+
+                    content_in_brackets_str = bracket_match_obj.group(2)  # e.g., '6379'
+                    # Calculate offset of content_in_brackets_str within part_segment_str
+                    # The start of group(2) is relative to the start of part_segment_str
+                    content_start_offset_in_segment = bracket_match_obj.start(2)
+                    # Absolute character index of content_in_brackets_str's start in token_string
+                    content_start_abs_idx = part_segment_start_abs_idx + content_start_offset_in_segment
+                    cur_tok_pos.idx += content_start_abs_idx
+                    parts_ast_nodes.append(String(content_in_brackets_str, cur_tok_pos))
                 else:
-                    parts.append(part)
+                    # Simple part (no brackets)
+                    cur_tok_pos.idx += part_segment_start_abs_idx
+                    parts_ast_nodes.append(String(part_segment_str, cur_tok_pos))
+
+                cur_tok_pos = copy.copy(cur_tok_pos)
+
+                # Advance the offset within inner_content_str for the next part
+                current_char_offset_in_inner_content += len(part_segment_str)
+                if i < len(raw_parts_list) - 1:  # If not the last part, account for the dot
+                    current_char_offset_in_inner_content += 1
+
             expr = Expression(
-                pos=token_pos,
-                string=inner,
-                parts=parts,
+                pos=token_pos,  # Pos of the start of the inner content string
+                string=inner_content_str,
+                parts=parts_ast_nodes,
             )
         return String(token_string, token_pos, expr)
 

@@ -1,5 +1,7 @@
 from collections.abc import Mapping, Sequence
 from dataclasses import fields, is_dataclass
+from difflib import SequenceMatcher
+from pathlib import Path
 from typing import Generator, Optional
 
 from validate_actions.problems import Problem, ProblemLevel
@@ -14,10 +16,11 @@ class ExpressionsContexts(Rule):
     @staticmethod
     def check(
         workflow: 'Workflow',
+        fix: bool
     ) -> Generator[Problem, None, None]:
         # start traversal with the global workflow contexts
         for ref, ctx in ExpressionsContexts._traverse(workflow, workflow.contexts):
-            problem = ExpressionsContexts.does_expr_exist(ref, ctx)
+            problem = ExpressionsContexts.does_expr_exist(ref, ctx, fix, workflow)
             if problem:
                 yield problem
 
@@ -64,6 +67,8 @@ class ExpressionsContexts(Rule):
     def does_expr_exist(
         expr: Expression,
         contexts: Contexts,
+        fix: bool,
+        workflow: 'Workflow'
     ) -> Optional[Problem]:
         # Iteratively check each part of the expression against the context tree
         cur = contexts
@@ -86,16 +91,96 @@ class ExpressionsContexts(Rule):
         for part in parts:
             if part in web_contexts_not_to_check:
                 break
-            if hasattr(cur, part):
-                cur = getattr(cur, part)
-            elif hasattr(cur, 'children_') and part in getattr(cur, 'children_'):
-                cur = cur.children_[part]
-            elif hasattr(cur, 'functions_') and part in getattr(cur, 'functions_'):
-                cur = getattr(cur, 'functions_')[part]
-            elif isinstance(cur, list) and part in cur:
-                index = cur.index(part)
+            if hasattr(cur, part.string):
+                cur = getattr(cur, part.string)
+            elif hasattr(cur, 'children_') and part.string in getattr(cur, 'children_'):
+                cur = cur.children_[part.string]
+            elif hasattr(cur, 'functions_') and part.string in getattr(cur, 'functions_'):
+                cur = getattr(cur, 'functions_')[part.string]
+            elif isinstance(cur, list) and part.string in cur:
+                index = cur.index(part.string)
                 cur = cur[index]
 
             else:
-                return problem
+                if fix:
+                    field_names = [f.name for f in fields(cur)]
+                    fields_scores = {}
+                    others: list[str] = []
+                    others_scores = {}
+                    if hasattr(cur, 'children_'):
+                        others = cur.children_.keys()
+                    elif hasattr(cur, 'functions_'):
+                        others = list(cur.functions_.keys())
+                    elif isinstance(cur, list):
+                        others = cur
+
+                    for key in field_names:
+                        score = SequenceMatcher(None, part.string, key).ratio()
+                        fields_scores[key] = score
+
+                    for key in others:
+                        score = SequenceMatcher(None, part.string, key).ratio()
+                        others_scores[key] = score
+
+                    fields_best_match = max(
+                        fields_scores.items(), key=lambda x: x[1], default=(None, 0)
+                        )
+                    others_best_match = max(
+                        others_scores.items(), key=lambda x: x[1], default=(None, 0)
+                    )
+                    fields_best_key, fields_best_score = fields_best_match
+                    others_best_key, others_best_score = others_best_match
+
+                    threshold = 0.9
+                    max_key: str = ""
+                    if fields_best_score > threshold and others_best_score > threshold:
+                        candidates = [
+                            k for k in [fields_best_key, others_best_key] if k is not None
+                        ]
+                        if candidates:
+                            max_key = max(candidates, key=lambda x: len(x))
+                        else:
+                            max_key = ""
+                    elif fields_best_score > threshold:
+                        max_key = fields_best_key or ""
+                    elif others_best_score > threshold:
+                        max_key = others_best_key or ""
+                    else:
+                        return problem
+
+                    return ExpressionsContexts.edit_yaml_at_position(
+                        file_path=workflow.path,
+                        idx=part.pos.idx,
+                        num_delete=len(part.string),
+                        new_text=max_key,
+                        problem=problem,
+                    )
+
+                else:
+                    return problem
+        return None
+
+    @staticmethod
+    def edit_yaml_at_position(
+        file_path: Path,
+        idx: int,
+        num_delete: int,
+        new_text: str,
+        problem: Problem
+    ) -> Optional[Problem]:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        if idx < 0 or idx >= len(content):
+            return problem
+
+        # Perform edit: delete and insert
+        updated_content = (
+            content[:idx] +
+            new_text +
+            content[idx + num_delete:]
+        )
+
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(updated_content)
         return None
