@@ -103,20 +103,22 @@ class ExpressionsContexts(Rule):
 
             else:
                 if fix:
-                    field_names = [f.name for f in fields(cur)]
-                    fields_scores = {}
+                    field_names = []
                     others: list[str] = []
                     others_scores = {}
-                    if hasattr(cur, 'children_'):
-                        others = cur.children_.keys()
-                    elif hasattr(cur, 'functions_'):
-                        others = list(cur.functions_.keys())
-                    elif isinstance(cur, list):
+                    fields_scores = {}
+                    if isinstance(cur, list):
                         others = cur
+                    else:
+                        field_names = [f.name for f in fields(cur)]
+                        if hasattr(cur, 'children_'):
+                            others = cur.children_.keys()
+                        elif hasattr(cur, 'functions_'):
+                            others = list(cur.functions_.keys())
 
-                    for key in field_names:
-                        score = SequenceMatcher(None, part.string, key).ratio()
-                        fields_scores[key] = score
+                        for key in field_names:
+                            score = SequenceMatcher(None, part.string, key).ratio()
+                            fields_scores[key] = score
 
                     for key in others:
                         score = SequenceMatcher(None, part.string, key).ratio()
@@ -131,7 +133,7 @@ class ExpressionsContexts(Rule):
                     fields_best_key, fields_best_score = fields_best_match
                     others_best_key, others_best_score = others_best_match
 
-                    threshold = 0.9
+                    threshold = 0.8
                     max_key: str = ""
                     if fields_best_score > threshold and others_best_score > threshold:
                         candidates = [

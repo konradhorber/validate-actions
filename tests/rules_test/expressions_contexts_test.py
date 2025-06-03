@@ -422,3 +422,83 @@ def test_fix_expression_context_typo():
     finally:
         if temp_file_path:
             temp_file_path.unlink(missing_ok=True)
+
+def test_fix_service_port_typo():
+    workflow_string_with_typo = """
+    on: push
+    jobs:
+      job:
+        runs-on: ubuntu-latest
+        services:
+          redis:
+            image: redis
+            ports:
+              - 6379/tcp
+        steps:
+        - name: Use service port
+          run: echo "Port is ${{ job.services.redis.ports['379'] }}"
+    """
+    expected_fixed = """
+    on: push
+    jobs:
+      job:
+        runs-on: ubuntu-latest
+        services:
+          redis:
+            image: redis
+            ports:
+              - 6379/tcp
+        steps:
+        - name: Use service port
+          run: echo "Port is ${{ job.services.redis.ports['6379'] }}"
+    """
+    temp_file_path = None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.yml', encoding='utf-8') as f:
+            f.write(workflow_string_with_typo)
+            temp_file_path = Path(f.name)
+
+        workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typo)
+        workflow_obj.path = temp_file_path
+        problems_after_fix = list(rules.ExpressionsContexts.check(workflow_obj, fix=True))
+        assert not problems_after_fix
+        fixed_content = temp_file_path.read_text(encoding='utf-8')
+        assert fixed_content.strip() == expected_fixed.strip()
+    finally:
+        if temp_file_path:
+            temp_file_path.unlink(missing_ok=True)
+
+def test_fix_typo_in_middle_of_expression():
+    workflow_string_with_typo = """
+    on: push
+    jobs:
+      job:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Service with typo
+          run: echo "${{ job.servics.redis.ports['6379'] }}"
+    """
+    expected_fixed = """
+    on: push
+    jobs:
+      job:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Service with typo
+          run: echo "${{ job.services.redis.ports['6379'] }}"
+    """
+    temp_file_path = None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.yml', encoding='utf-8') as f:
+            f.write(workflow_string_with_typo)
+            temp_file_path = Path(f.name)
+
+        workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typo)
+        workflow_obj.path = temp_file_path
+        problems_after_fix = list(rules.ExpressionsContexts.check(workflow_obj, fix=True))
+        assert not problems_after_fix
+        fixed_content = temp_file_path.read_text(encoding='utf-8')
+        assert fixed_content.strip() == expected_fixed.strip()
+    finally:
+        if temp_file_path:
+            temp_file_path.unlink(missing_ok=True)
