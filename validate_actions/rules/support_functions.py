@@ -5,7 +5,7 @@ from typing import Iterable
 import requests
 import yaml
 
-import validate_actions.workflow.ast as ast
+from validate_actions.workflow.ast import String
 
 # TODO fix and upgrade this mess
 
@@ -24,7 +24,7 @@ GITHUB_URL = 'https://raw.githubusercontent.com/'
 same_session_cache = {}
 
 def parse_action(slug):
-    if isinstance(slug, ast.String):
+    if isinstance(slug, String):
         slug = slug.string
     action, sep, tag = slug.partition('@')
     tags = [tag] if sep else ['main', 'master']

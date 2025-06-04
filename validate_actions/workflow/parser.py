@@ -1,8 +1,9 @@
+import copy
 import re
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, Iterator, List, Tuple
 
 import yaml
 
@@ -542,36 +543,78 @@ class PyYAMLParser(YAMLParser):
         """
         token_string: str = token.value
         token_pos = self.__parse_pos(token)
-        expr = None
 
-        # look for a reference anywhere in the string
+        # parse expressions in the form of ${{ ... }}
+        # we need the full string to calc indices for expression fixing
         pattern = r'\${{\s*(.*?)\s*}}'
-        match = re.search(pattern, token_string)
-        if match:
-            # extract the inner expression
-            inner = match.group(1)
+        full_str: str = token.start_mark.buffer
+        token_full_str = full_str[token.start_mark.index:token.end_mark.index]
+        matches = re.finditer(pattern, token_full_str)  # finds expressions in token string
+        expressions = self._parse_expressions(
+            matches, token_pos, token
+        )
 
-            # Split on dots, but handle bracket notation separately
-            raw_parts = inner.split('.')
-            parts = []
-
-            for part in raw_parts:
-                # Check for bracket access like ports['6379']
-                match = re.match(r"(\w+)\[['\"](.+)['\"]\]", part)
-                if match:
-                    parts.append(match.group(1))  # e.g., 'ports'
-                    parts.append(match.group(2))  # e.g., '6379'
-                else:
-                    parts.append(part)
-            expr = Expression(
-                pos=token_pos,
-                string=inner,
-                parts=parts,
-            )
-        return String(token_string, token_pos, expr)
+        return String(token_string, token_pos, expressions)
 
     def __parse_pos(self, token: yaml.Token) -> Pos:
         """
         Reads a token and returns a Pos object.
         """
         return Pos(token.start_mark.line, token.start_mark.column)
+
+    def _parse_expressions(
+        self,
+        matches: Iterator[re.Match[str]],
+        token_pos: Pos,
+        token: yaml.ScalarToken
+    ) -> List[Expression]:
+        """
+        Parses expressions from the matches and builds an expression list.
+        """
+        expressions: List[Expression] = []
+        # for each expression in the list of matches (expressions)
+        for match_obj in matches:
+            # extract the expression string
+            expr_str = match_obj.group(1)
+
+            # Split expression into parts on dots
+            raw_parts_list = expr_str.split('.')
+            parts_ast_nodes = []
+
+            # determine the character index of the part
+            # first part begins at the start of the expression
+            part_pos = copy.copy(token_pos)
+            part_start_char_idx = match_obj.start(1)
+            part_pos.idx = token.start_mark.index + part_start_char_idx
+
+            # for each part in the expression
+            for i, part_segment_str in enumerate(raw_parts_list):
+                # check for bracket access like object['property'] in the part
+                bracket_match_obj = re.match(r"(\w+)\[['\"](.+)['\"]\]", part_segment_str)
+
+                if bracket_match_obj:
+                    main_name_str = bracket_match_obj.group(1)  # first part e.g., 'ports'
+                    parts_ast_nodes.append(String(main_name_str, part_pos))
+
+                    content_in_brackets_str = bracket_match_obj.group(2)  # second part e.g. '6379'
+                    # calculate offset of second part within part_segment_str
+                    # the start of group(2) is relative to the start of part_segment_str
+                    part_pos.idx += bracket_match_obj.start(2)
+                    parts_ast_nodes.append(String(content_in_brackets_str, part_pos))
+                else:
+                    # Simple part (no brackets)
+                    parts_ast_nodes.append(String(part_segment_str, part_pos))
+
+                part_pos = copy.copy(part_pos)
+                # Advance the offset within expr_str for the next part
+                part_pos.idx += len(part_segment_str)
+                if i < len(raw_parts_list) - 1:  # If not the last part, account for the dot
+                    part_pos.idx += 1
+
+            expressions.append(Expression(
+                pos=token_pos,  # Pos of the start of the part
+                string=expr_str,  # The full expression string
+                parts=parts_ast_nodes,  # List of String objects representing each expression part
+            ))
+
+        return expressions

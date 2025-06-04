@@ -13,7 +13,8 @@ class Rule(ABC):
     @staticmethod
     @abstractmethod
     def check(
-        workflow: Workflow
+        workflow: Workflow,
+        fix: bool,
     ) -> Generator[Problem, None, None]:
         """
         Perform checks on the given workflow and schema, yielding Problem

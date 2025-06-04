@@ -12,7 +12,7 @@ class ProblemLevel(Enum):
     ERR = 2
 
 
-@dataclass(frozen=True)
+@dataclass
 class Problem:
     pos: Pos
     level: ProblemLevel
@@ -34,8 +34,9 @@ class Problems:
                 self.n_warning += 1
             case ProblemLevel.ERR:
                 self.n_error += 1
-            case _:
-                raise ValueError(f"Invalid problem level: {problem.level}")
+            case ProblemLevel.NON:
+                # Non-problem, do not count
+                pass
         self.max_level = ProblemLevel(max(self.max_level.value, problem.level.value))
 
     def sort(self) -> None:
@@ -46,3 +47,16 @@ class Problems:
         self.n_error += problems.n_error
         self.n_warning += problems.n_warning
         self.max_level = ProblemLevel(max(self.max_level.value, problems.max_level.value))
+
+    def remove(self, problem: Problem) -> None:
+        self.problems.remove(problem)
+        match problem.level:
+            case ProblemLevel.WAR:
+                self.n_warning -= 1
+            case ProblemLevel.ERR:
+                self.n_error -= 1
+            case ProblemLevel.NON:
+                # Non-problem, do not count
+                pass
+        if not self.problems:
+            self.max_level = ProblemLevel.NON

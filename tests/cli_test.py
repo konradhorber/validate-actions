@@ -31,7 +31,7 @@ jobs:
         temp_file_path = Path(temp_file.name)
 
     try:
-        problems = validator.Validator.run(temp_file_path)
+        problems = validator.Validator.run(temp_file_path, fix=False)
     finally:
         temp_file_path.unlink(missing_ok=True)
 

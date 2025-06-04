@@ -6,10 +6,8 @@ app = typer.Typer()
 
 
 @app.callback(invoke_without_command=True)
-def main():
+def main(
+    fix: bool = typer.Option(default=False, help="Automatically fix some problems"),
+):
     cli = CLI()
-    cli.start()
-
-
-if __name__ == "__main__":
-    app()
+    cli.start(fix=fix)

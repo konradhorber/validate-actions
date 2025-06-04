@@ -32,7 +32,7 @@ class CLI:
         'neutral': '\033[2m',
     }
 
-    def start(self) -> None:
+    def start(self, fix: bool) -> None:
         project_root = self.find_workflows()
         if not project_root:
             print(
@@ -42,7 +42,7 @@ class CLI:
             )
             raise typer.Exit(1)
         directory = project_root / '.github/workflows'
-        self.run_directory(directory)
+        self.run_directory(directory, fix)
 
     def find_workflows(self, marker='.github'):
         start_dir = Path.cwd()
@@ -51,7 +51,7 @@ class CLI:
                 return directory
         return None
 
-    def run_directory(self, directory: Path) -> None:
+    def run_directory(self, directory: Path, fix: bool) -> None:
         max_level = ProblemLevel.NON
         total_errors = 0
         total_warnings = 0
@@ -65,7 +65,7 @@ class CLI:
                 transient=True
             ) as progress:
                 progress.add_task(description=f'Validating {file.name}...', total=None)
-                prob_level, n_errors, n_warnings = self.run(file)
+                prob_level, n_errors, n_warnings = self.run(file, fix)
             max_level = ProblemLevel(max(max_level.value, prob_level.value))
             total_errors += n_errors
             total_warnings += n_warnings
@@ -84,8 +84,8 @@ class CLI:
 
         sys.exit(return_code)
 
-    def run(self, file: Path) -> Tuple[ProblemLevel, int, int]:
-        problems = Validator.run(file)
+    def run(self, file: Path, fix: bool) -> Tuple[ProblemLevel, int, int]:
+        problems = Validator.run(file, fix)
 
         problems.sort()
 
@@ -114,12 +114,16 @@ class CLI:
         line += max(20 - len(line), 0) * ' '
         war = ProblemLevel.WAR
         err = ProblemLevel.ERR
+        non = ProblemLevel.NON
         if problem.level == war:
             level_str = 'warning'
             line += f'{self.STYLE[war]["color"]}{level_str}{self.DEF_STYLE["format_end"]}'
         elif problem.level == err:
             level_str = 'error'
             line += f'{self.STYLE[err]["color"]}{level_str}{self.DEF_STYLE["format_end"]}'
+        elif problem.level == non:
+            level_str = 'fixed'
+            line += f'{self.STYLE[non]["color"]}{level_str}{self.DEF_STYLE["format_end"]}'
         line += max(38 - len(line), 0) * ' '
         line += problem.desc
         if problem.rule:

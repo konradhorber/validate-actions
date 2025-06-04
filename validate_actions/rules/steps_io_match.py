@@ -13,6 +13,7 @@ class StepsIOMatch(Rule):
     @staticmethod
     def check(
         workflow: 'Workflow',
+        fix: bool
     ) -> Generator[Problem, None, None]:
         jobs: Dict[ast.String, ast.Job] = workflow.jobs_
         for job in jobs.values():
@@ -46,17 +47,18 @@ class StepsIOMatch(Rule):
             if input.expr is None:
                 continue
 
-            section = input.expr.parts[0]
-            if section == 'steps':
-                if len(input.expr.parts) < 3:
-                    yield Problem(
-                        rule=StepsIOMatch.NAME,
-                        desc=f'error in step expression {input.expr.string}',
-                        level=ProblemLevel.ERR,
-                        pos=input.pos,
-                    )
-                    return
-                yield from StepsIOMatch.__check_steps_ref_exists(input.expr, job)
+            for expr in input.expr:
+                section = expr.parts[0]
+                if section == 'steps':
+                    if len(expr.parts) < 3:
+                        yield Problem(
+                            rule=StepsIOMatch.NAME,
+                            desc=f'error in step expression {expr.string}',
+                            level=ProblemLevel.ERR,
+                            pos=input.pos,
+                        )
+                        return
+                    yield from StepsIOMatch.__check_steps_ref_exists(expr, job)
 
     @staticmethod
     def __check_steps_ref_exists(
@@ -71,7 +73,7 @@ class StepsIOMatch(Rule):
         yield Problem(
             rule=StepsIOMatch.NAME,
             desc=(
-                f"Step '{referenced_step_id}' in job '{job.job_id_}' does not exist"
+                f"Step '{referenced_step_id.string}' in job '{job.job_id_}' does not exist"
             ),
             pos=ref.pos,
             level=ProblemLevel.ERR,
@@ -95,7 +97,7 @@ class StepsIOMatch(Rule):
                 yield Problem(
                     rule=StepsIOMatch.NAME,
                     desc=(
-                        f"'{ref.string}' refers to non-existent '{ref_step_attr}' in step "
+                        f"'{ref.string}' refers to non-existent '{ref_step_attr.string}' in step "
                     ),
                     level=ProblemLevel.ERR,
                     pos=ref.pos,
@@ -106,7 +108,10 @@ class StepsIOMatch(Rule):
                 assert step.id_ is not None
                 yield Problem(
                     rule=StepsIOMatch.NAME,
-                    desc=f"'{ref_step_var}' not as '{ref_step_attr}' in '{step.id_.string}'",
+                    desc=(
+                        f"'{ref_step_var.string}' not as "
+                        f"'{ref_step_attr.string}' in '{step.id_.string}'"
+                    ),
                     level=ProblemLevel.ERR,
                     pos=ref.pos,
                 )
@@ -114,7 +119,7 @@ class StepsIOMatch(Rule):
         else:
             yield Problem(
                 rule=StepsIOMatch.NAME,
-                desc=f"'{ref_step_var}' does not exist in step",
+                desc=f"'{ref_step_var.string}' does not exist in step",
                 level=ProblemLevel.ERR,
                 pos=ref.pos,
             )

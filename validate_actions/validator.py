@@ -1,7 +1,9 @@
 from pathlib import Path
+from typing import List, Type
 
 from validate_actions import rules
 from validate_actions.problems import Problems
+from validate_actions.rules.rule import Rule
 from validate_actions.workflow import helper
 from validate_actions.workflow.contexts import Contexts
 from validate_actions.workflow.director import BaseDirector
@@ -11,14 +13,14 @@ from validate_actions.workflow.parser import PyYAMLParser
 
 
 class Validator:
-    ACTIONS_ERROR_RULES = [
+    ACTIONS_ERROR_RULES: List[Type[Rule]] = [
         rules.JobsStepsUses,
         rules.StepsIOMatch,
         rules.ExpressionsContexts,
     ]
 
     @staticmethod
-    def run(file: Path) -> Problems:
+    def run(file: Path, fix: bool) -> Problems:
         workflow_schema = helper.get_workflow_schema('github-workflow.json')
         problems: Problems = Problems()
         contexts = Contexts()
@@ -37,7 +39,7 @@ class Validator:
         workflow, problems = director.build()
 
         for rule in Validator.ACTIONS_ERROR_RULES:
-            list_of_problems = rule.check(workflow)
+            list_of_problems = rule.check(workflow, fix)
             for problem in list_of_problems:
                 if problem is None:
                     continue

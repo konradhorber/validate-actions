@@ -1,6 +1,7 @@
 from abc import ABC
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum, auto
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from yaml import ScalarToken
@@ -36,8 +37,9 @@ class Permissions:
     statuses_: "Permission" = Permission.write
 
 
-@dataclass(frozen=True)
+@dataclass
 class Workflow:
+    path: Path
     on_: List["Event"]
     jobs_: Dict["String", "Job"]
     contexts: Contexts
@@ -255,7 +257,7 @@ class ExecRun(Exec):
 class Expression():
     pos: "Pos"
     string: str
-    parts: List[str]
+    parts: List['String']
 
 
 @dataclass(frozen=True)
@@ -267,7 +269,7 @@ class String:
     pos: "Pos"
     """The position of the string in the source, including line and column."""
 
-    expr: Optional[Expression] = None
+    expr: List[Expression] = field(default_factory=list)
 
     @classmethod
     def from_token(cls, token: ScalarToken) -> "String":

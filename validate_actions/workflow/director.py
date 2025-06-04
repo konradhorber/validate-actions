@@ -126,6 +126,7 @@ class BaseDirector(Director):
             ))
 
         return ast.Workflow(
+            path=self.workflow_file,
             on_=on_,
             jobs_=jobs_,
             name_=name_,
