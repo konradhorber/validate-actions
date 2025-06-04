@@ -468,6 +468,41 @@ def test_fix_service_port_typo():
         if temp_file_path:
             temp_file_path.unlink(missing_ok=True)
 
+def test_fix_multiple_expressions_in_string():
+    workflow_string_with_typo = """
+    on: push
+    jobs:
+      job:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Combined expressions
+          run: 'echo "First: ${{ runner.temp }}, Second: ${{ runner.temp }}/dir"'
+    """
+    expected_fixed = """
+    on: push
+    jobs:
+      job:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Combined expressions
+          run: 'echo "First: ${{ runner.temp }}, Second: ${{ runner.temp }}/dir"'
+    """
+    temp_file_path = None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.yml', encoding='utf-8') as f:
+            f.write(workflow_string_with_typo)
+            temp_file_path = Path(f.name)
+
+        workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typo)
+        workflow_obj.path = temp_file_path
+        problems_after_fix = list(rules.ExpressionsContexts.check(workflow_obj, fix=True))
+        assert not problems_after_fix
+        fixed_content = temp_file_path.read_text(encoding='utf-8')
+        assert fixed_content.strip() == expected_fixed.strip()
+    finally:
+        if temp_file_path:
+            temp_file_path.unlink(missing_ok=True)
+
 def test_fix_typo_in_middle_of_expression():
     workflow_string_with_typo = """
     on: push

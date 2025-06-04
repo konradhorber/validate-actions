@@ -546,13 +546,14 @@ class PyYAMLParser(YAMLParser):
         token_full_str = full_str[token.start_mark.index:token.end_mark.index]
         # token_pos is the start of the entire scalar string token
         token_pos = self.__parse_pos(token) 
-        expr = None
 
         # look for a reference anywhere in the string (original regex)
         pattern = r'\${{\s*(.*?)\s*}}'
-        match_obj = re.search(pattern, token_full_str)
+        matches = re.finditer(pattern, token_full_str)
 
-        if match_obj:
+        expressions: List[Expression] = []
+
+        for match_obj in matches:
             # extract the inner expression string
             inner_content_str = match_obj.group(1)
             # Determine the character index of the start of inner_content_str within token_string
@@ -596,12 +597,13 @@ class PyYAMLParser(YAMLParser):
                 if i < len(raw_parts_list) - 1:  # If not the last part, account for the dot
                     current_index += 1
 
-            expr = Expression(
+            expressions.append(Expression(
                 pos=token_pos,  # Pos of the start of the inner content string
                 string=inner_content_str,
                 parts=parts_ast_nodes,
-            )
-        return String(token_string, token_pos, expr)
+            ))
+
+        return String(token_string, token_pos, expressions)
 
     def __parse_pos(self, token: yaml.Token) -> Pos:
         """

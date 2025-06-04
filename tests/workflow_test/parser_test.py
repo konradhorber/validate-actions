@@ -31,10 +31,10 @@ jobs:
     should_be = ast.String(
         pos=Pos(line=14, col=16),
         string='${{ steps.step1.outputs.ref }}',
-        expr=ast.Expression(
+        expr=[ast.Expression(
             pos=Pos(line=14, col=16),
             string='${{ steps.step1.outputs.ref }}',
             parts=parts,
-        ),
+        )],
     )
     assert ref == should_be
