@@ -114,12 +114,16 @@ class CLI:
         line += max(20 - len(line), 0) * ' '
         war = ProblemLevel.WAR
         err = ProblemLevel.ERR
+        non = ProblemLevel.NON
         if problem.level == war:
             level_str = 'warning'
             line += f'{self.STYLE[war]["color"]}{level_str}{self.DEF_STYLE["format_end"]}'
         elif problem.level == err:
             level_str = 'error'
             line += f'{self.STYLE[err]["color"]}{level_str}{self.DEF_STYLE["format_end"]}'
+        elif problem.level == non:
+            level_str = 'fixed'
+            line += f'{self.STYLE[non]["color"]}{level_str}{self.DEF_STYLE["format_end"]}'
         line += max(38 - len(line), 0) * ' '
         line += problem.desc
         if problem.rule:

@@ -409,8 +409,9 @@ def test_fix_expression_context_typo():
         # The check function modifies the file in place if a fix is applied
         problems_after_fix = list(rules.ExpressionsContexts.check(workflow_obj, fix=True))
 
-        # Assert that the problem was fixed and no problem is reported for this specific issue
-        assert not problems_after_fix, f"Expected no problems after fix, but got: {problems_after_fix}"
+        # Assert that the problem was fixed and non problem is reported for this specific issue
+        assert len(problems_after_fix) == 1
+        assert problems_after_fix[0].level == ProblemLevel.NON  # No problems should remain
 
         # Read the content of the modified file
         fixed_content = temp_file_path.read_text(encoding='utf-8')
@@ -461,7 +462,9 @@ def test_fix_service_port_typo():
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typo)
         workflow_obj.path = temp_file_path
         problems_after_fix = list(rules.ExpressionsContexts.check(workflow_obj, fix=True))
-        assert not problems_after_fix
+        # Assert that the problem was fixed and non problem is reported for this specific issue
+        assert len(problems_after_fix) == 1
+        assert problems_after_fix[0].level == ProblemLevel.NON  # No problems should remain
         fixed_content = temp_file_path.read_text(encoding='utf-8')
         assert fixed_content.strip() == expected_fixed.strip()
     finally:
@@ -531,7 +534,9 @@ def test_fix_typo_in_middle_of_expression():
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typo)
         workflow_obj.path = temp_file_path
         problems_after_fix = list(rules.ExpressionsContexts.check(workflow_obj, fix=True))
-        assert not problems_after_fix
+        # Assert that the problem was fixed and non problem is reported for this specific issue
+        assert len(problems_after_fix) == 1
+        assert problems_after_fix[0].level == ProblemLevel.NON  # No problems should remain
         fixed_content = temp_file_path.read_text(encoding='utf-8')
         assert fixed_content.strip() == expected_fixed.strip()
     finally:

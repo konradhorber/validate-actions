@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import List, Type
 
 from validate_actions import rules
-from validate_actions.fix.fixer import Fixer
 from validate_actions.problems import Problems
 from validate_actions.rules.rule import Rule
 from validate_actions.workflow import helper

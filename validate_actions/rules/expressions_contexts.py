@@ -6,7 +6,7 @@ from typing import Generator, Optional
 
 from validate_actions.problems import Problem, ProblemLevel
 from validate_actions.rules.rule import Rule
-from validate_actions.workflow.ast import Expression, Workflow
+from validate_actions.workflow.ast import Expression, String, Workflow
 from validate_actions.workflow.contexts import Contexts
 
 
@@ -88,6 +88,7 @@ class ExpressionsContexts(Rule):
         # TODO unshelf needs and steps
         if not parts:
             return problem
+        parts_visited = []
         for part in parts:
             if part in web_contexts_not_to_check:
                 break
@@ -100,7 +101,6 @@ class ExpressionsContexts(Rule):
             elif isinstance(cur, list) and part.string in cur:
                 index = cur.index(part.string)
                 cur = cur[index]
-
             else:
                 if fix:
                     field_names = []
@@ -151,6 +151,8 @@ class ExpressionsContexts(Rule):
                         return problem
 
                     return ExpressionsContexts.edit_yaml_at_position(
+                        expression=expr,
+                        part=part,
                         file_path=workflow.path,
                         idx=part.pos.idx,
                         num_delete=len(part.string),
@@ -160,29 +162,42 @@ class ExpressionsContexts(Rule):
 
                 else:
                     return problem
+            parts_visited.append(part)
         return None
 
     @staticmethod
     def edit_yaml_at_position(
+        expression: Expression,
+        part: String,
         file_path: Path,
         idx: int,
         num_delete: int,
         new_text: str,
         problem: Problem
     ) -> Optional[Problem]:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
 
-        if idx < 0 or idx >= len(content):
+            if idx < 0 or idx >= len(content):
+                return problem
+
+            # Perform edit: delete and insert
+            updated_content = (
+                content[:idx] +
+                new_text +
+                content[idx + num_delete:]
+            )
+
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(updated_content)
+
+            problem.desc = (
+                f"Fixed '${{{{ {expression.string} }}}}': changed '{part.string}' to '{new_text}'"
+            )
+            problem.level = ProblemLevel.NON
+
+        except (OSError, ValueError, TypeError, UnicodeError):
             return problem
-
-        # Perform edit: delete and insert
-        updated_content = (
-            content[:idx] +
-            new_text +
-            content[idx + num_delete:]
-        )
-
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(updated_content)
-        return None
+        finally:
+            return problem
