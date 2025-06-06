@@ -1,9 +1,13 @@
-from typing import Any, Dict, Generator, List, Optional, Tuple, Union
+from typing import Generator, List, Tuple, Union
 
 from validate_actions.problems import Problem, ProblemLevel
 from validate_actions.rules.rule import Rule
-from validate_actions.rules.support_functions import parse_action
-from validate_actions.workflow.ast import ExecAction, String, Workflow
+from validate_actions.rules.support_functions import (
+    edit_yaml_at_position,
+    get_current_action_version,
+    parse_action,
+)
+from validate_actions.workflow.ast import ExecAction, Workflow
 
 
 class JobsStepsUses(Rule):
@@ -29,11 +33,12 @@ class JobsStepsUses(Rule):
         Yields:
             Problem: Problems found during validation.
         """
-        return JobsStepsUses.check_single_action(workflow)
+        return JobsStepsUses.check_single_action(workflow, fix)
 
     @staticmethod
     def check_single_action(
-        workflow: 'Workflow'
+        workflow: 'Workflow',
+        fix: bool
     ) -> Generator[Problem, None, None]:
         """
         Validates actions individually without context declared by `uses:` in
@@ -53,7 +58,7 @@ class JobsStepsUses(Rule):
                     actions.append(step.exec)
 
         for action in actions:
-            yield from JobsStepsUses.not_using_version_spec(action)
+            yield from JobsStepsUses.not_using_version_spec(action, fix, workflow)
             input_result = JobsStepsUses.get_inputs(action)
             if isinstance(input_result, Problem):
                 yield input_result
@@ -79,6 +84,8 @@ class JobsStepsUses(Rule):
     @staticmethod
     def not_using_version_spec(
         action: ExecAction,
+        fix: bool,
+        workflow: Workflow
     ) -> Generator[Problem, None, None]:
         """
         Checks if an action specifies a version using `@version`. If not, a
@@ -90,16 +97,32 @@ class JobsStepsUses(Rule):
         Yields:
             Problem: Warning if version is not specified.
         """
-        if '@' not in action.uses_.string:
-            yield Problem(
-                    action.pos,
-                    ProblemLevel.WAR,
-                    (
-                        f'Using specific version of {action.uses_.string} is '
-                        f'recommended @version'
-                    ),
-                    JobsStepsUses.NAME
-                )
+        slug = action.uses_.string
+        if '@' not in slug:
+            problem = Problem(
+                action.pos,
+                ProblemLevel.WAR,
+                (
+                    f'Using specific version of {slug} is '
+                    f'recommended @version'
+                ),
+                JobsStepsUses.NAME
+            )
+            if fix:
+                version = get_current_action_version(slug)
+                if version:
+                    new_slug = f'{slug}@{version}'
+                    workflow.path
+                    problem = edit_yaml_at_position(
+                        workflow.path,
+                        action.uses_.pos.idx,
+                        len(slug),
+                        new_slug,
+                        problem,
+                        f"Fixed '{slug}' to include version to '{new_slug}'"
+                    )
+                    action.uses_.string = f'{slug}@{version}'
+            yield problem
 
     @staticmethod
     def get_inputs(

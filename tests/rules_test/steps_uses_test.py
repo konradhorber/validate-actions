@@ -1,3 +1,8 @@
+import tempfile
+from pathlib import Path
+
+import requests
+
 from tests.helper import parse_workflow_string
 from validate_actions import Problem, ProblemLevel, rules
 
@@ -127,7 +132,7 @@ jobs:
     steps:
       - name: Notify Slack
         uses: 8398a7/action-slack@v2
-        with: 
+        with:
           status: 'test'
 """
     throws_no_error(workflow)
@@ -179,6 +184,48 @@ jobs:
     assert result[0].desc == "8398a7/action-slack@v2 uses unknown input: wrong_input"
 
 # endregion all inputs
+
+
+def test_fix_missing_version_spec(tmp_path, monkeypatch):
+    workflow_string_without_version = """
+    on: push
+    jobs:
+      build:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout
+    """
+    url = 'https://api.github.com/repos/actions/checkout/tags'
+    try:
+        response = requests.get(url)
+    except requests.RequestException as e:
+        assert False, f"Request error for {url}: {e}"
+
+    version = response.json()[0]['name']
+    workflow_string_with_version = workflow_string_without_version.replace(
+        'uses: actions/checkout',
+        f'uses: actions/checkout@{version}'
+    )
+
+    temp_file_path = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode='w+', delete=False, suffix='.yml', encoding='utf-8'
+        ) as f:
+            f.write(workflow_string_without_version)
+            temp_file_path = Path(f.name)
+
+        workflow_obj, initial_problems = parse_workflow_string(workflow_string_without_version)
+        workflow_obj.path = temp_file_path
+        problems_after_fix = list(rules.JobsStepsUses.check(workflow_obj, fix=True))
+        # Assert that the problem was fixed and non problem is reported for this specific issue
+        assert len(problems_after_fix) == 1
+        assert problems_after_fix[0].level == ProblemLevel.NON  # 1 Non problem after fix
+        fixed_content = temp_file_path.read_text(encoding='utf-8')
+        assert fixed_content.strip() == workflow_string_with_version.strip()
+    finally:
+        if temp_file_path:
+            temp_file_path.unlink(missing_ok=True)
 
 
 def throws_single_error(workflow_string: str):

@@ -260,7 +260,7 @@ class Expression():
     parts: List['String']
 
 
-@dataclass(frozen=True)
+@dataclass
 class String:
     """Represents a string value along with its positional metadata."""
 

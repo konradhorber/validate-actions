@@ -6,6 +6,7 @@ from typing import Generator, Optional
 
 from validate_actions.problems import Problem, ProblemLevel
 from validate_actions.rules.rule import Rule
+from validate_actions.rules.support_functions import edit_yaml_at_position
 from validate_actions.workflow.ast import Expression, String, Workflow
 from validate_actions.workflow.contexts import Contexts
 
@@ -150,54 +151,20 @@ class ExpressionsContexts(Rule):
                     else:
                         return problem
 
-                    return ExpressionsContexts.edit_yaml_at_position(
-                        expression=expr,
-                        part=part,
+                    updated_problem_desc = (
+                        f"Fixed '${{{{ {expr.string} }}}}': changed '{part.string}' to '{max_key}'"
+                    )
+
+                    return edit_yaml_at_position(
                         file_path=workflow.path,
                         idx=part.pos.idx,
                         num_delete=len(part.string),
                         new_text=max_key,
                         problem=problem,
+                        new_problem_desc=updated_problem_desc
                     )
 
                 else:
                     return problem
             parts_visited.append(part)
         return None
-
-    @staticmethod
-    def edit_yaml_at_position(
-        expression: Expression,
-        part: String,
-        file_path: Path,
-        idx: int,
-        num_delete: int,
-        new_text: str,
-        problem: Problem
-    ) -> Optional[Problem]:
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-
-            if idx < 0 or idx >= len(content):
-                return problem
-
-            # Perform edit: delete and insert
-            updated_content = (
-                content[:idx] +
-                new_text +
-                content[idx + num_delete:]
-            )
-
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(updated_content)
-
-            problem.desc = (
-                f"Fixed '${{{{ {expression.string} }}}}': changed '{part.string}' to '{new_text}'"
-            )
-            problem.level = ProblemLevel.NON
-
-        except (OSError, ValueError, TypeError, UnicodeError):
-            return problem
-        finally:
-            return problem

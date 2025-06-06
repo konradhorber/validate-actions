@@ -560,7 +560,7 @@ class PyYAMLParser(YAMLParser):
         """
         Reads a token and returns a Pos object.
         """
-        return Pos(token.start_mark.line, token.start_mark.column)
+        return Pos(token.start_mark.line, token.start_mark.column, token.start_mark.index)
 
     def _parse_expressions(
         self,
