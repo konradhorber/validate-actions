@@ -1,6 +1,6 @@
 [project]
 name = "validate-actions"
-version = "0.1.7"
+version = "0.1.8"
 description = "CLI for github actions workflow validation"
 authors = [
     {name = "konradhorber",email = "konrad.horber@gmail.com"}
