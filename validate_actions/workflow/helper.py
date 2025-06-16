@@ -114,11 +114,11 @@ def build_permissions(
 
 
 def build_defaults(
-    defaults_dict: Dict[ast.String, Dict[ast.String, ast.String]],
+    defaults_dict: Dict[ast.String, Dict[ast.String, Dict[ast.String, ast.String]]],
     problems: Problems,
     RULE_NAME: str
 ) -> Optional[ast.Defaults]:
-    shell_: Optional[ast.String] = None
+    shell_: Optional[ast.Shell] = None
     working_directory_: Optional[ast.String] = None
     current_pos = Pos(0, 0)
     base_problem = Problem(
@@ -156,7 +156,15 @@ def build_defaults(
         match key.string:
             case 'shell':
                 if isinstance(value, ast.String):
-                    shell_ = value
+                    if value.string in {shell.value for shell in ast.Shell}:
+                        shell_ = ast.Shell(value.string)
+                    else:
+                        problems.append(Problem(
+                            pos=value.pos,
+                            desc=f"Invalid shell: {value.string}",
+                            level=ProblemLevel.ERR,
+                            rule=RULE_NAME
+                        ))
                 else:
                     problems.append(Problem(
                         pos=key.pos,

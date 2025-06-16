@@ -151,9 +151,19 @@ class WorkflowDispatchInputType(Enum):
 
 
 @dataclass(frozen=True)
+class Shell(Enum):
+    bash = "bash"
+    pwsh = "pwsh"
+    python = "python"
+    sh = "sh"
+    cmd = "cmd"
+    powershell = "powershell"
+
+
+@dataclass(frozen=True)
 class Defaults:
     pos: "Pos"
-    shell_: Optional["String"] = None
+    shell_: Optional["Shell"] = None
     working_directory_: Optional["String"] = None
 
 

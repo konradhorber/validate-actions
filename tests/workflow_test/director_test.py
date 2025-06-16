@@ -67,7 +67,7 @@ jobs:
     defaults = workflow_out.defaults_
     assert len(problems.problems) == 0
     assert defaults is not None
-    assert defaults.shell_.string == "bash"
+    assert defaults.shell_.value == "bash"
     assert defaults.working_directory_ is None
 
 
@@ -110,7 +110,7 @@ jobs:
     defaults = workflow_out.defaults_
     assert len(problems.problems) == 0
     assert defaults is not None
-    assert defaults.shell_.string == "bash"
+    assert defaults.shell_.value == "bash"
     assert defaults.working_directory_.string == "/tmp"
 
 
@@ -128,3 +128,22 @@ jobs:
     workflow_out, problems = parse_workflow_string(workflow_string)
     assert workflow_out.defaults_ is None
     assert any(p.desc.startswith("Invalid 'defaults:'") for p in problems.problems)
+
+
+def test_workflow_defaults_invalid_shell():
+    workflow_string = """
+on: push
+defaults:
+  run:
+    shell: fish
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo
+        run: echo hello
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    # Invalid shell 'fish' should produce an error and no defaults
+    assert workflow_out.defaults_ is None
+    assert any(p.desc == "Invalid shell: fish" for p in problems.problems)
