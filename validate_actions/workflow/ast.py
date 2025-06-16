@@ -152,7 +152,9 @@ class WorkflowDispatchInputType(Enum):
 
 @dataclass(frozen=True)
 class Defaults:
-    tbd: None
+    pos: "Pos"
+    shell_: Optional["String"] = None
+    working_directory_: Optional["String"] = None
 
 
 @dataclass(frozen=True)
