@@ -105,7 +105,9 @@ class BaseDirector(Director):
                         workflow_dict[key], self.contexts, self.problems, self.RULE_NAME
                     )
                 case 'defaults':
-                    defaults_ = helper.build_defaults(workflow_dict[key], self.problems, self.RULE_NAME)
+                    defaults_ = helper.build_defaults(
+                        workflow_dict[key], self.problems, self.RULE_NAME
+                    )
                 case 'concurrency':
                     concurrency_ = self.__build_concurrency(workflow_dict[key])
                 case 'jobs':

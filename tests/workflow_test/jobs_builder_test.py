@@ -85,6 +85,106 @@ jobs:
     assert continue_on_error_ is True
 
 
+# Integration tests for job-level defaults using parse_workflow_string
+
+def test_job_defaults_shell():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    defaults:
+      run:
+        shell: pwsh
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    defaults = workflow_out.jobs_['build'].defaults_
+    assert len(problems.problems) == 0
+    assert defaults is not None
+    assert defaults.shell_.value == "pwsh"
+    assert defaults.working_directory_ is None
+
+
+def test_job_defaults_working_directory():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    defaults:
+      run:
+        working-directory: /home/user
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    defaults = workflow_out.jobs_['build'].defaults_
+    assert len(problems.problems) == 0
+    assert defaults is not None
+    assert defaults.shell_ is None
+    assert defaults.working_directory_.string == "/home/user"
+
+
+def test_job_defaults_shell_and_working_directory():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    defaults:
+      run:
+        shell: sh
+        working-directory: /tmp
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    defaults = workflow_out.jobs_['build'].defaults_
+    assert len(problems.problems) == 0
+    assert defaults is not None
+    assert defaults.shell_.value == "sh"
+    assert defaults.working_directory_.string == "/tmp"
+
+
+def test_job_defaults_invalid_structure():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    defaults: not_a_map
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert workflow_out.jobs_['build'].defaults_ is None
+    assert any(p.desc.startswith("Invalid 'defaults:'") for p in problems.problems)
+
+
+def test_job_defaults_invalid_shell():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    defaults:
+      run:
+        shell: fish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert workflow_out.jobs_['build'].defaults_ is None
+    assert any(p.desc == "Invalid shell: fish" for p in problems.problems)
+
+
 def test_job_permissions_single():
     workflow_string = """
 on: push

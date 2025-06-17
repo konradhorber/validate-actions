@@ -218,7 +218,7 @@ class Job:
     concurrency_: Optional[None] = None
     outputs_: Optional[None] = None
     env_: Optional["Env"] = None
-    defaults_: Optional[None] = None
+    defaults_: Optional[Defaults] = None
     timeout_minutes_: Optional[int] = None
     strategy_: Optional[Strategy] = None
     container_: Optional[None] = None
