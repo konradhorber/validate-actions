@@ -368,3 +368,97 @@ def test_strategy():
     assert matrix_context.children_['os'] == contexts.ContextType.string
     assert matrix_context.children_['node'] == contexts.ContextType.string
     assert matrix_context.children_['npm'] == contexts.ContextType.string
+
+
+def test_job_runs_on_mapping_scalar_items():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    runs-on:
+      labels: ubuntu-latest
+      group: my-group
+    steps:
+      - name: Echo
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    runs_on = workflow_out.jobs_['build'].runs_on_
+    assert problems.problems == []
+    assert [l.string for l in runs_on.labels] == ['ubuntu-latest']
+    assert [g.string for g in runs_on.group] == ['my-group']
+
+
+def test_job_runs_on_single():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    runs_on = workflow_out.jobs_['build'].runs_on_
+    assert problems.problems == []
+    assert [l.string for l in runs_on.labels] == ['ubuntu-latest']
+
+
+def test_job_runs_on_list():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    runs-on: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Echo
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    runs_on = workflow_out.jobs_['build'].runs_on_
+    assert problems.problems == []
+    assert [l.string for l in runs_on.labels] == ['ubuntu-latest', 'windows-latest']
+
+
+def test_job_runs_on_unknown_key():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    runs-on:
+      foo: bar
+    steps:
+      - name: Echo
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    runs_on = workflow_out.jobs_['build'].runs_on_
+    assert runs_on is not None
+    # Unknown key should produce an error but still return RunsOn
+    assert any(p.desc == "Unknown key in 'runs-on': foo" for p in problems.problems)
+    assert runs_on.labels == []
+    assert runs_on.group == []
+
+
+def test_job_runs_on_mapping_list_with_invalid_items():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    runs-on:
+      labels: [ubuntu-latest, 123, windows-latest]
+      group: true
+    steps:
+      - name: Echo
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    runs_on = workflow_out.jobs_['build'].runs_on_
+    # Two errors: one for invalid list item 123, one for invalid scalar for group
+    assert len(problems.problems) == 2
+    descs = [p.desc for p in problems.problems]
+    assert "Invalid item in 'runs-on' 'labels': 123" in descs
+    assert "Invalid item in 'runs-on' 'group': True" in descs
+    assert [l.string for l in runs_on.labels] == ['ubuntu-latest', 'windows-latest']
+    assert runs_on.group == []
