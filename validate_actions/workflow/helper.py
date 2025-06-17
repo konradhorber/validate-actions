@@ -113,6 +113,95 @@ def build_permissions(
     return ast.Permissions(**permissions_data)
 
 
+def build_defaults(
+    defaults_dict: Dict[ast.String, Dict[ast.String, Dict[ast.String, ast.String]]],
+    problems: Problems,
+    RULE_NAME: str
+) -> Optional[ast.Defaults]:
+    shell_: Optional[ast.Shell] = None
+    working_directory_: Optional[ast.String] = None
+    current_pos = Pos(0, 0)
+    base_problem = Problem(
+        pos=current_pos,
+        desc="Invalid 'defaults:' structure.",
+        level=ProblemLevel.ERR,
+        rule=RULE_NAME
+    )
+
+    # Validate the structure of the defaults dictionary
+    if (
+        not isinstance(defaults_dict, dict)
+        or not all(isinstance(k, ast.String) for k in defaults_dict.keys())
+        or len(defaults_dict) != 1
+    ):
+        problems.append(base_problem)
+        return None
+
+    # Extract the run key and its position
+    run_key = next(iter(defaults_dict.keys()))
+    current_pos = run_key.pos
+    run_dict = defaults_dict[run_key]
+
+    # Validate the run key and its value
+    if (
+        not isinstance(run_dict, dict)
+        or not run_key.string == 'run'
+        or not all(isinstance(k, ast.String) for k in run_dict.keys())
+    ):
+        problems.append(base_problem)
+        return None
+
+    # Build and validate the contents of the run dictionary
+    for key, value in run_dict.items():
+        match key.string:
+            case 'shell':
+                if isinstance(value, ast.String):
+                    if value.string in {shell.value for shell in ast.Shell}:
+                        shell_ = ast.Shell(value.string)
+                    else:
+                        problems.append(Problem(
+                            pos=value.pos,
+                            desc=f"Invalid shell: {value.string}",
+                            level=ProblemLevel.ERR,
+                            rule=RULE_NAME
+                        ))
+                else:
+                    problems.append(Problem(
+                        pos=key.pos,
+                        desc="Format error in 'defaults: run: shell'",
+                        level=ProblemLevel.ERR,
+                        rule=RULE_NAME
+                    ))
+            case 'working-directory':
+                if isinstance(value, ast.String):
+                    working_directory_ = value
+                else:
+                    problems.append(Problem(
+                        pos=key.pos,
+                        desc="Format error in 'defaults: run: working-directory'",
+                        level=ProblemLevel.ERR,
+                        rule=RULE_NAME
+                    ))
+            case _:
+                problems.append(Problem(
+                    pos=key.pos,
+                    desc=f"Format error in 'defaults: run: {key.string}'",
+                    level=ProblemLevel.ERR,
+                    rule=RULE_NAME
+                ))
+
+    # If no shell or working directory is specified, return None
+    if shell_ is None and working_directory_ is None:
+        return None
+
+    # If we reach here, we have valid shell and/or working directory
+    return ast.Defaults(
+        pos=current_pos,
+        shell_=shell_,
+        working_directory_=working_directory_,
+    )
+
+
 def get_workflow_schema(file: str) -> dict:
     schema_path = pkg_resources.files(
         'validate_actions.resources'

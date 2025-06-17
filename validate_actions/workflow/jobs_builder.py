@@ -75,7 +75,7 @@ class BaseJobsBuilder(JobsBuilder):
         concurrency_ = None
         outputs_ = None
         env_: Optional[ast.Env] = None
-        defaults_ = None
+        defaults_: Optional[ast.Defaults] = None
         steps_ = []
         timeout_minutes_: Optional[int] = None
         strategy_: Optional[ast.Strategy] = None
@@ -117,7 +117,7 @@ class BaseJobsBuilder(JobsBuilder):
                         job_dict[key], local_contexts, self.problems, self.RULE_NAME
                     )
                 case 'defaults':
-                    pass
+                    defaults_ = helper.build_defaults(job_dict[key], self.problems, self.RULE_NAME)
                 case 'steps':
                     steps_ = self.__build_steps(job_dict[key], local_contexts)
                 case 'timeout-minutes':
