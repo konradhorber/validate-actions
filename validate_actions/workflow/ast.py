@@ -160,7 +160,6 @@ class Shell(Enum):
     powershell = "powershell"
 
 
-# TODO add shell tests with runners
 @dataclass(frozen=True)
 class Defaults:
     pos: "Pos"
