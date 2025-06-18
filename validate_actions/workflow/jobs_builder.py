@@ -70,7 +70,7 @@ class BaseJobsBuilder(JobsBuilder):
         permissions_: ast.Permissions = ast.Permissions()
         needs_ = None
         if_ = None
-        runs_on_ = None
+        runs_on_: Optional[ast.RunsOn] = None
         environment_ = None
         concurrency_ = None
         outputs_ = None
@@ -104,7 +104,9 @@ class BaseJobsBuilder(JobsBuilder):
                 case 'if':
                     pass
                 case 'runs-on':
-                    pass
+                    runs_on_ = self._build_runs_on(
+                        key, job_dict[key], self.problems, self.RULE_NAME
+                    )
                 case 'environment':
                     pass
                 case 'concurrency':
@@ -692,3 +694,81 @@ class BaseJobsBuilder(JobsBuilder):
                     ))
 
             job_context.services.children_[service_name.string] = service_context
+
+    def _build_runs_on(
+        self,
+        key: ast.String,
+        runs_on_value: Any,
+        problems: Problems,
+        rule_name: str
+    ) -> Optional[ast.RunsOn]:
+        """Builds the 'runs-on' value for a job."""
+        cur_pos = Pos(line=key.pos.line, col=key.pos.col)
+        problem = Problem(
+            pos=cur_pos,
+            desc="Invalid 'runs-on' value",
+            level=ProblemLevel.ERR,
+            rule=rule_name
+        )
+        labels: List[ast.String] = []
+        group: List[ast.String] = []
+
+        # helper to process 'labels' or 'group' items uniformly
+        def handle_category(name: str, items: Any, pos: Pos) -> List[ast.String]:
+            cat_problem = copy.copy(problem)
+            cat_problem.pos = pos
+            cat_problem.desc = f"Invalid syntax in 'runs-on' '{name}'"
+            # single value
+            if isinstance(items, ast.String):
+                return [items]
+            # list of values
+            if isinstance(items, list):
+                valid: List[ast.String] = []
+                for itm in items:
+                    if isinstance(itm, ast.String):
+                        valid.append(itm)
+                    else:
+                        p = copy.copy(cat_problem)
+                        p.desc = f"Invalid item in 'runs-on' '{name}': {itm}"
+                        problems.append(p)
+                return valid
+            # invalid type
+            p = copy.copy(cat_problem)
+            p.desc = f"Invalid item in 'runs-on' '{name}': {items}"
+            problems.append(p)
+            return []
+
+        # structured value handling
+        if isinstance(runs_on_value, ast.String):
+            labels.append(runs_on_value)
+        elif isinstance(runs_on_value, list):
+            for item in runs_on_value:
+                if isinstance(item, ast.String):
+                    labels.append(item)
+                else:
+                    problems.append(problem)
+        elif isinstance(runs_on_value, dict):
+            for category, items in runs_on_value.items():
+                if not isinstance(category, ast.String):
+                    problems.append(problem)
+                    continue
+
+                role = category.string
+                if role == 'labels':
+                    labels.extend(handle_category(role, items, category.pos))
+                elif role == 'group':
+                    group.extend(handle_category(role, items, category.pos))
+                else:
+                    unknown = copy.copy(problem)
+                    unknown.pos = category.pos
+                    unknown.desc = f"Unknown key in 'runs-on': {role}"
+                    problems.append(unknown)
+        else:
+            problems.append(problem)
+            return None
+
+        return ast.RunsOn(
+            pos=cur_pos,
+            labels=labels,
+            group=group
+        )

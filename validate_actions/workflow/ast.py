@@ -160,7 +160,6 @@ class Shell(Enum):
     powershell = "powershell"
 
 
-# TODO add shell tests with runners
 @dataclass(frozen=True)
 class Defaults:
     pos: "Pos"
@@ -195,6 +194,13 @@ class Concurrency:
     tbd: None
 
 
+@dataclass()
+class RunsOn:
+    pos: "Pos"
+    labels: List["String"] = field(default_factory=list)
+    group: List["String"] = field(default_factory=list)
+
+
 @dataclass(frozen=True)
 class Strategy:
     pos: "Pos"
@@ -214,7 +220,7 @@ class Job:
     permissions_: Permissions = Permissions()
     needs_: Optional[None] = None
     if_: Optional[None] = None
-    runs_on_: Optional[None] = None
+    runs_on_: Optional[RunsOn] = None
     environment_: Optional[None] = None
     concurrency_: Optional[None] = None
     outputs_: Optional[None] = None
