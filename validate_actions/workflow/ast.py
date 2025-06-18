@@ -209,6 +209,13 @@ class Strategy:
     max_parallel_: Optional[int]
 
 
+@dataclass(frozen=True)
+class Environment:
+    pos: "Pos"
+    name_: "String"
+    url_: Optional["String"] = None
+
+
 # region Jobs
 @dataclass(frozen=True)
 class Job:
@@ -221,7 +228,7 @@ class Job:
     needs_: Optional[None] = None
     if_: Optional[None] = None
     runs_on_: Optional[RunsOn] = None
-    environment_: Optional[None] = None
+    environment_: Optional[Environment] = None
     concurrency_: Optional[None] = None
     outputs_: Optional[None] = None
     env_: Optional["Env"] = None

@@ -71,7 +71,7 @@ class BaseJobsBuilder(JobsBuilder):
         needs_ = None
         if_ = None
         runs_on_: Optional[ast.RunsOn] = None
-        environment_ = None
+        environment_: Optional[ast.Environment] = None
         concurrency_ = None
         outputs_ = None
         env_: Optional[ast.Env] = None
@@ -108,7 +108,9 @@ class BaseJobsBuilder(JobsBuilder):
                         key, job_dict[key], self.problems, self.RULE_NAME
                     )
                 case 'environment':
-                    pass
+                    environment_ = self._build_environment(
+                        key, job_dict[key], self.problems, self.RULE_NAME
+                    )
                 case 'concurrency':
                     pass
                 case 'outputs':
@@ -772,3 +774,54 @@ class BaseJobsBuilder(JobsBuilder):
             labels=labels,
             group=group
         )
+
+    def _build_environment(
+        self,
+        key: ast.String,
+        environment: Any,
+        problems: Problems,
+        rule_name: str
+    ) -> Optional[ast.Environment]:
+        """Builds the 'environment' value for a job."""
+        if isinstance(environment, ast.String):
+            return ast.Environment(
+                pos=key.pos,
+                name_=environment
+            )
+
+        if isinstance(environment, dict):
+            name = environment.get('name')
+            url = environment.get('url')
+
+            if not isinstance(name, ast.String):
+                problems.append(Problem(
+                    pos=key.pos,
+                    desc=f"Invalid 'environment' 'name': '{name}'",
+                    level=ProblemLevel.ERR,
+                    rule=rule_name
+                ))
+                return None
+
+            if not isinstance(url, ast.String):
+                problems.append(Problem(
+                    pos=key.pos,
+                    desc=f"Invalid 'environment' 'url': '{url}'",
+                    level=ProblemLevel.ERR,
+                    rule=rule_name
+                ))
+                return None
+
+            return ast.Environment(
+                pos=key.pos,
+                name_=name,
+                url_=url
+            )
+
+        problems.append(Problem(
+            pos=key.pos,
+            desc=f"Invalid 'environment' value: '{environment}'",
+            level=ProblemLevel.ERR,
+            rule=rule_name
+        ))
+
+        return None

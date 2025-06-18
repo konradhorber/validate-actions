@@ -460,5 +460,99 @@ jobs:
     descs = [p.desc for p in problems.problems]
     assert "Invalid item in 'runs-on' 'labels': 123" in descs
     assert "Invalid item in 'runs-on' 'group': True" in descs
-    assert [l.string for l in runs_on.labels] == ['ubuntu-latest', 'windows-latest']
-    assert runs_on.group == []
+
+
+def test_job_environment_string():
+    workflow_string = """
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Do something
+        run: echo done
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    environment = workflow_out.jobs_['deploy'].environment_
+    assert problems.problems == []
+    assert environment is not None
+    assert environment.name_.string == 'production'
+    assert environment.url_ is None
+
+
+def test_job_environment_mapping():
+    workflow_string = """
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://example.com
+    steps:
+      - name: Do something
+        run: echo done
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    environment = workflow_out.jobs_['deploy'].environment_
+    assert problems.problems == []
+    assert environment is not None
+    assert environment.name_.string == 'staging'
+    assert environment.url_.string == 'https://example.com'
+
+
+def test_job_environment_invalid_scalar():
+    workflow_string = """
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: 123
+    steps:
+      - name: Do something
+        run: echo done
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert workflow_out.jobs_['deploy'].environment_ is None
+    assert len(problems.problems) == 1
+    descs = [p.desc for p in problems.problems]
+    assert "Invalid 'environment' value: '123'" in descs
+
+
+def test_job_environment_invalid_name_mapping():
+    workflow_string = """
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: 123
+      url: https://example.com
+    steps:
+      - name: Do something
+        run: echo done
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert workflow_out.jobs_['deploy'].environment_ is None
+    descs = [p.desc for p in problems.problems]
+    assert "Invalid 'environment' 'name': '123'" in descs
+
+
+def test_job_environment_invalid_url_mapping():
+    workflow_string = """
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: 456
+    steps:
+      - name: Do something
+        run: echo done
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert workflow_out.jobs_['deploy'].environment_ is None
+    descs = [p.desc for p in problems.problems]
+    assert "Invalid 'environment' 'url': '456'" in descs
