@@ -315,3 +315,11 @@ class String():
     def __hash__(self):
         """Hash only based on string content."""
         return hash(self.string)
+
+    def __str__(self):
+        """Ergonomic helper for string representation."""
+        return self.string
+
+    def __repr__(self):
+        """String representation for debugging."""
+        return f"String({self.string!r})"
