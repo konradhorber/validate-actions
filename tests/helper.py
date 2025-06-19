@@ -35,7 +35,10 @@ def parse_workflow_string(
         )
         contexts = validate_actions.workflow.Contexts()
         events_builder = validate_actions.workflow.BaseEventsBuilder(problems, schema)
-        jobs_builder = validate_actions.workflow.BaseJobsBuilder(problems, schema, contexts)
+        steps_builder = validate_actions.workflow.BaseStepsBuilder(problems, schema, contexts)
+        jobs_builder = validate_actions.workflow.BaseJobsBuilder(
+            problems, schema, steps_builder, contexts
+        )
 
         director = validate_actions.workflow.BaseDirector(
             temp_file_path,

@@ -147,3 +147,59 @@ jobs:
     # Invalid shell 'fish' should produce an error and no defaults
     assert workflow_out.defaults_ is None
     assert any(p.desc == "Invalid shell: fish" for p in problems.problems)
+
+
+def test_workflow_concurrency_minimal_group():
+    workflow_string = """
+on: push
+concurrency:
+  group: my-group
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert len(problems.problems) == 0
+    assert workflow_out.concurrency_ is not None
+    assert workflow_out.concurrency_.group_.string == "my-group"
+    assert workflow_out.concurrency_.cancel_in_progress_ is None
+
+
+def test_workflow_concurrency_with_cancel_true():
+    workflow_string = """
+on: push
+concurrency:
+  group: grp-cancel
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert len(problems.problems) == 0
+    assert workflow_out.concurrency_ is not None
+    assert workflow_out.concurrency_.group_.string == "grp-cancel"
+    assert workflow_out.concurrency_.cancel_in_progress_ is True
+
+
+def test_workflow_concurrency_missing_group():
+    workflow_string = """
+on: push
+concurrency:
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert workflow_out.concurrency_ is None
+    assert any(p.desc == "Concurrency must define 'group'" for p in problems.problems)

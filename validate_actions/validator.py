@@ -10,6 +10,7 @@ from validate_actions.workflow.director import BaseDirector
 from validate_actions.workflow.events_builder import BaseEventsBuilder
 from validate_actions.workflow.jobs_builder import BaseJobsBuilder
 from validate_actions.workflow.parser import PyYAMLParser
+from validate_actions.workflow.steps_builder import BaseStepsBuilder
 
 
 class Validator:
@@ -26,7 +27,8 @@ class Validator:
         contexts = Contexts()
         parser = PyYAMLParser()
         events_builder = BaseEventsBuilder(problems, workflow_schema)
-        jobs_builder = BaseJobsBuilder(problems, workflow_schema, contexts)
+        steps_builder = BaseStepsBuilder(problems, workflow_schema, contexts)
+        jobs_builder = BaseJobsBuilder(problems, workflow_schema, steps_builder, contexts)
         director = BaseDirector(
             workflow_file=file,
             parser=parser,

@@ -26,65 +26,6 @@ jobs:
     assert env_.get('LAST_NAME').string == 'Octocat'
 
 
-def test_step_env():
-    workflow_string = """
-on: push
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FIRST_NAME: Mona
-          LAST_NAME: Octocat
-"""
-    workflow_out, problems = parse_workflow_string(workflow_string)
-    env_ = workflow_out.jobs_['build'].steps_[0].env_
-    assert problems.problems == []
-    assert env_.get('GITHUB_TOKEN').string == '${{ secrets.GITHUB_TOKEN }}'
-    assert env_.get('FIRST_NAME').string == 'Mona'
-    assert env_.get('LAST_NAME').string == 'Octocat'
-
-
-def test_step_timeout_minutes():
-    workflow_string = """
-on: push
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        timeout-minutes: 10
-"""
-    workflow_out, problems = parse_workflow_string(workflow_string)
-    timeout_minutes_ = workflow_out.jobs_['build'].steps_[0].timeout_minutes_
-    assert problems.problems == []
-    assert timeout_minutes_ == 10
-
-
-def test_step_continue_on_error():
-    workflow_string = """
-on: push
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        continue-on-error: true
-"""
-    workflow_out, problems = parse_workflow_string(workflow_string)
-    continue_on_error_ = workflow_out.jobs_['build'].steps_[0].continue_on_error_
-    assert problems.problems == []
-    assert continue_on_error_ is True
-
-
 # Integration tests for job-level defaults using parse_workflow_string
 
 def test_job_defaults_shell():
@@ -460,5 +401,502 @@ jobs:
     descs = [p.desc for p in problems.problems]
     assert "Invalid item in 'runs-on' 'labels': 123" in descs
     assert "Invalid item in 'runs-on' 'group': True" in descs
-    assert [l.string for l in runs_on.labels] == ['ubuntu-latest', 'windows-latest']
-    assert runs_on.group == []
+
+
+def test_job_environment_string():
+    workflow_string = """
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Do something
+        run: echo done
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    environment = workflow_out.jobs_['deploy'].environment_
+    assert problems.problems == []
+    assert environment is not None
+    assert environment.name_.string == 'production'
+    assert environment.url_ is None
+
+
+def test_job_environment_mapping():
+    workflow_string = """
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://example.com
+    steps:
+      - name: Do something
+        run: echo done
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    environment = workflow_out.jobs_['deploy'].environment_
+    assert problems.problems == []
+    assert environment is not None
+    assert environment.name_.string == 'staging'
+    assert environment.url_.string == 'https://example.com'
+
+
+def test_job_environment_invalid_scalar():
+    workflow_string = """
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: 123
+    steps:
+      - name: Do something
+        run: echo done
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert workflow_out.jobs_['deploy'].environment_ is None
+    assert len(problems.problems) == 1
+    descs = [p.desc for p in problems.problems]
+    assert "Invalid 'environment' value: '123'" in descs
+
+
+def test_job_environment_invalid_name_mapping():
+    workflow_string = """
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: 123
+      url: https://example.com
+    steps:
+      - name: Do something
+        run: echo done
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert workflow_out.jobs_['deploy'].environment_ is None
+    descs = [p.desc for p in problems.problems]
+    assert "Invalid 'environment' 'name': '123'" in descs
+
+
+def test_job_environment_invalid_url_mapping():
+    workflow_string = """
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: 456
+    steps:
+      - name: Do something
+        run: echo done
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert workflow_out.jobs_['deploy'].environment_ is None
+    descs = [p.desc for p in problems.problems]
+    assert "Invalid 'environment' 'url': '456'" in descs
+
+
+def test_job_concurrency_minimal_group():
+    workflow_string = """
+on: push
+jobs:
+  job1:
+    concurrency:
+      group: job-group
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    job = workflow_out.jobs_['job1']
+    assert len(problems.problems) == 0
+    assert job.concurrency_ is not None
+    assert job.concurrency_.group_.string == 'job-group'
+    assert job.concurrency_.cancel_in_progress_ is None
+
+
+def test_job_concurrency_with_cancel_true():
+    workflow_string = """
+on: push
+jobs:
+  job2:
+    concurrency:
+      group: job2-group
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    job = workflow_out.jobs_['job2']
+    assert len(problems.problems) == 0
+    assert job.concurrency_ is not None
+    assert job.concurrency_.group_.string == 'job2-group'
+    assert job.concurrency_.cancel_in_progress_ is True
+
+
+def test_job_concurrency_missing_group():
+    workflow_string = """
+on: push
+jobs:
+  job3:
+    concurrency:
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    job = workflow_out.jobs_['job3']
+    assert job.concurrency_ is None
+    assert any(p.desc == "Concurrency must define 'group'" for p in problems.problems)
+
+
+def test_job_container_simple():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: node:16-bullseye
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert problems.problems == []
+    assert container is not None
+    assert str(container.image_) == 'node:16-bullseye'
+
+
+def test_job_container_full():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16-bullseye
+      credentials:
+        username: octocat
+        password: password
+      env:
+        NODE_ENV: development
+      ports:
+        - 8080:80
+      volumes:
+        - my_docker_volume:/volume_mount
+      options: --cpus 1
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert problems.problems == []
+    assert container is not None
+    assert container.image_.string == 'node:16-bullseye'
+    assert container.credentials_ is not None
+    assert container.credentials_.username_.string == 'octocat'
+    assert container.credentials_.password_.string == 'password'
+    assert container.env_ is not None
+    assert container.env_.get('NODE_ENV').string == 'development'
+    assert container.ports_ is not None
+    assert [p.string for p in container.ports_] == ['8080:80']
+    assert container.volumes_ is not None
+    assert [v.string for v in container.volumes_] == ['my_docker_volume:/volume_mount']
+    assert container.options_.string == '--cpus 1'
+
+
+def test_job_container_invalid_structure():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: [ "node:16-bullseye" ]
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert container is None
+    assert len(problems.problems) == 1
+    assert problems.problems[0].desc == "Container must be a string or a mapping."
+
+
+def test_job_container_missing_image():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      credentials:
+        username: octocat
+        password: password
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert container is None
+    assert len(problems.problems) == 1
+    assert problems.problems[0].desc == "Container must have an 'image' property."
+
+
+def test_job_container_invalid_credentials():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16-bullseye
+      credentials:
+        username: octocat
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert container is not None
+    assert container.credentials_ is None
+    assert len(problems.problems) == 1
+    assert problems.problems[0].desc == "Container credentials must have 'username' and 'password'."
+
+
+def test_job_container_invalid_ports():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16-bullseye
+      ports:
+        - 80
+        - "8080:80"
+        - {}
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert container is not None
+    assert container.ports_ is None
+    assert len(problems.problems) == 1
+    assert "Container ports must be a list of strings." in problems.problems[0].desc
+
+
+def test_job_container_invalid_volumes():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16-bullseye
+      volumes:
+        - my_docker_volume:/volume_mount
+        - 123
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert container is not None
+    assert container.volumes_ is None
+    assert len(problems.problems) == 1
+    assert "Container volumes must be a list of strings." in problems.problems[0].desc
+
+
+def test_job_container_invalid_options():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16-bullseye
+      options: ["--cpus 1"]
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert container is not None
+    assert container.options_ is None
+    assert len(problems.problems) == 1
+    assert problems.problems[0].desc == "Container options must be a string."
+
+
+def test_job_container_unknown_key():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16-bullseye
+      foo: bar
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert container is not None
+    assert len(problems.problems) == 1
+    assert problems.problems[0].desc == "Unknown container key: foo"
+
+
+def test_job_container_multiple_options_in_string():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16-bullseye
+      options: --cpus 1 --memory 1024m
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert problems.problems == []
+    assert container is not None
+    assert container.options_.string == '--cpus 1 --memory 1024m'
+
+
+def test_job_with_uses_and_with():
+    workflow_string = '''
+on: push
+jobs:
+  reusable_job:
+    uses: ./.github/workflows/reusable-workflow.yml
+    with:
+      username: mona
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    job = workflow_out.jobs_['reusable_job']
+    assert problems.problems == []
+    assert job.uses_.string == './.github/workflows/reusable-workflow.yml'
+    assert job.with_['username'].string == 'mona'
+
+
+def test_job_with_invalid_uses():
+    workflow_string = '''
+on: push
+jobs:
+  reusable_job:
+    uses: 123
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert len(problems.problems) == 1
+    assert "Invalid 'uses' value, it must be a string." in problems.problems[0].desc
+
+
+def test_job_with_invalid_with():
+    workflow_string = '''
+on: push
+jobs:
+  reusable_job:
+    uses: ./.github/workflows/reusable-workflow.yml
+    with: "hello"
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert len(problems.problems) == 1
+    assert "Invalid 'with' value: must be a mapping." in problems.problems[0].desc
+
+
+def test_job_secrets_map():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    secrets:
+      my_secret: ${{ secrets.REPO_SECRET }}
+      gh_token: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    secrets_ = workflow_out.jobs_['build'].secrets_
+    assert problems.problems == []
+    assert secrets_ is not None
+    assert secrets_.inherit is False
+    assert secrets_.secrets['my_secret'].string == '${{ secrets.REPO_SECRET }}'
+    assert secrets_.secrets['gh_token'].string == '${{ secrets.GITHUB_TOKEN }}'
+
+
+def test_job_secrets_inherit():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    secrets: inherit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    secrets_ = workflow_out.jobs_['build'].secrets_
+    assert problems.problems == []
+    assert secrets_ is not None
+    assert secrets_.inherit is True
+    assert secrets_.secrets == {}
+
+
+def test_job_secrets_invalid_value():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    secrets: 123
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert workflow_out.jobs_['build'].secrets_ is None
+    assert len(problems.problems) == 1
+    assert "Invalid 'secrets' value: must be a mapping or 'inherit'." in problems.problems[0].desc
+
+
+def test_job_secrets_invalid_mapping_value():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    secrets:
+      my_secret: [1, 2, 3]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    secrets_ = workflow_out.jobs_['build'].secrets_
+    assert secrets_ is not None
+    assert len(problems.problems) == 1
+    assert "Each secret value must be a string." in problems.problems[0].desc

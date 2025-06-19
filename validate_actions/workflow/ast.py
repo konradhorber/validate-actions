@@ -2,7 +2,7 @@ from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from yaml import ScalarToken
 
@@ -191,7 +191,9 @@ class Env:
 
 @dataclass(frozen=True)
 class Concurrency:
-    tbd: None
+    pos: "Pos"
+    group_: "String"
+    cancel_in_progress_: Optional[Union[bool, "String"]] = None
 
 
 @dataclass()
@@ -209,7 +211,39 @@ class Strategy:
     max_parallel_: Optional[int]
 
 
+@dataclass(frozen=True)
+class Environment:
+    pos: "Pos"
+    name_: "String"
+    url_: Optional["String"] = None
+
+
 # region Jobs
+@dataclass(frozen=True)
+class ContainerCredentials:
+    pos: "Pos"
+    username_: "String"
+    password_: "String"
+
+
+@dataclass(frozen=True)
+class Container:
+    pos: "Pos"
+    image_: "String"
+    credentials_: Optional["ContainerCredentials"] = None
+    env_: Optional["Env"] = None
+    ports_: Optional[List["String"]] = None
+    volumes_: Optional[List["String"]] = None
+    options_: Optional["String"] = None
+
+
+@dataclass(frozen=True)
+class Secrets:
+    pos: "Pos"
+    inherit: bool = False
+    secrets: Dict["String", "String"] = field(default_factory=dict)
+
+
 @dataclass(frozen=True)
 class Job:
     pos: "Pos"
@@ -221,18 +255,18 @@ class Job:
     needs_: Optional[None] = None
     if_: Optional[None] = None
     runs_on_: Optional[RunsOn] = None
-    environment_: Optional[None] = None
-    concurrency_: Optional[None] = None
+    environment_: Optional[Environment] = None
+    concurrency_: Optional[Concurrency] = None
     outputs_: Optional[None] = None
     env_: Optional["Env"] = None
     defaults_: Optional[Defaults] = None
     timeout_minutes_: Optional[int] = None
     strategy_: Optional[Strategy] = None
-    container_: Optional[None] = None
+    container_: Optional["Container"] = None
     services_: Optional[None] = None
-    uses_: Optional[None] = None
-    with_: Optional[None] = None
-    secrets_: Optional[None] = None
+    uses_: Optional["String"] = None
+    with_: Dict['String', 'String'] = field(default_factory=dict)
+    secrets_: Optional["Secrets"] = None
 
 
 @dataclass(frozen=True)
@@ -280,7 +314,7 @@ class Expression():
 
 
 @dataclass
-class String:
+class String():
     """Represents a string value along with its positional metadata."""
 
     string: str
@@ -306,3 +340,11 @@ class String:
     def __hash__(self):
         """Hash only based on string content."""
         return hash(self.string)
+
+    def __str__(self):
+        """Ergonomic helper for string representation."""
+        return self.string
+
+    def __repr__(self):
+        """String representation for debugging."""
+        return f"String({self.string!r})"

@@ -1,3 +1,4 @@
+import copy
 import dataclasses
 import importlib.resources as pkg_resources
 import json
@@ -199,6 +200,61 @@ def build_defaults(
         pos=current_pos,
         shell_=shell_,
         working_directory_=working_directory_,
+    )
+
+
+def build_concurrency(
+    key: ast.String,
+    concurrency_in: Dict[ast.String | str, ast.String],
+    problems: Problems,
+    RULE_NAME: str
+) -> Optional[ast.Concurrency]:
+    problem = Problem(
+        pos=key.pos,
+        desc="Invalid 'concurrency' structure.",
+        level=ProblemLevel.ERR,
+        rule=RULE_NAME
+    )
+
+    if not isinstance(concurrency_in, dict):
+        problems.append(problem)
+        return None
+
+    group = concurrency_in.get('group')
+    concurrency_in.pop('group', None)
+
+    cancel_in_progress = concurrency_in.get('cancel-in-progress', None)
+    concurrency_in.pop('cancel-in-progress', None)
+
+    if len(concurrency_in) > 0:
+        item = next(iter(concurrency_in))
+        cur_problem = copy.copy(problem)
+        if isinstance(item, ast.String):
+            pos = item.pos
+            cur_problem.pos = pos
+        problems.append(cur_problem)
+
+    if not isinstance(group, ast.String):
+        cur_problem = copy.copy(problem)
+        cur_problem.desc = "Concurrency must define 'group'"
+        problems.append(cur_problem)
+        return None
+
+    cur_problem = copy.copy(problem)
+    cur_problem.desc = "Invalid 'concurrency' 'cancel-in-progress' value"
+    if isinstance(cancel_in_progress, ast.String):
+        if not cancel_in_progress.expr:
+            cur_problem.pos = cancel_in_progress.pos
+            problems.append(cur_problem)
+            cancel_in_progress = None
+    elif cancel_in_progress is not None and not isinstance(cancel_in_progress, bool):
+        problems.append(cur_problem)
+        cancel_in_progress = None
+
+    return ast.Concurrency(
+        pos=key.pos,
+        group_=group,
+        cancel_in_progress_=cancel_in_progress
     )
 
 
