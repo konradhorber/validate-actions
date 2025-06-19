@@ -782,3 +782,44 @@ jobs:
     assert problems.problems == []
     assert container is not None
     assert container.options_.string == '--cpus 1 --memory 1024m'
+
+
+def test_job_with_uses_and_with():
+    workflow_string = '''
+on: push
+jobs:
+  reusable_job:
+    uses: ./.github/workflows/reusable-workflow.yml
+    with:
+      username: mona
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    job = workflow_out.jobs_['reusable_job']
+    assert problems.problems == []
+    assert job.uses_.string == './.github/workflows/reusable-workflow.yml'
+    assert job.with_['username'].string == 'mona'
+
+
+def test_job_with_invalid_uses():
+    workflow_string = '''
+on: push
+jobs:
+  reusable_job:
+    uses: 123
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert len(problems.problems) == 1
+    assert "Invalid 'uses' value, it must be a string." in problems.problems[0].desc
+
+
+def test_job_with_invalid_with():
+    workflow_string = '''
+on: push
+jobs:
+  reusable_job:
+    uses: ./.github/workflows/reusable-workflow.yml
+    with: "hello"
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert len(problems.problems) == 1
+    assert "Invalid 'with' value: must be a mapping." in problems.problems[0].desc

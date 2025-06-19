@@ -257,8 +257,8 @@ class Job:
     strategy_: Optional[Strategy] = None
     container_: Optional["Container"] = None
     services_: Optional[None] = None
-    uses_: Optional[None] = None
-    with_: Optional[None] = None
+    uses_: Optional["String"] = None
+    with_: Dict['String', 'String'] = field(default_factory=dict)
     secrets_: Optional[None] = None
 
 

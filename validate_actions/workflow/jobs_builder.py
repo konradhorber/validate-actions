@@ -85,7 +85,7 @@ class BaseJobsBuilder(JobsBuilder):
         container_ = None
         services_ = None
         uses_ = None
-        with_ = None
+        with_ = {}
         secrets_ = None
         job_context = JobContext()
         runner_context = RunnerContext()
@@ -140,9 +140,28 @@ class BaseJobsBuilder(JobsBuilder):
                 case 'services':
                     self._build_job_context_services(job_dict[key], job_context)
                 case 'uses':
-                    pass
+                    value = job_dict[key]
+                    if isinstance(value, ast.String):
+                        uses_ = value
+                    else:
+                        self.problems.append(Problem(
+                            pos=key.pos,
+                            desc="Invalid 'uses' value, it must be a string.",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME
+                        ))
                 case 'with':
-                    pass
+                    value = job_dict[key]
+                    if isinstance(value, dict):
+                        for with_key, with_value in value.items():
+                            with_[with_key] = with_value
+                    else:
+                        self.problems.append(Problem(
+                            pos=key.pos,
+                            desc="Invalid 'with' value: must be a mapping.",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME
+                        ))
                 case 'secrets':
                     pass
                 case _:
