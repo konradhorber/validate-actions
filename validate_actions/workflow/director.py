@@ -95,7 +95,9 @@ class BaseDirector(Director):
                 case 'run-name':
                     run_name_ = workflow_dict[key].string
                 case 'on':
-                    on_ = self.events_builder.build(workflow_dict[key])
+                    on_ = self.events_builder.build(
+                        workflow_dict[key]
+                        )
                 case 'permissions':
                     permissions_ = helper.build_permissions(
                         workflow_dict[key], self.problems, self.RULE_NAME
@@ -109,9 +111,13 @@ class BaseDirector(Director):
                         workflow_dict[key], self.problems, self.RULE_NAME
                     )
                 case 'concurrency':
-                    concurrency_ = self.__build_concurrency(workflow_dict[key])
+                    concurrency_ = helper.build_concurrency(
+                        key, workflow_dict[key], self.problems, self.RULE_NAME
+                    )
                 case 'jobs':
-                    jobs_ = self.jobs_builder.build(workflow_dict[key])
+                    jobs_ = self.jobs_builder.build(
+                        workflow_dict[key]
+                    )
                 case _:
                     self.problems.append(Problem(
                         pos=key.pos,
@@ -139,8 +145,3 @@ class BaseDirector(Director):
             concurrency_=concurrency_,
             contexts=self.contexts,
         ), self.problems
-
-    def __build_concurrency(
-        self, workflow_dict: Dict[ast.String, Any]
-    ) -> ast.Concurrency:
-        return ast.Concurrency(None)

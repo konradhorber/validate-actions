@@ -2,7 +2,7 @@ from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from yaml import ScalarToken
 
@@ -191,7 +191,9 @@ class Env:
 
 @dataclass(frozen=True)
 class Concurrency:
-    tbd: None
+    pos: "Pos"
+    group_: "String"
+    cancel_in_progress_: Optional[Union[bool, "String"]] = None
 
 
 @dataclass()
@@ -229,7 +231,7 @@ class Job:
     if_: Optional[None] = None
     runs_on_: Optional[RunsOn] = None
     environment_: Optional[Environment] = None
-    concurrency_: Optional[None] = None
+    concurrency_: Optional[Concurrency] = None
     outputs_: Optional[None] = None
     env_: Optional["Env"] = None
     defaults_: Optional[Defaults] = None
@@ -287,7 +289,7 @@ class Expression():
 
 
 @dataclass
-class String:
+class String():
     """Represents a string value along with its positional metadata."""
 
     string: str

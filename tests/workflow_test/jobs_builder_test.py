@@ -556,3 +556,62 @@ jobs:
     assert workflow_out.jobs_['deploy'].environment_ is None
     descs = [p.desc for p in problems.problems]
     assert "Invalid 'environment' 'url': '456'" in descs
+
+
+def test_job_concurrency_minimal_group():
+    workflow_string = """
+on: push
+jobs:
+  job1:
+    concurrency:
+      group: job-group
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    job = workflow_out.jobs_['job1']
+    assert len(problems.problems) == 0
+    assert job.concurrency_ is not None
+    assert job.concurrency_.group_.string == 'job-group'
+    assert job.concurrency_.cancel_in_progress_ is None
+
+
+def test_job_concurrency_with_cancel_true():
+    workflow_string = """
+on: push
+jobs:
+  job2:
+    concurrency:
+      group: job2-group
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    job = workflow_out.jobs_['job2']
+    assert len(problems.problems) == 0
+    assert job.concurrency_ is not None
+    assert job.concurrency_.group_.string == 'job2-group'
+    assert job.concurrency_.cancel_in_progress_ is True
+
+
+def test_job_concurrency_missing_group():
+    workflow_string = """
+on: push
+jobs:
+  job3:
+    concurrency:
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: echo hi
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    job = workflow_out.jobs_['job3']
+    assert job.concurrency_ is None
+    assert any(p.desc == "Concurrency must define 'group'" for p in problems.problems)

@@ -72,7 +72,7 @@ class BaseJobsBuilder(JobsBuilder):
         if_ = None
         runs_on_: Optional[ast.RunsOn] = None
         environment_: Optional[ast.Environment] = None
-        concurrency_ = None
+        concurrency_: Optional[ast.Concurrency] = None
         outputs_ = None
         env_: Optional[ast.Env] = None
         defaults_: Optional[ast.Defaults] = None
@@ -112,7 +112,9 @@ class BaseJobsBuilder(JobsBuilder):
                         key, job_dict[key], self.problems, self.RULE_NAME
                     )
                 case 'concurrency':
-                    pass
+                    concurrency_ = helper.build_concurrency(
+                        key, job_dict[key], self.problems, self.RULE_NAME
+                    )
                 case 'outputs':
                     self._build_jobs_context_output(key, job_dict, job_jobs_context)
                 case 'env':
