@@ -205,7 +205,7 @@ def build_defaults(
 
 def build_concurrency(
     key: ast.String,
-    concurrency_in: Dict[ast.String, ast.String],
+    concurrency_in: Dict[ast.String | str, ast.String],
     problems: Problems,
     RULE_NAME: str
 ) -> Optional[ast.Concurrency]:
