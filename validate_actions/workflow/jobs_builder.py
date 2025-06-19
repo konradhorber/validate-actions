@@ -131,7 +131,9 @@ class BaseJobsBuilder(JobsBuilder):
                 case 'strategy':
                     strategy_ = self._build_strategy(key, job_dict, local_contexts)
                 case 'container':
-                    pass
+                    container_ = self._build_container(
+                        key, job_dict[key], local_contexts, self.problems, self.RULE_NAME
+                    )
                 case 'services':
                     self._build_job_context_services(job_dict[key], job_context)
                 case 'uses':
@@ -170,6 +172,172 @@ class BaseJobsBuilder(JobsBuilder):
             uses_=uses_,
             with_=with_,
             secrets_=secrets_
+        )
+
+    def _build_container(
+        self,
+        container_key: ast.String,
+        container_data: Any,
+        local_contexts: Contexts,
+        problems: Problems,
+        rule_name: str
+    ) -> Optional[ast.Container]:
+        if isinstance(container_data, ast.String):
+            return ast.Container(pos=container_data.pos, image_=container_data)
+
+        if not isinstance(container_data, dict):
+            problems.append(Problem(
+                pos=container_key.pos,
+                desc="Container must be a string or a mapping.",
+                level=ProblemLevel.ERR,
+                rule=rule_name
+            ))
+            return None
+
+        image_ = None
+        credentials_ = None
+        env_ = None
+        ports_ = None
+        volumes_ = None
+        options_ = None
+
+        for key, value in container_data.items():
+            match key.string:
+                case 'image':
+                    if isinstance(value, ast.String):
+                        image_ = value
+                    else:
+                        problems.append(Problem(
+                            pos=key.pos,
+                            desc="Container image must be a string.",
+                            level=ProblemLevel.ERR,
+                            rule=rule_name
+                        ))
+                case 'credentials':
+                    credentials_ = self._build_container_credentials(
+                        key, value, problems, rule_name
+                    )
+                case 'env':
+                    env_ = helper.build_env(value, local_contexts, problems, rule_name)
+                case 'ports':
+                    if isinstance(value, list) and all(isinstance(i, ast.String) for i in value):
+                        ports_ = value
+                    else:
+                        problems.append(Problem(
+                            pos=key.pos,
+                            desc="Container ports must be a list of strings.",
+                            level=ProblemLevel.ERR,
+                            rule=rule_name
+                        ))
+                case 'volumes':
+                    if isinstance(value, list) and all(isinstance(i, ast.String) for i in value):
+                        volumes_ = value
+                    else:
+                        problems.append(Problem(
+                            pos=key.pos,
+                            desc="Container volumes must be a list of strings.",
+                            level=ProblemLevel.ERR,
+                            rule=rule_name
+                        ))
+                case 'options':
+                    if isinstance(value, ast.String):
+                        options_ = value
+                    else:
+                        problems.append(Problem(
+                            pos=key.pos,
+                            desc="Container options must be a string.",
+                            level=ProblemLevel.ERR,
+                            rule=rule_name
+                        ))
+                case _:
+                    problems.append(Problem(
+                        pos=key.pos,
+                        desc=f"Unknown container key: {key.string}",
+                        level=ProblemLevel.ERR,
+                        rule=rule_name
+                    ))
+
+        if image_ is None:
+            problems.append(Problem(
+                pos=container_key.pos,
+                desc="Container must have an 'image' property.",
+                level=ProblemLevel.ERR,
+                rule=rule_name
+            ))
+            return None
+
+        return ast.Container(
+            pos=container_key.pos,
+            image_=image_,
+            credentials_=credentials_,
+            env_=env_,
+            ports_=ports_,
+            volumes_=volumes_,
+            options_=options_
+        )
+
+    def _build_container_credentials(
+        self,
+        credentials_key: ast.String,
+        credentials_data: Any,
+        problems: Problems,
+        rule_name: str
+    ) -> Optional[ast.ContainerCredentials]:
+        if not isinstance(credentials_data, dict):
+            problems.append(Problem(
+                pos=credentials_key.pos,
+                desc="Container credentials must be a mapping.",
+                level=ProblemLevel.ERR,
+                rule=rule_name
+            ))
+            return None
+
+        username_ = None
+        password_ = None
+
+        for key, value in credentials_data.items():
+            match key.string:
+                case 'username':
+                    if isinstance(value, ast.String):
+                        username_ = value
+                    else:
+                        problems.append(Problem(
+                            pos=key.pos,
+                            desc="Credentials username must be a string.",
+                            level=ProblemLevel.ERR,
+                            rule=rule_name
+                        ))
+                case 'password':
+                    if isinstance(value, ast.String):
+                        password_ = value
+                    else:
+                        problems.append(Problem(
+                            pos=key.pos,
+                            desc="Credentials password must be a string.",
+                            level=ProblemLevel.ERR,
+                            rule=rule_name
+                        ))
+                case _:
+                    problems.append(Problem(
+                        pos=key.pos,
+                        desc=f"Unknown credentials key: {key.string}",
+                        level=ProblemLevel.ERR,
+                        rule=rule_name
+                    ))
+
+        if username_ is None or password_ is None:
+            problems.append(Problem(
+                pos=credentials_key.pos,
+                desc="Container credentials must have 'username' and 'password'.",
+                level=ProblemLevel.ERR,
+                rule=rule_name
+            ))
+            return None
+
+        return ast.ContainerCredentials(
+            pos=credentials_key.pos,
+            username_=username_,
+            password_=password_
         )
 
     def _build_strategy(

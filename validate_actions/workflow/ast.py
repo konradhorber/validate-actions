@@ -220,6 +220,24 @@ class Environment:
 
 # region Jobs
 @dataclass(frozen=True)
+class ContainerCredentials:
+    pos: "Pos"
+    username_: "String"
+    password_: "String"
+
+
+@dataclass(frozen=True)
+class Container:
+    pos: "Pos"
+    image_: "String"
+    credentials_: Optional["ContainerCredentials"] = None
+    env_: Optional["Env"] = None
+    ports_: Optional[List["String"]] = None
+    volumes_: Optional[List["String"]] = None
+    options_: Optional["String"] = None
+
+
+@dataclass(frozen=True)
 class Job:
     pos: "Pos"
     job_id_: str
@@ -237,7 +255,7 @@ class Job:
     defaults_: Optional[Defaults] = None
     timeout_minutes_: Optional[int] = None
     strategy_: Optional[Strategy] = None
-    container_: Optional[None] = None
+    container_: Optional["Container"] = None
     services_: Optional[None] = None
     uses_: Optional[None] = None
     with_: Optional[None] = None

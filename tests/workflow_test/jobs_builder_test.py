@@ -615,3 +615,229 @@ jobs:
     job = workflow_out.jobs_['job3']
     assert job.concurrency_ is None
     assert any(p.desc == "Concurrency must define 'group'" for p in problems.problems)
+
+
+def test_job_container_simple():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: node:16-bullseye
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert problems.problems == []
+    assert container is not None
+    assert str(container.image_) == 'node:16-bullseye'
+
+
+def test_job_container_full():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16-bullseye
+      credentials:
+        username: octocat
+        password: password
+      env:
+        NODE_ENV: development
+      ports:
+        - 8080:80
+      volumes:
+        - my_docker_volume:/volume_mount
+      options: --cpus 1
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert problems.problems == []
+    assert container is not None
+    assert container.image_.string == 'node:16-bullseye'
+    assert container.credentials_ is not None
+    assert container.credentials_.username_.string == 'octocat'
+    assert container.credentials_.password_.string == 'password'
+    assert container.env_ is not None
+    assert container.env_.get('NODE_ENV').string == 'development'
+    assert container.ports_ is not None
+    assert [p.string for p in container.ports_] == ['8080:80']
+    assert container.volumes_ is not None
+    assert [v.string for v in container.volumes_] == ['my_docker_volume:/volume_mount']
+    assert container.options_.string == '--cpus 1'
+
+
+def test_job_container_invalid_structure():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: [ "node:16-bullseye" ]
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert container is None
+    assert len(problems.problems) == 1
+    assert problems.problems[0].desc == "Container must be a string or a mapping."
+
+
+def test_job_container_missing_image():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      credentials:
+        username: octocat
+        password: password
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert container is None
+    assert len(problems.problems) == 1
+    assert problems.problems[0].desc == "Container must have an 'image' property."
+
+
+def test_job_container_invalid_credentials():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16-bullseye
+      credentials:
+        username: octocat
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert container is not None
+    assert container.credentials_ is None
+    assert len(problems.problems) == 1
+    assert problems.problems[0].desc == "Container credentials must have 'username' and 'password'."
+
+
+def test_job_container_invalid_ports():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16-bullseye
+      ports:
+        - 80
+        - "8080:80"
+        - {}
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert container is not None
+    assert container.ports_ is None
+    assert len(problems.problems) == 1
+    assert "Container ports must be a list of strings." in problems.problems[0].desc
+
+
+def test_job_container_invalid_volumes():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16-bullseye
+      volumes:
+        - my_docker_volume:/volume_mount
+        - 123
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert container is not None
+    assert container.volumes_ is None
+    assert len(problems.problems) == 1
+    assert "Container volumes must be a list of strings." in problems.problems[0].desc
+
+
+def test_job_container_invalid_options():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16-bullseye
+      options: ["--cpus 1"]
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert container is not None
+    assert container.options_ is None
+    assert len(problems.problems) == 1
+    assert problems.problems[0].desc == "Container options must be a string."
+
+
+def test_job_container_unknown_key():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16-bullseye
+      foo: bar
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert container is not None
+    assert len(problems.problems) == 1
+    assert problems.problems[0].desc == "Unknown container key: foo"
+
+
+def test_job_container_multiple_options_in_string():
+    workflow_string = '''
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16-bullseye
+      options: --cpus 1 --memory 1024m
+    steps:
+      - name: Echo
+        run: echo hi
+'''
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    container = workflow_out.jobs_['build'].container_
+    assert problems.problems == []
+    assert container is not None
+    assert container.options_.string == '--cpus 1 --memory 1024m'
