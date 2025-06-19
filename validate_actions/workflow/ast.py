@@ -238,6 +238,13 @@ class Container:
 
 
 @dataclass(frozen=True)
+class Secrets:
+    pos: "Pos"
+    inherit: bool = False
+    secrets: Dict["String", "String"] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
 class Job:
     pos: "Pos"
     job_id_: str
@@ -259,7 +266,7 @@ class Job:
     services_: Optional[None] = None
     uses_: Optional["String"] = None
     with_: Dict['String', 'String'] = field(default_factory=dict)
-    secrets_: Optional[None] = None
+    secrets_: Optional["Secrets"] = None
 
 
 @dataclass(frozen=True)

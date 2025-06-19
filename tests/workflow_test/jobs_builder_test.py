@@ -823,3 +823,80 @@ jobs:
     workflow_out, problems = parse_workflow_string(workflow_string)
     assert len(problems.problems) == 1
     assert "Invalid 'with' value: must be a mapping." in problems.problems[0].desc
+
+
+def test_job_secrets_map():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    secrets:
+      my_secret: ${{ secrets.REPO_SECRET }}
+      gh_token: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    secrets_ = workflow_out.jobs_['build'].secrets_
+    assert problems.problems == []
+    assert secrets_ is not None
+    assert secrets_.inherit is False
+    assert secrets_.secrets['my_secret'].string == '${{ secrets.REPO_SECRET }}'
+    assert secrets_.secrets['gh_token'].string == '${{ secrets.GITHUB_TOKEN }}'
+
+
+def test_job_secrets_inherit():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    secrets: inherit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    secrets_ = workflow_out.jobs_['build'].secrets_
+    assert problems.problems == []
+    assert secrets_ is not None
+    assert secrets_.inherit is True
+    assert secrets_.secrets == {}
+
+
+def test_job_secrets_invalid_value():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    secrets: 123
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert workflow_out.jobs_['build'].secrets_ is None
+    assert len(problems.problems) == 1
+    assert "Invalid 'secrets' value: must be a mapping or 'inherit'." in problems.problems[0].desc
+
+
+def test_job_secrets_invalid_mapping_value():
+    workflow_string = """
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    secrets:
+      my_secret: [1, 2, 3]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    secrets_ = workflow_out.jobs_['build'].secrets_
+    assert secrets_ is not None
+    assert len(problems.problems) == 1
+    assert "Each secret value must be a string." in problems.problems[0].desc

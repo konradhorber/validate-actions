@@ -163,7 +163,9 @@ class BaseJobsBuilder(JobsBuilder):
                             rule=self.RULE_NAME
                         ))
                 case 'secrets':
-                    pass
+                    secrets_ = self._build_secrets(
+                        key, job_dict[key], self.problems, self.RULE_NAME
+                    )
                 case _:
                     self.problems.append(Problem(
                         pos=key.pos,
@@ -361,6 +363,38 @@ class BaseJobsBuilder(JobsBuilder):
             username_=username_,
             password_=password_
         )
+
+    def _build_secrets(
+        self,
+        secrets_key: ast.String,
+        secrets_data: Any,
+        problems: Problems,
+        rule_name: str
+    ) -> Optional[ast.Secrets]:
+        if isinstance(secrets_data, ast.String) and secrets_data.string == "inherit":
+            return ast.Secrets(pos=secrets_key.pos, inherit=True)
+
+        if isinstance(secrets_data, dict):
+            secrets_map = {}
+            for key, value in secrets_data.items():
+                if isinstance(value, ast.String):
+                    secrets_map[key] = value
+                else:
+                    problems.append(Problem(
+                        pos=key.pos,
+                        desc="Each secret value must be a string.",
+                        level=ProblemLevel.ERR,
+                        rule=rule_name
+                    ))
+            return ast.Secrets(pos=secrets_key.pos, secrets=secrets_map)
+
+        problems.append(Problem(
+            pos=secrets_key.pos,
+            desc="Invalid 'secrets' value: must be a mapping or 'inherit'.",
+            level=ProblemLevel.ERR,
+            rule=rule_name
+        ))
+        return None
 
     def _build_strategy(
         self,
