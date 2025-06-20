@@ -3,11 +3,10 @@ from typing import Generator, List, Tuple, Union
 from validate_actions.problems import Problem, ProblemLevel
 from validate_actions.rules.rule import Rule
 from validate_actions.rules.support_functions import (
-    edit_yaml_at_position,
     get_current_action_version,
     parse_action,
 )
-from validate_actions.workflow.ast import ExecAction, Workflow
+from validate_actions.workflow.ast import ExecAction
 
 
 class JobsStepsUses(Rule):
@@ -17,10 +16,8 @@ class JobsStepsUses(Rule):
 
     NAME = 'jobs-steps-uses'
 
-    @staticmethod
     def check(
-        workflow: 'Workflow',
-        fix: bool
+        self,
     ) -> Generator[Problem, None, None]:
         """
         Validates all actions in the workflow.
@@ -33,12 +30,10 @@ class JobsStepsUses(Rule):
         Yields:
             Problem: Problems found during validation.
         """
-        return JobsStepsUses.check_single_action(workflow, fix)
+        return self.check_single_action()
 
-    @staticmethod
     def check_single_action(
-        workflow: 'Workflow',
-        fix: bool
+        self,
     ) -> Generator[Problem, None, None]:
         """
         Validates actions individually without context declared by `uses:` in
@@ -51,15 +46,15 @@ class JobsStepsUses(Rule):
             Problem: Problems found during validation.
         """
         actions = []
-        for job in workflow.jobs_.values():
+        for job in self.workflow.jobs_.values():
             steps = job.steps_
             for step in steps:
                 if isinstance(step.exec, ExecAction):
                     actions.append(step.exec)
 
         for action in actions:
-            yield from JobsStepsUses.not_using_version_spec(action, fix, workflow)
-            input_result = JobsStepsUses.get_inputs(action)
+            yield from self.not_using_version_spec(action)
+            input_result = self.get_inputs(action)
             if isinstance(input_result, Problem):
                 yield input_result
                 return
@@ -70,22 +65,20 @@ class JobsStepsUses(Rule):
                 if len(required_inputs) == 0:
                     continue
                 else:
-                    yield from JobsStepsUses.misses_required_input(
+                    yield from self.misses_required_input(
                         action, required_inputs
                     )
             else:
-                yield from JobsStepsUses.check_required_inputs(
+                yield from self.check_required_inputs(
                     action, required_inputs
                 )
-                yield from JobsStepsUses.uses_non_defined_input(
+                yield from self.uses_non_defined_input(
                     action, possible_inputs
                 )
 
-    @staticmethod
     def not_using_version_spec(
-        action: ExecAction,
-        fix: bool,
-        workflow: Workflow
+        self,
+        action: ExecAction
     ) -> Generator[Problem, None, None]:
         """
         Checks if an action specifies a version using `@version`. If not, a
@@ -106,15 +99,14 @@ class JobsStepsUses(Rule):
                     f'Using specific version of {slug} is '
                     f'recommended @version'
                 ),
-                JobsStepsUses.NAME
+                self.NAME
             )
-            if fix:
+            if self.fix:
                 version = get_current_action_version(slug)
                 if version:
                     new_slug = f'{slug}@{version}'
-                    workflow.path
-                    problem = edit_yaml_at_position(
-                        workflow.path,
+                    self.workflow.path
+                    problem = self.fixer.edit_yaml_at_position(
                         action.uses_.pos.idx,
                         len(slug),
                         new_slug,
@@ -124,8 +116,8 @@ class JobsStepsUses(Rule):
                     action.uses_.string = f'{slug}@{version}'
             yield problem
 
-    @staticmethod
     def get_inputs(
+        self,
         action: ExecAction
     ) -> Union[Tuple[List[str], List[str]], Problem]:
         """
@@ -150,7 +142,7 @@ class JobsStepsUses(Rule):
                     f"Couldn't fetch metadata for {action.uses_.string}. "
                     "Continuing validation without"
                 ),
-                JobsStepsUses.NAME
+                self.NAME
             )
 
         inputs = action_metadata['inputs']
@@ -161,8 +153,8 @@ class JobsStepsUses(Rule):
         ]
         return required_inputs, possible_inputs
 
-    @staticmethod
     def misses_required_input(
+        self,
         action: ExecAction,
         required_inputs: list
     ) -> Generator[Problem, None, None]:
@@ -184,11 +176,10 @@ class JobsStepsUses(Rule):
                 f'{action.uses_.string} requires inputs: '
                 f'{prettyprint_required_inputs}'
             ),
-            JobsStepsUses.NAME
+            self.NAME
         )
 
-    @staticmethod
-    def check_required_inputs(action, required_inputs):
+    def check_required_inputs(self, action, required_inputs):
         """
         Validates that all required inputs for an action are provided.
 
@@ -204,12 +195,12 @@ class JobsStepsUses(Rule):
 
         for input in required_inputs:
             if input not in action.with_:
-                yield from JobsStepsUses.misses_required_input(
+                yield from self.misses_required_input(
                     action, required_inputs
                 )
 
-    @staticmethod
     def uses_non_defined_input(
+        self,
         action: ExecAction,
         possible_inputs: List[str]
     ) -> Generator[Problem, None, None]:
@@ -232,5 +223,5 @@ class JobsStepsUses(Rule):
                     action.pos,
                     ProblemLevel.ERR,
                     f'{action.uses_.string} uses unknown input: {input.string}',
-                    JobsStepsUses.NAME
+                    self.NAME
                 )

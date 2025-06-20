@@ -4,7 +4,7 @@ from pathlib import Path
 import requests
 
 from tests.helper import parse_workflow_string
-from validate_actions import Problem, ProblemLevel, rules
+from validate_actions import Problem, ProblemLevel, fixer, rules
 
 
 # with
@@ -21,7 +21,8 @@ jobs:
           unknown_input: 'test'
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.JobsStepsUses.check(workflow, False)
+    rule = rules.JobsStepsUses(workflow, False, None)
+    gen = rule.check()
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], Problem)
@@ -152,7 +153,8 @@ jobs:
           status: 'test'
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.JobsStepsUses.check(workflow, False)
+    rule = rules.JobsStepsUses(workflow, False, None)
+    gen = rule.check()
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], Problem)
@@ -175,7 +177,8 @@ jobs:
           wrong_input: 'test'
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.JobsStepsUses.check(workflow, False)
+    rule = rules.JobsStepsUses(workflow, False, None)
+    gen = rule.check()
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], Problem)
@@ -217,7 +220,9 @@ def test_fix_missing_version_spec(tmp_path, monkeypatch):
 
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_without_version)
         workflow_obj.path = temp_file_path
-        problems_after_fix = list(rules.JobsStepsUses.check(workflow_obj, fix=True))
+        fix = fixer.BaseFixer(temp_file_path)
+        rule = rules.JobsStepsUses(workflow_obj, True, fix)
+        problems_after_fix = list(rule.check())
         # Assert that the problem was fixed and non problem is reported for this specific issue
         assert len(problems_after_fix) == 1
         assert problems_after_fix[0].level == ProblemLevel.NON  # 1 Non problem after fix
@@ -230,7 +235,9 @@ def test_fix_missing_version_spec(tmp_path, monkeypatch):
 
 def throws_single_error(workflow_string: str):
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.JobsStepsUses.check(workflow, False)
+    fixy = fixer.BaseFixer(Path(tempfile.gettempdir()))
+    rule = rules.JobsStepsUses(workflow, False, fixy)
+    gen = rule.check()
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], Problem)
@@ -239,6 +246,8 @@ def throws_single_error(workflow_string: str):
 
 def throws_no_error(workflow_string: str):
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.JobsStepsUses.check(workflow, False)
+    fixy = fixer.BaseFixer(Path(tempfile.gettempdir()))
+    rule = rules.JobsStepsUses(workflow, False, fixy)
+    gen = rule.check()
     result = list(gen)
     assert result == []

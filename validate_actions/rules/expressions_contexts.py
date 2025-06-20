@@ -1,32 +1,27 @@
 from collections.abc import Mapping, Sequence
 from dataclasses import fields, is_dataclass
 from difflib import SequenceMatcher
-from pathlib import Path
 from typing import Generator, Optional
 
 from validate_actions.problems import Problem, ProblemLevel
 from validate_actions.rules.rule import Rule
-from validate_actions.rules.support_functions import edit_yaml_at_position
-from validate_actions.workflow.ast import Expression, String, Workflow
+from validate_actions.workflow.ast import Expression
 from validate_actions.workflow.contexts import Contexts
 
 
 class ExpressionsContexts(Rule):
     NAME = 'expressions-contexts'
 
-    @staticmethod
     def check(
-        workflow: 'Workflow',
-        fix: bool
+        self,
     ) -> Generator[Problem, None, None]:
         # start traversal with the global workflow contexts
-        for ref, ctx in ExpressionsContexts._traverse(workflow, workflow.contexts):
-            problem = ExpressionsContexts.does_expr_exist(ref, ctx, fix, workflow)
+        for ref, ctx in self._traverse(self.workflow, self.workflow.contexts):
+            problem = self.does_expr_exist(ref, ctx)
             if problem:
                 yield problem
 
-    @staticmethod
-    def _traverse(obj, cur_context: Contexts):
+    def _traverse(self, obj, cur_context: Contexts):
         """
         Recursively traverse AST, yielding (Expression, Contexts) pairs.
         Update context when encountering a node with its own 'contexts' field.
@@ -52,24 +47,20 @@ class ExpressionsContexts(Rule):
                     val = getattr(obj, f.name)
                 except AttributeError:
                     continue
-                yield from ExpressionsContexts._traverse(val, new_context)
+                yield from self._traverse(val, new_context)
             return
         # mappings and sequences: propagate current context
         if isinstance(obj, Mapping):
             for v in obj.values():
-                yield from ExpressionsContexts._traverse(v, cur_context)
+                yield from self._traverse(v, cur_context)
             return
         if isinstance(obj, Sequence) and not isinstance(obj, (str, bytes)):
             for item in obj:
-                yield from ExpressionsContexts._traverse(item, cur_context)
+                yield from self._traverse(item, cur_context)
             return
 
-    @staticmethod
     def does_expr_exist(
-        expr: Expression,
-        contexts: Contexts,
-        fix: bool,
-        workflow: 'Workflow'
+        self, expr: Expression, contexts: Contexts
     ) -> Optional[Problem]:
         # Iteratively check each part of the expression against the context tree
         cur = contexts
@@ -78,7 +69,7 @@ class ExpressionsContexts(Rule):
             pos=expr.pos,
             desc=f"Expression '{expr.string}' does not match any context",
             level=ProblemLevel.ERR,
-            rule=ExpressionsContexts.NAME,
+            rule=self.NAME,
         )
         operators = ['!', '<=', '<', '>=', '>', '==', '!=', '&&', '||']
 
@@ -103,7 +94,7 @@ class ExpressionsContexts(Rule):
                 index = cur.index(part.string)
                 cur = cur[index]
             else:
-                if fix:
+                if self.fix:
                     field_names = []
                     others: list[str] = []
                     others_scores = {}
@@ -127,7 +118,7 @@ class ExpressionsContexts(Rule):
 
                     fields_best_match = max(
                         fields_scores.items(), key=lambda x: x[1], default=(None, 0)
-                        )
+                    )
                     others_best_match = max(
                         others_scores.items(), key=lambda x: x[1], default=(None, 0)
                     )
@@ -155,13 +146,12 @@ class ExpressionsContexts(Rule):
                         f"Fixed '${{{{ {expr.string} }}}}': changed '{part.string}' to '{max_key}'"
                     )
 
-                    return edit_yaml_at_position(
-                        file_path=workflow.path,
+                    return self.fixer.edit_yaml_at_position(
                         idx=part.pos.idx,
                         num_delete=len(part.string),
                         new_text=max_key,
                         problem=problem,
-                        new_problem_desc=updated_problem_desc
+                        new_problem_desc=updated_problem_desc,
                     )
 
                 else:

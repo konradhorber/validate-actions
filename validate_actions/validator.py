@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import List, Type
 
 from validate_actions import rules
+from validate_actions.fixer import BaseFixer
 from validate_actions.problems import Problems
 from validate_actions.rules.rule import Rule
 from validate_actions.workflow import helper
@@ -40,8 +41,32 @@ class Validator:
 
         workflow, problems = director.build()
 
-        for rule in Validator.ACTIONS_ERROR_RULES:
-            list_of_problems = rule.check(workflow, fix)
+        fixer = BaseFixer(file)
+
+        jobs_steps_uses = rules.JobsStepsUses(
+            workflow=workflow,
+            fix=fix,
+            fixer=fixer
+        )
+        steps_io_match = rules.StepsIOMatch(
+            workflow=workflow,
+            fix=fix,
+            fixer=fixer
+        )
+        expressions_contexts = rules.ExpressionsContexts(
+            workflow=workflow,
+            fix=fix,
+            fixer=fixer
+        )
+
+        cur_rules: List[Rule] = [
+            jobs_steps_uses,
+            steps_io_match,
+            expressions_contexts
+        ]
+
+        for rule in cur_rules:
+            list_of_problems = rule.check()
             for problem in list_of_problems:
                 if problem is None:
                     continue

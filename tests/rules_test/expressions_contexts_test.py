@@ -5,6 +5,7 @@ from pathlib import Path
 
 from tests.helper import parse_workflow_string
 from validate_actions import rules
+from validate_actions.fixer import BaseFixer
 from validate_actions.problems import Problem, ProblemLevel
 
 
@@ -41,7 +42,8 @@ def test_job_outputs_input_match():
           run: echo "secondword=world" >> $GITHUB_OUTPUT
     """
     workflow_matches, problems_matches = parse_workflow_string(workflow_matches_string)
-    gen_matches = rules.ExpressionsContexts.check(workflow_matches, False)
+    rule = rules.ExpressionsContexts(workflow_matches, False, None)
+    gen_matches = rule.check()
     result_matches = list(gen_matches)
     assert result_matches == []
     
@@ -77,7 +79,8 @@ def test_job_outputs_input_match():
           run: echo "secondword=world" >> $GITHUB_OUTPUT
     """
     workflow_doesnt_match, problems_doesnt_match = parse_workflow_string(workflow_doesnt_match_string)
-    gen_doesnt_match = rules.ExpressionsContexts.check(workflow_doesnt_match, False)
+    rule = rules.ExpressionsContexts(workflow_doesnt_match, False, None)
+    gen_doesnt_match = rule.check()
     result_doesnt_match = list(gen_doesnt_match)
     assert len(result_doesnt_match) == 1
     assert result_doesnt_match[0].rule == 'expressions-contexts'
@@ -104,7 +107,8 @@ def test_env_match():
             path: ${{ env.my_var }}  # Reference to output from env var
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.StepsIOMatch.check(workflow, False)
+    rule = rules.ExpressionsContexts(workflow, False, None)
+    gen = rule.check()
     result = list(gen)
     assert result == []
     
@@ -129,7 +133,8 @@ def test_env_match():
             path: ${{ env.myvar }}  # Reference to output from non-existent env var
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.ExpressionsContexts.check(workflow, False)
+    rule = rules.ExpressionsContexts(workflow, False, None)
+    gen = rule.check()
     result = list(gen)
     assert len(result) == 1
 
@@ -185,7 +190,8 @@ def test_local_env():
             name: ${{ env.job_path }}  # job-level wrong, not in this job
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.ExpressionsContexts.check(workflow, False)
+    rule = rules.ExpressionsContexts(workflow, False, None)
+    gen = rule.check()
     result = list(gen)
     assert len(result) == 2
     assert result[0].pos.line == 39
@@ -216,7 +222,8 @@ def test_job_context_correct():
             mongodb-port: ${{ job.services.redis.ports['6379'] }}
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.ExpressionsContexts.check(workflow, False)
+    rule = rules.ExpressionsContexts(workflow, False, None)
+    gen = rule.check()
     result = list(gen)
     assert result == []
 
@@ -245,7 +252,8 @@ def test_job_context_incorrect():
             mongodb-port: ${{ job.services.redis.ports['379'] }}
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.ExpressionsContexts.check(workflow, False)
+    rule = rules.ExpressionsContexts(workflow, False, None)
+    gen = rule.check()
     result = list(gen)
     assert len(result) == 1
 
@@ -273,7 +281,8 @@ def test_runner_context_correct():
               path: ${{ runner.temp }}/build_logs
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.ExpressionsContexts.check(workflow, False)
+    rule = rules.ExpressionsContexts(workflow, False, None)
+    gen = rule.check()
     result = list(gen)
     assert len(result) == 0
 
@@ -301,7 +310,8 @@ def test_runner_context_wrong():
               path: ${{ runner.temp }}/build_logs
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.ExpressionsContexts.check(workflow, False)
+    rule = rules.ExpressionsContexts(workflow, False, None)
+    gen = rule.check()
     result = list(gen)
     assert len(result) == 1
 
@@ -339,7 +349,8 @@ def test_web_context():
         who-to-greet: ${{ vars.GREET_NAME }}
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.ExpressionsContexts.check(workflow, False)
+    rule = rules.ExpressionsContexts(workflow, False, None)
+    gen = rule.check()
     result = list(gen)
     assert result == []
 
@@ -407,7 +418,9 @@ def test_fix_expression_context_typo():
 
         # Run the check with fix=True
         # The check function modifies the file in place if a fix is applied
-        problems_after_fix = list(rules.ExpressionsContexts.check(workflow_obj, fix=True))
+        fixer = BaseFixer(temp_file_path)
+        rule = rules.ExpressionsContexts(workflow_obj, True, fixer)
+        problems_after_fix = list(rule.check())
 
         # Assert that the problem was fixed and non problem is reported for this specific issue
         assert len(problems_after_fix) == 1
@@ -461,7 +474,9 @@ def test_fix_service_port_typo():
 
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typo)
         workflow_obj.path = temp_file_path
-        problems_after_fix = list(rules.ExpressionsContexts.check(workflow_obj, fix=True))
+        fixer = BaseFixer(temp_file_path)
+        rule = rules.ExpressionsContexts(workflow_obj, True, fixer)
+        problems_after_fix = list(rule.check())
         # Assert that the problem was fixed and non problem is reported for this specific issue
         assert len(problems_after_fix) == 1
         assert problems_after_fix[0].level == ProblemLevel.NON  # No problems should remain
@@ -498,7 +513,9 @@ def test_fix_multiple_expressions_in_string():
 
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typo)
         workflow_obj.path = temp_file_path
-        problems_after_fix = list(rules.ExpressionsContexts.check(workflow_obj, fix=True))
+        fixer = BaseFixer(temp_file_path)
+        rule = rules.ExpressionsContexts(workflow_obj, True, fixer)
+        problems_after_fix = list(rule.check())
         assert not problems_after_fix
         fixed_content = temp_file_path.read_text(encoding='utf-8')
         assert fixed_content.strip() == expected_fixed.strip()
@@ -533,7 +550,9 @@ def test_fix_typo_in_middle_of_expression():
 
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typo)
         workflow_obj.path = temp_file_path
-        problems_after_fix = list(rules.ExpressionsContexts.check(workflow_obj, fix=True))
+        fixer = BaseFixer(temp_file_path)
+        rule = rules.ExpressionsContexts(workflow_obj, True, fixer)
+        problems_after_fix = list(rule.check())
         # Assert that the problem was fixed and non problem is reported for this specific issue
         assert len(problems_after_fix) == 1
         assert problems_after_fix[0].level == ProblemLevel.NON  # No problems should remain

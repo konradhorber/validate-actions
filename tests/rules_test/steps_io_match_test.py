@@ -27,7 +27,8 @@ def test_no_io_match():
             path: ${{ steps.step1.outputs.some_output }}  # Reference to output from a uses step (which doesn't exist)
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.StepsIOMatch.check(workflow, False)
+    rule = rules.StepsIOMatch(workflow, False, None)
+    gen = rule.check()
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], Problem)
@@ -59,7 +60,8 @@ def test_a_io_match():
             path: ${{ steps.step1.outputs.ref }}
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.StepsIOMatch.check(workflow, False)
+    rule = rules.StepsIOMatch(workflow, False, None)
+    gen = rule.check()
     result = list(gen)
     assert len(result) == 0
 
@@ -86,7 +88,8 @@ def test_no_step_with_that_id():
             path: ${{ steps.stepOne.outputs.ref }}
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    gen = rules.StepsIOMatch.check(workflow, False)
+    rule = rules.StepsIOMatch(workflow, False, None)
+    gen = rule.check()
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], Problem)
