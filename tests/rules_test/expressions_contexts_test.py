@@ -561,3 +561,71 @@ def test_fix_typo_in_middle_of_expression():
     finally:
         if temp_file_path:
             temp_file_path.unlink(missing_ok=True)
+
+def test_fix_two_expression_context_typos():
+    workflow_string_with_typos = """
+    name: Build
+    on: push
+
+    jobs:
+      build:
+        runs-on: ubuntu-latest
+        services:
+          redis:
+            image: redis
+            ports:
+              - 6379/tcp
+        steps:
+          - uses: actions/checkout@v4
+          - name: Build with logs
+            run: |
+              mkdir ${{ runer.temp }}/build_logs
+              echo "Logs from building" > ${{ runner.temp }}/build_logs/build.logs
+          - name: Use service port
+            run: echo "${{ job.servics.redis.ports['6379'] }}"
+    """
+    expected_workflow_string_fixed = """
+    name: Build
+    on: push
+
+    jobs:
+      build:
+        runs-on: ubuntu-latest
+        services:
+          redis:
+            image: redis
+            ports:
+              - 6379/tcp
+        steps:
+          - uses: actions/checkout@v4
+          - name: Build with logs
+            run: |
+              mkdir ${{ runner.temp }}/build_logs
+              echo "Logs from building" > ${{ runner.temp }}/build_logs/build.logs
+          - name: Use service port
+            run: echo "${{ job.services.redis.ports['6379'] }}"
+    """
+
+    temp_file_path = None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.yml', encoding='utf-8') as f:
+            f.write(workflow_string_with_typos)
+            temp_file_path = Path(f.name)
+
+        workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typos)
+        workflow_obj.path = temp_file_path
+
+        fixer = BaseFixer(temp_file_path)
+        rule = rules.ExpressionsContexts(workflow_obj, True, fixer)
+        problems_after_fix = list(rule.check())
+
+        # Assert that the problems were fixed and no problem is reported for these specific issues
+        assert len(problems_after_fix) == 2
+        assert all(p.level == ProblemLevel.NON for p in problems_after_fix)
+
+        fixed_content = temp_file_path.read_text(encoding='utf-8')
+        assert fixed_content.strip() == expected_workflow_string_fixed.strip()
+
+    finally:
+        if temp_file_path:
+            temp_file_path.unlink(missing_ok=True)
