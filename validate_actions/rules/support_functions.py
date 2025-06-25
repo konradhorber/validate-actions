@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Dict, Iterable, Optional
+from typing import Any, Dict, Iterable, Optional, Type
 
 import requests
 import yaml
@@ -11,9 +11,11 @@ from validate_actions.workflow.ast import String
 # TODO fix and upgrade this mess
 
 
-def find_index_of(value: str, token_type: yaml.Token, tokens: list[yaml.Token]) -> Iterable[int]:
+def find_index_of(
+    value: str, token_type: Type[yaml.Token], tokens: list[yaml.Token]
+) -> Iterable[int]:
     for i, token in enumerate(tokens):
-        if isinstance(token, token_type) and token.value == value:
+        if isinstance(token, token_type) and hasattr(token, "value") and token.value == value:
             yield i
 
 
@@ -22,7 +24,7 @@ logger = logging.getLogger(__name__)
 SESSION = requests.Session()
 GITHUB_URL = "https://raw.githubusercontent.com/"
 
-parse_action_cache = {}
+parse_action_cache: Dict[str, Any] = {}
 
 
 def parse_action(slug):
