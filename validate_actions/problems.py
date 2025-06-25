@@ -7,6 +7,7 @@ from validate_actions.pos import Pos
 
 class ProblemLevel(Enum):
     """Linting problem levels"""
+
     NON = 0
     WAR = 1
     ERR = 2

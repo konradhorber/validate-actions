@@ -2,10 +2,7 @@ from typing import Generator, List, Tuple, Union
 
 from validate_actions.problems import Problem, ProblemLevel
 from validate_actions.rules.rule import Rule
-from validate_actions.rules.support_functions import (
-    get_current_action_version,
-    parse_action,
-)
+from validate_actions.rules.support_functions import get_current_action_version, parse_action
 from validate_actions.workflow.ast import ExecAction
 
 
@@ -14,7 +11,7 @@ class JobsStepsUses(Rule):
     Validates the `uses:` field in workflow steps.
     """
 
-    NAME = 'jobs-steps-uses'
+    NAME = "jobs-steps-uses"
 
     def check(
         self,
@@ -65,21 +62,12 @@ class JobsStepsUses(Rule):
                 if len(required_inputs) == 0:
                     continue
                 else:
-                    yield from self.misses_required_input(
-                        action, required_inputs
-                    )
+                    yield from self.misses_required_input(action, required_inputs)
             else:
-                yield from self.check_required_inputs(
-                    action, required_inputs
-                )
-                yield from self.uses_non_defined_input(
-                    action, possible_inputs
-                )
+                yield from self.check_required_inputs(action, required_inputs)
+                yield from self.uses_non_defined_input(action, possible_inputs)
 
-    def not_using_version_spec(
-        self,
-        action: ExecAction
-    ) -> Generator[Problem, None, None]:
+    def not_using_version_spec(self, action: ExecAction) -> Generator[Problem, None, None]:
         """
         Checks if an action specifies a version using `@version`. If not, a
         warning is generated.
@@ -91,35 +79,29 @@ class JobsStepsUses(Rule):
             Problem: Warning if version is not specified.
         """
         slug = action.uses_.string
-        if '@' not in slug:
+        if "@" not in slug:
             problem = Problem(
                 action.pos,
                 ProblemLevel.WAR,
-                (
-                    f'Using specific version of {slug} is '
-                    f'recommended @version'
-                ),
-                self.NAME
+                (f"Using specific version of {slug} is " f"recommended @version"),
+                self.NAME,
             )
             if self.fix:
                 version = get_current_action_version(slug)
                 if version:
-                    new_slug = f'{slug}@{version}'
+                    new_slug = f"{slug}@{version}"
                     self.workflow.path
                     problem = self.fixer.edit_yaml_at_position(
                         action.uses_.pos.idx,
                         len(slug),
                         new_slug,
                         problem,
-                        f"Fixed '{slug}' to include version to '{new_slug}'"
+                        f"Fixed '{slug}' to include version to '{new_slug}'",
                     )
-                    action.uses_.string = f'{slug}@{version}'
+                    action.uses_.string = f"{slug}@{version}"
             yield problem
 
-    def get_inputs(
-        self,
-        action: ExecAction
-    ) -> Union[Tuple[List[str], List[str]], Problem]:
+    def get_inputs(self, action: ExecAction) -> Union[Tuple[List[str], List[str]], Problem]:
         """
         Fetches metadata for an action and extracts its required and possible
         inputs.
@@ -142,21 +124,16 @@ class JobsStepsUses(Rule):
                     f"Couldn't fetch metadata for {action.uses_.string}. "
                     "Continuing validation without"
                 ),
-                self.NAME
+                self.NAME,
             )
 
-        inputs = action_metadata['inputs']
+        inputs = action_metadata["inputs"]
         possible_inputs = list(inputs.keys())
-        required_inputs = [
-            key for key, value in inputs.items()
-            if value.get('required') is True
-        ]
+        required_inputs = [key for key, value in inputs.items() if value.get("required") is True]
         return required_inputs, possible_inputs
 
     def misses_required_input(
-        self,
-        action: ExecAction,
-        required_inputs: list
+        self, action: ExecAction, required_inputs: list
     ) -> Generator[Problem, None, None]:
         """
         Checks if an action is missing any required inputs.
@@ -168,15 +145,12 @@ class JobsStepsUses(Rule):
         Yields:
             Problem: Error if required inputs are missing.
         """
-        prettyprint_required_inputs = ', '.join(required_inputs)
+        prettyprint_required_inputs = ", ".join(required_inputs)
         yield Problem(
             action.pos,
             ProblemLevel.ERR,
-            (
-                f'{action.uses_.string} requires inputs: '
-                f'{prettyprint_required_inputs}'
-            ),
-            self.NAME
+            (f"{action.uses_.string} requires inputs: " f"{prettyprint_required_inputs}"),
+            self.NAME,
         )
 
     def check_required_inputs(self, action, required_inputs):
@@ -195,14 +169,10 @@ class JobsStepsUses(Rule):
 
         for input in required_inputs:
             if input not in action.with_:
-                yield from self.misses_required_input(
-                    action, required_inputs
-                )
+                yield from self.misses_required_input(action, required_inputs)
 
     def uses_non_defined_input(
-        self,
-        action: ExecAction,
-        possible_inputs: List[str]
+        self, action: ExecAction, possible_inputs: List[str]
     ) -> Generator[Problem, None, None]:
         """
         Checks if an action uses inputs that are not defined in its metadata.
@@ -222,6 +192,6 @@ class JobsStepsUses(Rule):
                 yield Problem(
                     action.pos,
                     ProblemLevel.ERR,
-                    f'{action.uses_.string} uses unknown input: {input.string}',
-                    self.NAME
+                    f"{action.uses_.string} uses unknown input: {input.string}",
+                    self.NAME,
                 )

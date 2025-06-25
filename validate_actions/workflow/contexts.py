@@ -194,18 +194,18 @@ class InputsContext:
 
 
 functions_ = {
-    'contains()': ContextType.boolean,
-    'startsWith()': ContextType.boolean,
-    'endsWith()': ContextType.boolean,
-    'format()': ContextType.string,
-    'join()': ContextType.string,
-    'toJSON()': ContextType.string,
-    'fromJSON()': ContextType.object,
-    'hashFiles()': ContextType.string,
-    'success()': ContextType.boolean,
-    'always()': ContextType.boolean,
-    'cancelled()': ContextType.boolean,
-    'failure()': ContextType.boolean,
+    "contains()": ContextType.boolean,
+    "startsWith()": ContextType.boolean,
+    "endsWith()": ContextType.boolean,
+    "format()": ContextType.string,
+    "join()": ContextType.string,
+    "toJSON()": ContextType.string,
+    "fromJSON()": ContextType.object,
+    "hashFiles()": ContextType.string,
+    "success()": ContextType.boolean,
+    "always()": ContextType.boolean,
+    "cancelled()": ContextType.boolean,
+    "failure()": ContextType.boolean,
 }
 
 

@@ -10,7 +10,7 @@ from validate_actions.workflow.contexts import Contexts
 
 
 class ExpressionsContexts(Rule):
-    NAME = 'expressions-contexts'
+    NAME = "expressions-contexts"
 
     def check(
         self,
@@ -37,10 +37,10 @@ class ExpressionsContexts(Rule):
         if is_dataclass(obj):
             # switch to local context if available
             new_context = cur_context
-            if hasattr(obj, 'contexts') and isinstance(getattr(obj, 'contexts'), Contexts):
-                new_context = getattr(obj, 'contexts')
+            if hasattr(obj, "contexts") and isinstance(getattr(obj, "contexts"), Contexts):
+                new_context = getattr(obj, "contexts")
             for f in fields(obj):
-                if f.name == 'contexts':
+                if f.name == "contexts":
                     # do not traverse into context definitions
                     continue
                 try:
@@ -59,9 +59,7 @@ class ExpressionsContexts(Rule):
                 yield from self._traverse(item, cur_context)
             return
 
-    def does_expr_exist(
-        self, expr: Expression, contexts: Contexts
-    ) -> Optional[Problem]:
+    def does_expr_exist(self, expr: Expression, contexts: Contexts) -> Optional[Problem]:
         # Iteratively check each part of the expression against the context tree
         cur = contexts
         parts = expr.parts or []
@@ -71,12 +69,12 @@ class ExpressionsContexts(Rule):
             level=ProblemLevel.ERR,
             rule=self.NAME,
         )
-        operators = ['!', '<=', '<', '>=', '>', '==', '!=', '&&', '||']
+        operators = ["!", "<=", "<", ">=", ">", "==", "!=", "&&", "||"]
 
         if any(op in expr.string for op in operators):  # TODO
             return None
 
-        web_contexts_not_to_check = ['vars', 'secrets', 'inputs', 'needs', 'steps']
+        web_contexts_not_to_check = ["vars", "secrets", "inputs", "needs", "steps"]
         # TODO unshelf needs and steps
         if not parts:
             return problem
@@ -86,10 +84,10 @@ class ExpressionsContexts(Rule):
                 break
             if hasattr(cur, part.string):
                 cur = getattr(cur, part.string)
-            elif hasattr(cur, 'children_') and part.string in getattr(cur, 'children_'):
+            elif hasattr(cur, "children_") and part.string in getattr(cur, "children_"):
                 cur = cur.children_[part.string]
-            elif hasattr(cur, 'functions_') and part.string in getattr(cur, 'functions_'):
-                cur = getattr(cur, 'functions_')[part.string]
+            elif hasattr(cur, "functions_") and part.string in getattr(cur, "functions_"):
+                cur = getattr(cur, "functions_")[part.string]
             elif isinstance(cur, list) and part.string in cur:
                 index = cur.index(part.string)
                 cur = cur[index]
@@ -103,9 +101,9 @@ class ExpressionsContexts(Rule):
                         others = cur
                     else:
                         field_names = [f.name for f in fields(cur)]
-                        if hasattr(cur, 'children_'):
+                        if hasattr(cur, "children_"):
                             others = cur.children_.keys()
-                        elif hasattr(cur, 'functions_'):
+                        elif hasattr(cur, "functions_"):
                             others = list(cur.functions_.keys())
 
                         for key in field_names:

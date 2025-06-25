@@ -8,7 +8,7 @@ from validate_actions.workflow.contexts import Contexts
 
 
 class StepsIOMatch(Rule):
-    NAME = 'steps-io-match'
+    NAME = "steps-io-match"
 
     def check(self) -> Generator[Problem, None, None]:
         jobs: Dict[ast.String, ast.Job] = self.workflow.jobs_
@@ -41,11 +41,11 @@ class StepsIOMatch(Rule):
 
             for expr in input.expr:
                 section = expr.parts[0]
-                if section == 'steps':
+                if section == "steps":
                     if len(expr.parts) < 3:
                         yield Problem(
                             rule=self.NAME,
-                            desc=f'error in step expression {expr.string}',
+                            desc=f"error in step expression {expr.string}",
                             level=ProblemLevel.ERR,
                             pos=input.pos,
                         )
@@ -64,9 +64,7 @@ class StepsIOMatch(Rule):
                 return
         yield Problem(
             rule=self.NAME,
-            desc=(
-                f"Step '{referenced_step_id.string}' in job '{job.job_id_}' does not exist"
-            ),
+            desc=(f"Step '{referenced_step_id.string}' in job '{job.job_id_}' does not exist"),
             pos=ref.pos,
             level=ProblemLevel.ERR,
         )

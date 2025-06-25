@@ -11,25 +11,13 @@ from validate_actions.validator import Validator
 
 class CLI:
     STYLE = {
-        ProblemLevel.NON: {
-            'color_bold': '\033[1;92m',
-            'color': '\033[92m',
-            'sign': '✓'
-        },
-        ProblemLevel.ERR: {
-            'color_bold': '\033[1;31m',
-            'color': '\033[31m',
-            'sign': '✗'
-        },
-        ProblemLevel.WAR: {
-            'color_bold': '\033[1;33m',
-            'color': '\033[33m',
-            'sign': '⚠'
-        }
+        ProblemLevel.NON: {"color_bold": "\033[1;92m", "color": "\033[92m", "sign": "✓"},
+        ProblemLevel.ERR: {"color_bold": "\033[1;31m", "color": "\033[31m", "sign": "✗"},
+        ProblemLevel.WAR: {"color_bold": "\033[1;33m", "color": "\033[33m", "sign": "⚠"},
     }
     DEF_STYLE = {
-        'format_end': '\033[0m',
-        'neutral': '\033[2m',
+        "format_end": "\033[0m",
+        "neutral": "\033[2m",
     }
 
     def start(self, fix: bool) -> None:
@@ -37,14 +25,14 @@ class CLI:
         if not project_root:
             print(
                 f'{self.DEF_STYLE["neutral"]}Could not find workflows directory. '
-                f'Please run this script from the root of your project.'
+                f"Please run this script from the root of your project."
                 f'{self.DEF_STYLE["format_end"]}'
             )
             raise typer.Exit(1)
-        directory = project_root / '.github/workflows'
+        directory = project_root / ".github/workflows"
         self.run_directory(directory, fix)
 
-    def find_workflows(self, marker='.github'):
+    def find_workflows(self, marker=".github"):
         start_dir = Path.cwd()
         for directory in [start_dir] + list(start_dir.parents)[:2]:
             if (directory / marker).is_dir():
@@ -57,14 +45,14 @@ class CLI:
         total_warnings = 0
 
         prob_level: ProblemLevel
-        files = list(directory.glob('*.yml')) + list(directory.glob('*.yaml'))
+        files = list(directory.glob("*.yml")) + list(directory.glob("*.yaml"))
         for file in files:
             with Progress(
                 SpinnerColumn(),
                 TextColumn("[progress.description]{task.description}"),
-                transient=True
+                transient=True,
             ) as progress:
-                progress.add_task(description=f'Validating {file.name}...', total=None)
+                progress.add_task(description=f"Validating {file.name}...", total=None)
                 prob_level, n_errors, n_warnings = self.run(file, fix)
             max_level = ProblemLevel(max(max_level.value, prob_level.value))
             total_errors += n_errors
@@ -95,7 +83,7 @@ class CLI:
 
     def show_problems(self, problems: Problems, file: Path) -> None:
         print()
-        print(f'\033[4m{file}\033[0m')
+        print(f"\033[4m{file}\033[0m")
 
         for problem in problems.problems:
             print(self.standard_color(problem, file))
@@ -103,7 +91,7 @@ class CLI:
         if problems.max_level == ProblemLevel.NON:
             print(
                 f'  {self.DEF_STYLE["neutral"]}{self.STYLE[ProblemLevel.NON]["sign"]} All checks '
-                f'passed\033[0m'
+                f"passed\033[0m"
             )
 
     def standard_color(self, problem: Problem, filename: Path) -> str:
@@ -111,25 +99,23 @@ class CLI:
             f'  {self.DEF_STYLE["neutral"]}{problem.pos.line + 1}:{problem.pos.col + 1}'
             f'{self.DEF_STYLE["format_end"]}'
         )
-        line += max(20 - len(line), 0) * ' '
+        line += max(20 - len(line), 0) * " "
         war = ProblemLevel.WAR
         err = ProblemLevel.ERR
         non = ProblemLevel.NON
         if problem.level == war:
-            level_str = 'warning'
+            level_str = "warning"
             line += f'{self.STYLE[war]["color"]}{level_str}{self.DEF_STYLE["format_end"]}'
         elif problem.level == err:
-            level_str = 'error'
+            level_str = "error"
             line += f'{self.STYLE[err]["color"]}{level_str}{self.DEF_STYLE["format_end"]}'
         elif problem.level == non:
-            level_str = 'fixed'
+            level_str = "fixed"
             line += f'{self.STYLE[non]["color"]}{level_str}{self.DEF_STYLE["format_end"]}'
-        line += max(38 - len(line), 0) * ' '
+        line += max(38 - len(line), 0) * " "
         line += problem.desc
         if problem.rule:
-            line += (
-                f'  {self.DEF_STYLE["neutral"]}({problem.rule}){self.DEF_STYLE["format_end"]}'
-            )
+            line += f'  {self.DEF_STYLE["neutral"]}({problem.rule}){self.DEF_STYLE["format_end"]}'
         return line
 
     def show_end_msg(self, max_level: ProblemLevel, n_error: int, n_warning: int) -> None:

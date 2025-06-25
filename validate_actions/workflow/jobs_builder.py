@@ -21,10 +21,7 @@ from validate_actions.workflow.steps_builder import StepsBuilder
 
 class JobsBuilder(ABC):
     @abstractmethod
-    def build(
-        self,
-        jobs_dict: Dict[ast.String, Any]
-    ) -> Dict[ast.String, ast.Job]:
+    def build(self, jobs_dict: Dict[ast.String, Any]) -> Dict[ast.String, ast.Job]:
         """
         Build events from the input data.
         """
@@ -37,18 +34,15 @@ class BaseJobsBuilder(JobsBuilder):
         problems: Problems,
         schema: Dict[str, Any],
         steps_builder: StepsBuilder,
-        contexts: Contexts
+        contexts: Contexts,
     ) -> None:
         self.problems = problems
-        self.RULE_NAME = 'jobs-syntax-error'
+        self.RULE_NAME = "jobs-syntax-error"
         self.schema = schema
         self.contexts = contexts
         self.steps_builder = steps_builder
 
-    def build(
-        self,
-        jobs_dict: Dict[ast.String, Any]
-    ) -> Dict[ast.String, ast.Job]:
+    def build(self, jobs_dict: Dict[ast.String, Any]) -> Dict[ast.String, ast.Job]:
         jobs = {}
         jobs_context = JobsContext()
         for job_id, job_dict in jobs_dict.items():
@@ -59,10 +53,7 @@ class BaseJobsBuilder(JobsBuilder):
         return jobs
 
     def __build_job(
-        self,
-        job_dict: Dict[ast.String, Any],
-        job_id: ast.String,
-        job_jobs_context: JobVarContext
+        self, job_dict: Dict[ast.String, Any], job_id: ast.String, job_jobs_context: JobVarContext
     ) -> ast.Job:
         pos = Pos(
             line=job_id.pos.line,
@@ -96,83 +87,89 @@ class BaseJobsBuilder(JobsBuilder):
 
         for key in job_dict:
             match key.string:
-                case 'name':
+                case "name":
                     name_ = job_dict[key]
-                case 'permissions':
+                case "permissions":
                     permissions_ = helper.build_permissions(
                         job_dict[key], self.problems, self.RULE_NAME
                     )
-                case 'needs':
+                case "needs":
                     pass
-                case 'if':
+                case "if":
                     pass
-                case 'runs-on':
+                case "runs-on":
                     runs_on_ = self._build_runs_on(
                         key, job_dict[key], self.problems, self.RULE_NAME
                     )
-                case 'environment':
+                case "environment":
                     environment_ = self._build_environment(
                         key, job_dict[key], self.problems, self.RULE_NAME
                     )
-                case 'concurrency':
+                case "concurrency":
                     concurrency_ = helper.build_concurrency(
                         key, job_dict[key], self.problems, self.RULE_NAME
                     )
-                case 'outputs':
+                case "outputs":
                     self._build_jobs_context_output(key, job_dict, job_jobs_context)
-                case 'env':
+                case "env":
                     local_contexts.env = copy.deepcopy(local_contexts.env)
                     env_ = helper.build_env(
                         job_dict[key], local_contexts, self.problems, self.RULE_NAME
                     )
-                case 'defaults':
+                case "defaults":
                     defaults_ = helper.build_defaults(job_dict[key], self.problems, self.RULE_NAME)
-                case 'steps':
+                case "steps":
                     steps_ = self.steps_builder.build(job_dict[key], local_contexts)
-                case 'timeout-minutes':
+                case "timeout-minutes":
                     timeout_minutes_ = job_dict[key]
-                case 'strategy':
+                case "strategy":
                     strategy_ = self._build_strategy(key, job_dict, local_contexts)
-                case 'container':
+                case "container":
                     container_ = self._build_container(
                         key, job_dict[key], local_contexts, self.problems, self.RULE_NAME
                     )
-                case 'services':
+                case "services":
                     self._build_job_context_services(job_dict[key], job_context)
-                case 'uses':
+                case "uses":
                     value = job_dict[key]
                     if isinstance(value, ast.String):
                         uses_ = value
                     else:
-                        self.problems.append(Problem(
-                            pos=key.pos,
-                            desc="Invalid 'uses' value, it must be a string.",
-                            level=ProblemLevel.ERR,
-                            rule=self.RULE_NAME
-                        ))
-                case 'with':
+                        self.problems.append(
+                            Problem(
+                                pos=key.pos,
+                                desc="Invalid 'uses' value, it must be a string.",
+                                level=ProblemLevel.ERR,
+                                rule=self.RULE_NAME,
+                            )
+                        )
+                case "with":
                     value = job_dict[key]
                     if isinstance(value, dict):
                         for with_key, with_value in value.items():
                             with_[with_key] = with_value
                     else:
-                        self.problems.append(Problem(
-                            pos=key.pos,
-                            desc="Invalid 'with' value: must be a mapping.",
-                            level=ProblemLevel.ERR,
-                            rule=self.RULE_NAME
-                        ))
-                case 'secrets':
+                        self.problems.append(
+                            Problem(
+                                pos=key.pos,
+                                desc="Invalid 'with' value: must be a mapping.",
+                                level=ProblemLevel.ERR,
+                                rule=self.RULE_NAME,
+                            )
+                        )
+                case "secrets":
                     secrets_ = self._build_secrets(
                         key, job_dict[key], self.problems, self.RULE_NAME
                     )
                 case _:
-                    self.problems.append(Problem(
-                        pos=key.pos,
-                        desc=f"Unknown job key: {key.string}",
-                        level=ProblemLevel.ERR,
-                        rule=self.RULE_NAME
-                    ))
+                    self.problems.append(
+                        Problem(
+                            pos=key.pos,
+                            desc=f"Unknown job key: {key.string}",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME,
+                        )
+                    )
 
         return ast.Job(
             pos=pos,
@@ -195,7 +192,7 @@ class BaseJobsBuilder(JobsBuilder):
             services_=services_,
             uses_=uses_,
             with_=with_,
-            secrets_=secrets_
+            secrets_=secrets_,
         )
 
     def _build_container(
@@ -204,18 +201,20 @@ class BaseJobsBuilder(JobsBuilder):
         container_data: Any,
         local_contexts: Contexts,
         problems: Problems,
-        rule_name: str
+        rule_name: str,
     ) -> Optional[ast.Container]:
         if isinstance(container_data, ast.String):
             return ast.Container(pos=container_data.pos, image_=container_data)
 
         if not isinstance(container_data, dict):
-            problems.append(Problem(
-                pos=container_key.pos,
-                desc="Container must be a string or a mapping.",
-                level=ProblemLevel.ERR,
-                rule=rule_name
-            ))
+            problems.append(
+                Problem(
+                    pos=container_key.pos,
+                    desc="Container must be a string or a mapping.",
+                    level=ProblemLevel.ERR,
+                    rule=rule_name,
+                )
+            )
             return None
 
         image_ = None
@@ -227,67 +226,79 @@ class BaseJobsBuilder(JobsBuilder):
 
         for key, value in container_data.items():
             match key.string:
-                case 'image':
+                case "image":
                     if isinstance(value, ast.String):
                         image_ = value
                     else:
-                        problems.append(Problem(
-                            pos=key.pos,
-                            desc="Container image must be a string.",
-                            level=ProblemLevel.ERR,
-                            rule=rule_name
-                        ))
-                case 'credentials':
+                        problems.append(
+                            Problem(
+                                pos=key.pos,
+                                desc="Container image must be a string.",
+                                level=ProblemLevel.ERR,
+                                rule=rule_name,
+                            )
+                        )
+                case "credentials":
                     credentials_ = self._build_container_credentials(
                         key, value, problems, rule_name
                     )
-                case 'env':
+                case "env":
                     env_ = helper.build_env(value, local_contexts, problems, rule_name)
-                case 'ports':
+                case "ports":
                     if isinstance(value, list) and all(isinstance(i, ast.String) for i in value):
                         ports_ = value
                     else:
-                        problems.append(Problem(
-                            pos=key.pos,
-                            desc="Container ports must be a list of strings.",
-                            level=ProblemLevel.ERR,
-                            rule=rule_name
-                        ))
-                case 'volumes':
+                        problems.append(
+                            Problem(
+                                pos=key.pos,
+                                desc="Container ports must be a list of strings.",
+                                level=ProblemLevel.ERR,
+                                rule=rule_name,
+                            )
+                        )
+                case "volumes":
                     if isinstance(value, list) and all(isinstance(i, ast.String) for i in value):
                         volumes_ = value
                     else:
-                        problems.append(Problem(
-                            pos=key.pos,
-                            desc="Container volumes must be a list of strings.",
-                            level=ProblemLevel.ERR,
-                            rule=rule_name
-                        ))
-                case 'options':
+                        problems.append(
+                            Problem(
+                                pos=key.pos,
+                                desc="Container volumes must be a list of strings.",
+                                level=ProblemLevel.ERR,
+                                rule=rule_name,
+                            )
+                        )
+                case "options":
                     if isinstance(value, ast.String):
                         options_ = value
                     else:
-                        problems.append(Problem(
-                            pos=key.pos,
-                            desc="Container options must be a string.",
-                            level=ProblemLevel.ERR,
-                            rule=rule_name
-                        ))
+                        problems.append(
+                            Problem(
+                                pos=key.pos,
+                                desc="Container options must be a string.",
+                                level=ProblemLevel.ERR,
+                                rule=rule_name,
+                            )
+                        )
                 case _:
-                    problems.append(Problem(
-                        pos=key.pos,
-                        desc=f"Unknown container key: {key.string}",
-                        level=ProblemLevel.ERR,
-                        rule=rule_name
-                    ))
+                    problems.append(
+                        Problem(
+                            pos=key.pos,
+                            desc=f"Unknown container key: {key.string}",
+                            level=ProblemLevel.ERR,
+                            rule=rule_name,
+                        )
+                    )
 
         if image_ is None:
-            problems.append(Problem(
-                pos=container_key.pos,
-                desc="Container must have an 'image' property.",
-                level=ProblemLevel.ERR,
-                rule=rule_name
-            ))
+            problems.append(
+                Problem(
+                    pos=container_key.pos,
+                    desc="Container must have an 'image' property.",
+                    level=ProblemLevel.ERR,
+                    rule=rule_name,
+                )
+            )
             return None
 
         return ast.Container(
@@ -297,7 +308,7 @@ class BaseJobsBuilder(JobsBuilder):
             env_=env_,
             ports_=ports_,
             volumes_=volumes_,
-            options_=options_
+            options_=options_,
         )
 
     def _build_container_credentials(
@@ -305,15 +316,17 @@ class BaseJobsBuilder(JobsBuilder):
         credentials_key: ast.String,
         credentials_data: Any,
         problems: Problems,
-        rule_name: str
+        rule_name: str,
     ) -> Optional[ast.ContainerCredentials]:
         if not isinstance(credentials_data, dict):
-            problems.append(Problem(
-                pos=credentials_key.pos,
-                desc="Container credentials must be a mapping.",
-                level=ProblemLevel.ERR,
-                rule=rule_name
-            ))
+            problems.append(
+                Problem(
+                    pos=credentials_key.pos,
+                    desc="Container credentials must be a mapping.",
+                    level=ProblemLevel.ERR,
+                    rule=rule_name,
+                )
+            )
             return None
 
         username_ = None
@@ -321,55 +334,57 @@ class BaseJobsBuilder(JobsBuilder):
 
         for key, value in credentials_data.items():
             match key.string:
-                case 'username':
+                case "username":
                     if isinstance(value, ast.String):
                         username_ = value
                     else:
-                        problems.append(Problem(
-                            pos=key.pos,
-                            desc="Credentials username must be a string.",
-                            level=ProblemLevel.ERR,
-                            rule=rule_name
-                        ))
-                case 'password':
+                        problems.append(
+                            Problem(
+                                pos=key.pos,
+                                desc="Credentials username must be a string.",
+                                level=ProblemLevel.ERR,
+                                rule=rule_name,
+                            )
+                        )
+                case "password":
                     if isinstance(value, ast.String):
                         password_ = value
                     else:
-                        problems.append(Problem(
-                            pos=key.pos,
-                            desc="Credentials password must be a string.",
-                            level=ProblemLevel.ERR,
-                            rule=rule_name
-                        ))
+                        problems.append(
+                            Problem(
+                                pos=key.pos,
+                                desc="Credentials password must be a string.",
+                                level=ProblemLevel.ERR,
+                                rule=rule_name,
+                            )
+                        )
                 case _:
-                    problems.append(Problem(
-                        pos=key.pos,
-                        desc=f"Unknown credentials key: {key.string}",
-                        level=ProblemLevel.ERR,
-                        rule=rule_name
-                    ))
+                    problems.append(
+                        Problem(
+                            pos=key.pos,
+                            desc=f"Unknown credentials key: {key.string}",
+                            level=ProblemLevel.ERR,
+                            rule=rule_name,
+                        )
+                    )
 
         if username_ is None or password_ is None:
-            problems.append(Problem(
-                pos=credentials_key.pos,
-                desc="Container credentials must have 'username' and 'password'.",
-                level=ProblemLevel.ERR,
-                rule=rule_name
-            ))
+            problems.append(
+                Problem(
+                    pos=credentials_key.pos,
+                    desc="Container credentials must have 'username' and 'password'.",
+                    level=ProblemLevel.ERR,
+                    rule=rule_name,
+                )
+            )
             return None
 
         return ast.ContainerCredentials(
-            pos=credentials_key.pos,
-            username_=username_,
-            password_=password_
+            pos=credentials_key.pos, username_=username_, password_=password_
         )
 
     def _build_secrets(
-        self,
-        secrets_key: ast.String,
-        secrets_data: Any,
-        problems: Problems,
-        rule_name: str
+        self, secrets_key: ast.String, secrets_data: Any, problems: Problems, rule_name: str
     ) -> Optional[ast.Secrets]:
         if isinstance(secrets_data, ast.String) and secrets_data.string == "inherit":
             return ast.Secrets(pos=secrets_key.pos, inherit=True)
@@ -380,36 +395,39 @@ class BaseJobsBuilder(JobsBuilder):
                 if isinstance(value, ast.String):
                     secrets_map[key] = value
                 else:
-                    problems.append(Problem(
-                        pos=key.pos,
-                        desc="Each secret value must be a string.",
-                        level=ProblemLevel.ERR,
-                        rule=rule_name
-                    ))
+                    problems.append(
+                        Problem(
+                            pos=key.pos,
+                            desc="Each secret value must be a string.",
+                            level=ProblemLevel.ERR,
+                            rule=rule_name,
+                        )
+                    )
             return ast.Secrets(pos=secrets_key.pos, secrets=secrets_map)
 
-        problems.append(Problem(
-            pos=secrets_key.pos,
-            desc="Invalid 'secrets' value: must be a mapping or 'inherit'.",
-            level=ProblemLevel.ERR,
-            rule=rule_name
-        ))
+        problems.append(
+            Problem(
+                pos=secrets_key.pos,
+                desc="Invalid 'secrets' value: must be a mapping or 'inherit'.",
+                level=ProblemLevel.ERR,
+                rule=rule_name,
+            )
+        )
         return None
 
     def _build_strategy(
-        self,
-        key: ast.String,
-        job_dict: Dict[ast.String, Any],
-        local_contexts: Contexts
+        self, key: ast.String, job_dict: Dict[ast.String, Any], local_contexts: Contexts
     ) -> Optional[ast.Strategy]:
         strategy_data = job_dict[key]
         if not isinstance(strategy_data, dict):
-            self.problems.append(Problem(
-                pos=key.pos,
-                desc="Strategy must be a mapping",
-                level=ProblemLevel.ERR,
-                rule=self.RULE_NAME
-            ))
+            self.problems.append(
+                Problem(
+                    pos=key.pos,
+                    desc="Strategy must be a mapping",
+                    level=ProblemLevel.ERR,
+                    rule=self.RULE_NAME,
+                )
+            )
             return None
 
         combinations_ = None
@@ -417,45 +435,53 @@ class BaseJobsBuilder(JobsBuilder):
         max_parallel_ = None
 
         for strategy_key, strategy_value in strategy_data.items():
-            if strategy_key.string == 'matrix':
+            if strategy_key.string == "matrix":
                 if not isinstance(strategy_value, dict):
-                    self.problems.append(Problem(
-                        pos=strategy_key.pos,
-                        desc="Strategy matrix must be a mapping",
-                        level=ProblemLevel.ERR,
-                        rule=self.RULE_NAME
-                    ))
+                    self.problems.append(
+                        Problem(
+                            pos=strategy_key.pos,
+                            desc="Strategy matrix must be a mapping",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME,
+                        )
+                    )
                     continue
                 combinations_ = self._build_matrix_combinations(
                     strategy_key, strategy_value, local_contexts
-                    )
-            elif strategy_key.string == 'fail-fast':
+                )
+            elif strategy_key.string == "fail-fast":
                 if not isinstance(strategy_value, bool):
-                    self.problems.append(Problem(
-                        pos=strategy_key.pos,
-                        desc="Strategy fail-fast must be a boolean",
-                        level=ProblemLevel.ERR,
-                        rule=self.RULE_NAME
-                    ))
+                    self.problems.append(
+                        Problem(
+                            pos=strategy_key.pos,
+                            desc="Strategy fail-fast must be a boolean",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME,
+                        )
+                    )
                     continue
                 fail_fast_ = strategy_value
-            elif strategy_key.string == 'max-parallel':
+            elif strategy_key.string == "max-parallel":
                 if not isinstance(strategy_value, int):
-                    self.problems.append(Problem(
-                        pos=strategy_key.pos,
-                        desc="Strategy max-parallel must be an integer",
-                        level=ProblemLevel.ERR,
-                        rule=self.RULE_NAME
-                    ))
+                    self.problems.append(
+                        Problem(
+                            pos=strategy_key.pos,
+                            desc="Strategy max-parallel must be an integer",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME,
+                        )
+                    )
                     continue
                 max_parallel_ = strategy_value
             else:
-                self.problems.append(Problem(
-                    pos=strategy_key.pos,
-                    desc=f"Unknown strategy key: {strategy_key.string}",
-                    level=ProblemLevel.ERR,
-                    rule=self.RULE_NAME
-                ))
+                self.problems.append(
+                    Problem(
+                        pos=strategy_key.pos,
+                        desc=f"Unknown strategy key: {strategy_key.string}",
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE_NAME,
+                    )
+                )
 
         if combinations_ is None:
             # If matrix is not defined, but strategy key is present,
@@ -464,12 +490,14 @@ class BaseJobsBuilder(JobsBuilder):
             # For now, let's allow strategy without matrix if other keys are present.
             # If only 'strategy:' is present with no sub-keys, it's an error.
             if not fail_fast_ and not max_parallel_ and not strategy_data.items():
-                self.problems.append(Problem(
-                    pos=key.pos,
-                    desc="Strategy block is empty or invalid.",
-                    level=ProblemLevel.ERR,
-                    rule=self.RULE_NAME
-                ))
+                self.problems.append(
+                    Problem(
+                        pos=key.pos,
+                        desc="Strategy block is empty or invalid.",
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE_NAME,
+                    )
+                )
                 return None
             combinations_ = []  # Default to empty list if no matrix defined
 
@@ -478,36 +506,40 @@ class BaseJobsBuilder(JobsBuilder):
             pos=key.pos,
             combinations=combinations_,
             fail_fast_=fail_fast_,
-            max_parallel_=max_parallel_
+            max_parallel_=max_parallel_,
         )
 
     def _parse_matrix_item_list(
         self,
         parent_key: ast.String,  # Key of 'include' or 'exclude'
         items_data: List[Any],
-        item_type_str: str  # "include" or "exclude"
+        item_type_str: str,  # "include" or "exclude"
     ) -> List[Dict[ast.String, ast.String]]:
         parsed_items: List[Dict[ast.String, ast.String]] = []
         for item in items_data:
             if not isinstance(item, dict):
-                self.problems.append(Problem(
-                    pos=parent_key.pos,
-                    desc=f"Each item in matrix {item_type_str} must be a mapping.",
-                    level=ProblemLevel.ERR,
-                    rule=self.RULE_NAME
-                ))
+                self.problems.append(
+                    Problem(
+                        pos=parent_key.pos,
+                        desc=f"Each item in matrix {item_type_str} must be a mapping.",
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE_NAME,
+                    )
+                )
                 continue
 
             current_item_map: Dict[ast.String, ast.String] = {}
             valid_item = True
             for k, v in item.items():
                 if not isinstance(k, ast.String):
-                    self.problems.append(Problem(
-                        pos=parent_key.pos,
-                        desc=f"Key in matrix {item_type_str} item must be a string.",
-                        level=ProblemLevel.ERR,
-                        rule=self.RULE_NAME
-                    ))
+                    self.problems.append(
+                        Problem(
+                            pos=parent_key.pos,
+                            desc=f"Key in matrix {item_type_str} item must be a string.",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME,
+                        )
+                    )
                     valid_item = False
                     break
 
@@ -520,15 +552,17 @@ class BaseJobsBuilder(JobsBuilder):
                     val_str = str(v)
                     val_pos = k.pos  # Best guess for pos if not ast.String
                 else:
-                    self.problems.append(Problem(
-                        pos=k.pos,
-                        desc=(
-                            f"Value for '{k.string}' in matrix {item_type_str} item must be a"
-                            f" scalar (string, number, boolean)."
-                        ),
-                        level=ProblemLevel.ERR,
-                        rule=self.RULE_NAME
-                    ))
+                    self.problems.append(
+                        Problem(
+                            pos=k.pos,
+                            desc=(
+                                f"Value for '{k.string}' in matrix {item_type_str} item must be a"
+                                f" scalar (string, number, boolean)."
+                            ),
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME,
+                        )
+                    )
                     valid_item = False
                     break
                 current_item_map[k] = ast.String(val_str, val_pos)
@@ -538,10 +572,7 @@ class BaseJobsBuilder(JobsBuilder):
         return parsed_items
 
     def _build_matrix_combinations(
-        self,
-        matrix_key: ast.String,
-        matrix_data: Dict[ast.String, Any],
-        local_contexts: Contexts
+        self, matrix_key: ast.String, matrix_data: Dict[ast.String, Any], local_contexts: Contexts
     ) -> List[Dict[ast.String, ast.String]]:
         matrix_combinations: List[Dict[ast.String, ast.String]] = []
         include_items: List[Dict[ast.String, ast.String]] = []
@@ -549,35 +580,41 @@ class BaseJobsBuilder(JobsBuilder):
         matrix_axes: Dict[ast.String, List[Any]] = {}
 
         for key, value in matrix_data.items():
-            if key.string == 'include':
+            if key.string == "include":
                 if not isinstance(value, list):
-                    self.problems.append(Problem(
-                        pos=key.pos,
-                        desc="Matrix include must be a list of mappings",
-                        level=ProblemLevel.ERR,
-                        rule=self.RULE_NAME
-                    ))
+                    self.problems.append(
+                        Problem(
+                            pos=key.pos,
+                            desc="Matrix include must be a list of mappings",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME,
+                        )
+                    )
                     continue
                 include_items = self._parse_matrix_item_list(key, value, "include")
-            elif key.string == 'exclude':
+            elif key.string == "exclude":
                 if not isinstance(value, list):
-                    self.problems.append(Problem(
-                        pos=key.pos,
-                        desc="Matrix exclude must be a list of mappings",
-                        level=ProblemLevel.ERR,
-                        rule=self.RULE_NAME
-                    ))
+                    self.problems.append(
+                        Problem(
+                            pos=key.pos,
+                            desc="Matrix exclude must be a list of mappings",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME,
+                        )
+                    )
                     continue
                 exclude_items = self._parse_matrix_item_list(key, value, "exclude")
             else:
                 # This is a matrix axis
                 if not isinstance(value, list):
-                    self.problems.append(Problem(
-                        pos=key.pos,
-                        desc=f"Matrix axis '{key.string}' must be a list",
-                        level=ProblemLevel.ERR,
-                        rule=self.RULE_NAME
-                    ))
+                    self.problems.append(
+                        Problem(
+                            pos=key.pos,
+                            desc=f"Matrix axis '{key.string}' must be a list",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME,
+                        )
+                    )
                     continue
                 matrix_axes[key] = value
 
@@ -604,12 +641,17 @@ class BaseJobsBuilder(JobsBuilder):
                     else:
                         # This case should ideally be caught by earlier validation if axis values
                         # are restricted
-                        self.problems.append(Problem(
-                            pos=axis_name_key.pos,
-                            desc=f"Unsupported value type in matrix axis '{axis_name_key.string}'",
-                            level=ProblemLevel.ERR,
-                            rule=self.RULE_NAME
-                        ))
+                        self.problems.append(
+                            Problem(
+                                pos=axis_name_key.pos,
+                                desc=(
+                                    f"Unsupported value type in matrix axis "
+                                    f"'{axis_name_key.string}'"
+                                ),
+                                level=ProblemLevel.ERR,
+                                rule=self.RULE_NAME,
+                            )
+                        )
                         valid_combo = False
                         break
                     current_combo[axis_name_key] = ast.String(val_str, val_pos)
@@ -688,12 +730,17 @@ class BaseJobsBuilder(JobsBuilder):
             matrix_combinations = final_combinations
 
         if not matrix_combinations and (matrix_axes or include_items):
-            self.problems.append(Problem(
-                pos=matrix_key.pos,
-                desc="Matrix definition resulted in no job combinations after include/exclude.",
-                level=ProblemLevel.WAR,
-                rule=self.RULE_NAME
-            ))
+            self.problems.append(
+                Problem(
+                    pos=matrix_key.pos,
+                    desc=(
+                        "Matrix definition resulted in no job combinations "
+                        "after include/exclude."
+                    ),
+                    level=ProblemLevel.WAR,
+                    rule=self.RULE_NAME,
+                )
+            )
 
         # Update matrix context
         if local_contexts.matrix is None:
@@ -711,10 +758,7 @@ class BaseJobsBuilder(JobsBuilder):
         return matrix_combinations
 
     def _build_jobs_context_output(
-        self,
-        key: ast.String,
-        job_dict: Dict[ast.String, Any],
-        job_jobs_context: JobVarContext
+        self, key: ast.String, job_dict: Dict[ast.String, Any], job_jobs_context: JobVarContext
     ) -> None:
         """Generate output content for jobs context.
 
@@ -727,12 +771,14 @@ class BaseJobsBuilder(JobsBuilder):
 
         # check that output is mapping, should always be
         if not isinstance(outputs, dict):
-            self.problems.append(Problem(
-                pos=key.pos,
-                desc="Outputs must be a mapping",
-                level=ProblemLevel.ERR,
-                rule=self.RULE_NAME
-            ))
+            self.problems.append(
+                Problem(
+                    pos=key.pos,
+                    desc="Outputs must be a mapping",
+                    level=ProblemLevel.ERR,
+                    rule=self.RULE_NAME,
+                )
+            )
             return
 
         outputs_context = job_jobs_context.outputs.children_
@@ -740,28 +786,28 @@ class BaseJobsBuilder(JobsBuilder):
         for output_name in outputs:
             # check that output name is string, should always be
             if not isinstance(output_name, ast.String):
-                self.problems.append(Problem(
-                    pos=key.pos,
-                    desc="Output name must be a string",
-                    level=ProblemLevel.ERR,
-                    rule=self.RULE_NAME
-                ))
+                self.problems.append(
+                    Problem(
+                        pos=key.pos,
+                        desc="Output name must be a string",
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE_NAME,
+                    )
+                )
                 continue
 
             # add output_name to job context
             outputs_context[output_name.string] = ContextType.string
 
     def _build_job_context_services(
-        self,
-        services_in: Dict[ast.String, Dict[ast.String, Any]],
-        job_context: JobContext
+        self, services_in: Dict[ast.String, Dict[ast.String, Any]], job_context: JobContext
     ) -> None:
-        all_service_props = ['image', 'credentials', 'env', 'ports', 'volumes', 'options']
+        all_service_props = ["image", "credentials", "env", "ports", "volumes", "options"]
         for service_name, service_props in services_in.items():
             service_context = contexts.ServiceContext()
 
             for prop_name in service_props:
-                if prop_name.string == 'ports':
+                if prop_name.string == "ports":
                     port_mapping_list = service_props[prop_name]
                     for port_mapping in port_mapping_list:
                         port_str = port_mapping.string
@@ -774,29 +820,24 @@ class BaseJobsBuilder(JobsBuilder):
                         left_part = port_str.split(sep)[0] if sep else port_str
                         service_context.ports.append(left_part)
                 if prop_name.string not in all_service_props:
-                    self.problems.append(Problem(
-                        pos=service_name.pos,
-                        desc=f"Unknown property '{prop_name.string}' in services",
-                        level=ProblemLevel.ERR,
-                        rule=self.RULE_NAME
-                    ))
+                    self.problems.append(
+                        Problem(
+                            pos=service_name.pos,
+                            desc=f"Unknown property '{prop_name.string}' in services",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME,
+                        )
+                    )
 
             job_context.services.children_[service_name.string] = service_context
 
     def _build_runs_on(
-        self,
-        key: ast.String,
-        runs_on_value: Any,
-        problems: Problems,
-        rule_name: str
+        self, key: ast.String, runs_on_value: Any, problems: Problems, rule_name: str
     ) -> Optional[ast.RunsOn]:
         """Builds the 'runs-on' value for a job."""
         cur_pos = Pos(line=key.pos.line, col=key.pos.col)
         problem = Problem(
-            pos=cur_pos,
-            desc="Invalid 'runs-on' value",
-            level=ProblemLevel.ERR,
-            rule=rule_name
+            pos=cur_pos, desc="Invalid 'runs-on' value", level=ProblemLevel.ERR, rule=rule_name
         )
         labels: List[ast.String] = []
         group: List[ast.String] = []
@@ -842,9 +883,9 @@ class BaseJobsBuilder(JobsBuilder):
                     continue
 
                 role = category.string
-                if role == 'labels':
+                if role == "labels":
                     labels.extend(handle_category(role, items, category.pos))
-                elif role == 'group':
+                elif role == "group":
                     group.extend(handle_category(role, items, category.pos))
                 else:
                     unknown = copy.copy(problem)
@@ -855,59 +896,50 @@ class BaseJobsBuilder(JobsBuilder):
             problems.append(problem)
             return None
 
-        return ast.RunsOn(
-            pos=cur_pos,
-            labels=labels,
-            group=group
-        )
+        return ast.RunsOn(pos=cur_pos, labels=labels, group=group)
 
     def _build_environment(
-        self,
-        key: ast.String,
-        environment: Any,
-        problems: Problems,
-        rule_name: str
+        self, key: ast.String, environment: Any, problems: Problems, rule_name: str
     ) -> Optional[ast.Environment]:
         """Builds the 'environment' value for a job."""
         if isinstance(environment, ast.String):
-            return ast.Environment(
-                pos=key.pos,
-                name_=environment
-            )
+            return ast.Environment(pos=key.pos, name_=environment)
 
         if isinstance(environment, dict):
-            name = environment.get('name')
-            url = environment.get('url')
+            name = environment.get("name")
+            url = environment.get("url")
 
             if not isinstance(name, ast.String):
-                problems.append(Problem(
-                    pos=key.pos,
-                    desc=f"Invalid 'environment' 'name': '{name}'",
-                    level=ProblemLevel.ERR,
-                    rule=rule_name
-                ))
+                problems.append(
+                    Problem(
+                        pos=key.pos,
+                        desc=f"Invalid 'environment' 'name': '{name}'",
+                        level=ProblemLevel.ERR,
+                        rule=rule_name,
+                    )
+                )
                 return None
 
             if not isinstance(url, ast.String):
-                problems.append(Problem(
-                    pos=key.pos,
-                    desc=f"Invalid 'environment' 'url': '{url}'",
-                    level=ProblemLevel.ERR,
-                    rule=rule_name
-                ))
+                problems.append(
+                    Problem(
+                        pos=key.pos,
+                        desc=f"Invalid 'environment' 'url': '{url}'",
+                        level=ProblemLevel.ERR,
+                        rule=rule_name,
+                    )
+                )
                 return None
 
-            return ast.Environment(
-                pos=key.pos,
-                name_=name,
-                url_=url
-            )
+            return ast.Environment(pos=key.pos, name_=name, url_=url)
 
-        problems.append(Problem(
-            pos=key.pos,
-            desc=f"Invalid 'environment' value: '{environment}'",
-            level=ProblemLevel.ERR,
-            rule=rule_name
-        ))
+        problems.append(
+            Problem(
+                pos=key.pos,
+                desc=f"Invalid 'environment' value: '{environment}'",
+                level=ProblemLevel.ERR,
+                rule=rule_name,
+            )
+        )
 
         return None

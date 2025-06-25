@@ -55,7 +55,7 @@ class BaseDirector(Director):
             events_builder (EventsBuilder): Builder instance used to create
                 events from the parsed data.
         """
-        self.RULE_NAME = 'actions-syntax-error'
+        self.RULE_NAME = "actions-syntax-error"
         self.workflow_file = workflow_file
         self.parser = parser
         self.problems = problems
@@ -90,58 +90,61 @@ class BaseDirector(Director):
 
         for key in workflow_dict:
             match key.string:
-                case 'name':
+                case "name":
                     name_ = workflow_dict[key].string
-                case 'run-name':
+                case "run-name":
                     run_name_ = workflow_dict[key].string
-                case 'on':
-                    on_ = self.events_builder.build(
-                        workflow_dict[key]
-                        )
-                case 'permissions':
+                case "on":
+                    on_ = self.events_builder.build(workflow_dict[key])
+                case "permissions":
                     permissions_ = helper.build_permissions(
                         workflow_dict[key], self.problems, self.RULE_NAME
                     )
-                case 'env':
+                case "env":
                     env_ = helper.build_env(
                         workflow_dict[key], self.contexts, self.problems, self.RULE_NAME
                     )
-                case 'defaults':
+                case "defaults":
                     defaults_ = helper.build_defaults(
                         workflow_dict[key], self.problems, self.RULE_NAME
                     )
-                case 'concurrency':
+                case "concurrency":
                     concurrency_ = helper.build_concurrency(
                         key, workflow_dict[key], self.problems, self.RULE_NAME
                     )
-                case 'jobs':
-                    jobs_ = self.jobs_builder.build(
-                        workflow_dict[key]
-                    )
+                case "jobs":
+                    jobs_ = self.jobs_builder.build(workflow_dict[key])
                 case _:
-                    self.problems.append(Problem(
-                        pos=key.pos,
-                        desc=f"Unknown top-level workflow key: {key.string}",
-                        level=ProblemLevel.ERR,
-                        rule=self.RULE_NAME
-                    ))
+                    self.problems.append(
+                        Problem(
+                            pos=key.pos,
+                            desc=f"Unknown top-level workflow key: {key.string}",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME,
+                        )
+                    )
         if not on_ or not jobs_:
-            self.problems.append(Problem(
-                pos=Pos(0, 0),
-                desc="Workflow must have at least one 'on' event and one job.",
-                level=ProblemLevel.ERR,
-                rule=self.RULE_NAME
-            ))
+            self.problems.append(
+                Problem(
+                    pos=Pos(0, 0),
+                    desc="Workflow must have at least one 'on' event and one job.",
+                    level=ProblemLevel.ERR,
+                    rule=self.RULE_NAME,
+                )
+            )
 
-        return ast.Workflow(
-            path=self.workflow_file,
-            on_=on_,
-            jobs_=jobs_,
-            name_=name_,
-            run_name_=run_name_,
-            permissions_=permissions_,
-            env_=env_,
-            defaults_=defaults_,
-            concurrency_=concurrency_,
-            contexts=self.contexts,
-        ), self.problems
+        return (
+            ast.Workflow(
+                path=self.workflow_file,
+                on_=on_,
+                jobs_=jobs_,
+                name_=name_,
+                run_name_=run_name_,
+                permissions_=permissions_,
+                env_=env_,
+                defaults_=defaults_,
+                concurrency_=concurrency_,
+                contexts=self.contexts,
+            ),
+            self.problems,
+        )

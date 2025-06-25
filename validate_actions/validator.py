@@ -23,7 +23,7 @@ class Validator:
 
     @staticmethod
     def run(file: Path, fix: bool) -> Problems:
-        workflow_schema = helper.get_workflow_schema('github-workflow.json')
+        workflow_schema = helper.get_workflow_schema("github-workflow.json")
         problems: Problems = Problems()
         contexts = Contexts()
         parser = PyYAMLParser()
@@ -43,27 +43,11 @@ class Validator:
 
         fixer = BaseFixer(file)
 
-        jobs_steps_uses = rules.JobsStepsUses(
-            workflow=workflow,
-            fix=fix,
-            fixer=fixer
-        )
-        steps_io_match = rules.StepsIOMatch(
-            workflow=workflow,
-            fix=fix,
-            fixer=fixer
-        )
-        expressions_contexts = rules.ExpressionsContexts(
-            workflow=workflow,
-            fix=fix,
-            fixer=fixer
-        )
+        jobs_steps_uses = rules.JobsStepsUses(workflow=workflow, fix=fix, fixer=fixer)
+        steps_io_match = rules.StepsIOMatch(workflow=workflow, fix=fix, fixer=fixer)
+        expressions_contexts = rules.ExpressionsContexts(workflow=workflow, fix=fix, fixer=fixer)
 
-        cur_rules: List[Rule] = [
-            jobs_steps_uses,
-            steps_io_match,
-            expressions_contexts
-        ]
+        cur_rules: List[Rule] = [jobs_steps_uses, steps_io_match, expressions_contexts]
 
         for rule in cur_rules:
             list_of_problems = rule.check()

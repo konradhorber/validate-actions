@@ -18,6 +18,7 @@ class YAMLParser(ABC):
     Args:
         ABC: Abstract base class from the abc module.
     """
+
     @abstractmethod
     def parse(self, file: Path) -> Tuple[Dict[String, Any], Problems]:
         """Parse a YAML file into a structured representation.
@@ -41,10 +42,9 @@ class PyYAMLParser(YAMLParser):
     """
 
     def __init__(self) -> None:
-        """Initialize the PyYAMLParser.
-        """
+        """Initialize the PyYAMLParser."""
         self.problems: Problems = Problems()
-        self.RULE = 'actions_syntax-error'
+        self.RULE = "actions_syntax-error"
 
     def parse(self, file: Path) -> Tuple[Dict[String, Any], Problems]:
         """Parse a YAML file into a structured representation using PyYAML.
@@ -60,33 +60,37 @@ class PyYAMLParser(YAMLParser):
 
         # Read file from I/O
         try:
-            with open(file, 'r') as f:
+            with open(file, "r") as f:
                 buffer = f.read()
         except OSError as e:
             print(e, file=sys.stderr)
-            self.problems.append(Problem(
-                pos=Pos(0, 0),
-                desc=f"Error reading from file system for {file}",
-                level=ProblemLevel.ERR,
-                rule=self.RULE
-            ))
+            self.problems.append(
+                Problem(
+                    pos=Pos(0, 0),
+                    desc=f"Error reading from file system for {file}",
+                    level=ProblemLevel.ERR,
+                    rule=self.RULE,
+                )
+            )
             return {}, self.problems
 
         # Use PyYAML to parse the file as a flat list of tokens
         try:
             tokens = list(yaml.scan(buffer, Loader=yaml.SafeLoader))
         except yaml.error.MarkedYAMLError as e:
-            self.problems.append(Problem(
-                pos=Pos(0, 0),
-                desc=f"Error parsing YAML file: {e}",
-                level=ProblemLevel.ERR,
-                rule=self.RULE
-            ))
+            self.problems.append(
+                Problem(
+                    pos=Pos(0, 0),
+                    desc=f"Error parsing YAML file: {e}",
+                    level=ProblemLevel.ERR,
+                    rule=self.RULE,
+                )
+            )
             return {}, self.problems
 
         # Process the tokens to build a structured representation
         content: Dict[String, Any] = {}
-        error_desc = 'Error parsing top-level workflow structure'
+        error_desc = "Error parsing top-level workflow structure"
         i = 0
         while i < len(tokens):
             token = tokens[i]
@@ -99,33 +103,22 @@ class PyYAMLParser(YAMLParser):
             elif isinstance(token, yaml.BlockEntryToken):
                 pass
             else:
-                self.problems.append(Problem(
-                    pos=Pos(0, 0),
-                    desc=error_desc,
-                    level=ProblemLevel.ERR,
-                    rule=self.RULE
-                ))
+                self.problems.append(
+                    Problem(pos=Pos(0, 0), desc=error_desc, level=ProblemLevel.ERR, rule=self.RULE)
+                )
 
             i += 1
 
         # If we reach here, it means there's an unexpected error in the
         # workflow structure
-        self.problems.append(Problem(
-            pos=Pos(0, 0),
-            desc=error_desc,
-            level=ProblemLevel.ERR,
-            rule=self.RULE
-        ))
+        self.problems.append(
+            Problem(pos=Pos(0, 0), desc=error_desc, level=ProblemLevel.ERR, rule=self.RULE)
+        )
         return {}, self.problems
 
     def __parse_block_mapping(
-        self,
-        tokens: List[yaml.Token],
-        index: int = 0
-    ) -> Tuple[
-        Dict[String, Any],
-        int
-    ]:
+        self, tokens: List[yaml.Token], index: int = 0
+    ) -> Tuple[Dict[String, Any], int]:
         """Parse a YAML block mapping into a dictionary.
 
         Args:
@@ -138,7 +131,7 @@ class PyYAMLParser(YAMLParser):
                 index position.
         """
         mapping: Dict[String, Any] = {}
-        error_desc = 'Error parsing block mapping'
+        error_desc = "Error parsing block mapping"
         while index < len(tokens):
             token = tokens[index]
 
@@ -160,12 +153,14 @@ class PyYAMLParser(YAMLParser):
                     key = self.__parse_str(next_token)
 
                 else:
-                    self.problems.append(Problem(
-                        pos=self.__parse_pos(next_token),
-                        desc=error_desc,
-                        level=ProblemLevel.ERR,
-                        rule=self.RULE
-                    ))
+                    self.problems.append(
+                        Problem(
+                            pos=self.__parse_pos(next_token),
+                            desc=error_desc,
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE,
+                        )
+                    )
 
             # Process a value.
             elif isinstance(token, yaml.ValueToken):
@@ -175,28 +170,30 @@ class PyYAMLParser(YAMLParser):
                 mapping[key] = value
 
             else:
-                self.problems.append(Problem(
-                    pos=self.__parse_pos(token),
-                    desc=error_desc,
-                    level=ProblemLevel.ERR,
-                    rule=self.RULE
-                ))
+                self.problems.append(
+                    Problem(
+                        pos=self.__parse_pos(token),
+                        desc=error_desc,
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE,
+                    )
+                )
 
             index += 1
 
         # If we reach here, it means there's an unexpected error in the
         # block mapping
-        self.problems.append(Problem(
-            pos=self.__parse_pos(tokens[index]),
-            desc=error_desc,
-            level=ProblemLevel.ERR,
-            rule=self.RULE
-        ))
+        self.problems.append(
+            Problem(
+                pos=self.__parse_pos(tokens[index]),
+                desc=error_desc,
+                level=ProblemLevel.ERR,
+                rule=self.RULE,
+            )
+        )
         return {}, index
 
-    def __parse_block_value(
-        self, tokens: List[yaml.Token], index: int = 0
-    ) -> Tuple[Any, int]:
+    def __parse_block_value(self, tokens: List[yaml.Token], index: int = 0) -> Tuple[Any, int]:
         """Parse a YAML block value into the appropriate Python type.
 
         Args:
@@ -226,10 +223,8 @@ class PyYAMLParser(YAMLParser):
             value, index = self.__parse_block_sequence(tokens, index)
         # also block sequence but with a non-critical missing indent before the
         # -
-        elif (isinstance(token, yaml.BlockEntryToken)):
-            value, index = self.__parse_block_sequence_unindented(
-                tokens, index
-            )
+        elif isinstance(token, yaml.BlockEntryToken):
+            value, index = self.__parse_block_sequence_unindented(tokens, index)
 
         # value is a inline flow sequence [ x, y, z ]
         elif isinstance(token, yaml.FlowSequenceStartToken):
@@ -241,19 +236,19 @@ class PyYAMLParser(YAMLParser):
 
         # illegal token at value position
         else:
-            self.problems.append(Problem(
-                pos=self.__parse_pos(tokens[index]),
-                desc='Error parsing block value',
-                level=ProblemLevel.ERR,
-                rule=self.RULE
-            ))
+            self.problems.append(
+                Problem(
+                    pos=self.__parse_pos(tokens[index]),
+                    desc="Error parsing block value",
+                    level=ProblemLevel.ERR,
+                    rule=self.RULE,
+                )
+            )
 
         return value, index
 
     def __parse_block_sequence(
-        self,
-        tokens: List[yaml.Token],
-        index: int = 0
+        self, tokens: List[yaml.Token], index: int = 0
     ) -> Tuple[List[Any], int]:
         """Parse a YAML block sequence into a list.
 
@@ -288,18 +283,18 @@ class PyYAMLParser(YAMLParser):
 
         # If we reach here, it means there's an unexpected error in the
         # block sequence
-        self.problems.append(Problem(
-            pos=self.__parse_pos(tokens[index]),
-            desc='Error parsing block sequence',
-            level=ProblemLevel.ERR,
-            rule=self.RULE
-        ))
+        self.problems.append(
+            Problem(
+                pos=self.__parse_pos(tokens[index]),
+                desc="Error parsing block sequence",
+                level=ProblemLevel.ERR,
+                rule=self.RULE,
+            )
+        )
         return [], index
 
     def __parse_block_sequence_unindented(
-        self,
-        tokens: List[yaml.Token],
-        index: int = 0
+        self, tokens: List[yaml.Token], index: int = 0
     ) -> Tuple[List[Any], int]:
         """Parse an unindented YAML block sequence into a list.
 
@@ -331,22 +326,19 @@ class PyYAMLParser(YAMLParser):
 
         # If we reach here, it means there's an unexpected error in the
         # block sequence
-        self.problems.append(Problem(
+        self.problems.append(
+            Problem(
                 pos=self.__parse_pos(tokens[index]),
-                desc='Error parsing block sequence',
+                desc="Error parsing block sequence",
                 level=ProblemLevel.ERR,
-                rule=self.RULE
-            ))
+                rule=self.RULE,
+            )
+        )
         return [], index
 
     def __parse_flow_mapping(
-        self,
-        tokens: List[yaml.Token],
-        index: int = 0
-    ) -> Tuple[
-        Dict[String, Any],
-        int
-    ]:
+        self, tokens: List[yaml.Token], index: int = 0
+    ) -> Tuple[Dict[String, Any], int]:
         """Parse a YAML flow mapping into a dictionary.
 
         Args:
@@ -359,7 +351,7 @@ class PyYAMLParser(YAMLParser):
                 index position.
         """
         mapping: Dict[String, Any] = {}
-        error_desc = 'Error parsing flow mapping'
+        error_desc = "Error parsing flow mapping"
 
         while index < len(tokens):
             token = tokens[index]
@@ -378,12 +370,14 @@ class PyYAMLParser(YAMLParser):
                     key = self.__parse_str(next_token)
 
                 else:
-                    self.problems.append(Problem(
-                        pos=self.__parse_pos(next_token),
-                        desc=error_desc,
-                        level=ProblemLevel.ERR,
-                        rule=self.RULE
-                    ))
+                    self.problems.append(
+                        Problem(
+                            pos=self.__parse_pos(next_token),
+                            desc=error_desc,
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE,
+                        )
+                    )
 
             elif isinstance(token, yaml.ValueToken):
                 index += 1
@@ -392,47 +386,45 @@ class PyYAMLParser(YAMLParser):
                     value = self.__parse_scalar_value(next_token)
                     mapping[key] = value
                 elif isinstance(next_token, yaml.FlowMappingStartToken):
-                    mapping[key], index = self.__parse_flow_mapping(
-                        tokens,
-                        index
-                    )
+                    mapping[key], index = self.__parse_flow_mapping(tokens, index)
                 elif isinstance(next_token, yaml.FlowSequenceStartToken):
-                    mapping[key], index = self.__parse_flow_sequence(
-                        tokens,
-                        index
-                    )
+                    mapping[key], index = self.__parse_flow_sequence(tokens, index)
                 else:
-                    self.problems.append(Problem(
-                        pos=self.__parse_pos(next_token),
-                        desc=error_desc,
-                        level=ProblemLevel.ERR,
-                        rule=self.RULE
-                    ))
+                    self.problems.append(
+                        Problem(
+                            pos=self.__parse_pos(next_token),
+                            desc=error_desc,
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE,
+                        )
+                    )
 
             else:
-                self.problems.append(Problem(
-                    pos=self.__parse_pos(token),
-                    desc=error_desc,
-                    level=ProblemLevel.ERR,
-                    rule=self.RULE
-                ))
+                self.problems.append(
+                    Problem(
+                        pos=self.__parse_pos(token),
+                        desc=error_desc,
+                        level=ProblemLevel.ERR,
+                        rule=self.RULE,
+                    )
+                )
 
             index += 1
 
         # If we reach here, it means there's an unexpected error in the
         # flow mapping
-        self.problems.append(Problem(
-            pos=self.__parse_pos(tokens[index]),
-            desc=error_desc,
-            level=ProblemLevel.ERR,
-            rule=self.RULE
-        ))
+        self.problems.append(
+            Problem(
+                pos=self.__parse_pos(tokens[index]),
+                desc=error_desc,
+                level=ProblemLevel.ERR,
+                rule=self.RULE,
+            )
+        )
         return {}, index
 
     def __parse_flow_sequence(
-        self,
-        tokens: List[yaml.Token],
-        index: int = 0
+        self, tokens: List[yaml.Token], index: int = 0
     ) -> Tuple[List[Any], int]:
         """Parse a YAML flow sequence into a list.
 
@@ -463,19 +455,17 @@ class PyYAMLParser(YAMLParser):
 
             index += 1
 
-        self.problems.append(Problem(
-            pos=self.__parse_pos(tokens[index]),
-            desc='Error parsing flow sequence',
-            level=ProblemLevel.ERR,
-            rule=self.RULE
-        ))
+        self.problems.append(
+            Problem(
+                pos=self.__parse_pos(tokens[index]),
+                desc="Error parsing flow sequence",
+                level=ProblemLevel.ERR,
+                rule=self.RULE,
+            )
+        )
         return [], index
 
-    def __parse_flow_value(
-        self,
-        tokens: List[yaml.Token],
-        index: int = 0
-    ) -> Tuple[Any, int]:
+    def __parse_flow_value(self, tokens: List[yaml.Token], index: int = 0) -> Tuple[Any, int]:
         """Parse a YAML flow value into the appropriate Python type.
 
         Args:
@@ -495,19 +485,18 @@ class PyYAMLParser(YAMLParser):
         elif isinstance(token, yaml.FlowSequenceStartToken):
             value, index = self.__parse_flow_sequence(tokens, index)
         else:
-            self.problems.append(Problem(
-                pos=self.__parse_pos(token),
-                desc='Error parsing flow value',
-                level=ProblemLevel.ERR,
-                rule=self.RULE
-            ))
+            self.problems.append(
+                Problem(
+                    pos=self.__parse_pos(token),
+                    desc="Error parsing flow value",
+                    level=ProblemLevel.ERR,
+                    rule=self.RULE,
+                )
+            )
 
         return value, index
 
-    def __parse_scalar_value(
-        self,
-        token: yaml.ScalarToken
-    ):
+    def __parse_scalar_value(self, token: yaml.ScalarToken):
         """Parse a scalar token into the appropriate Python type (bool, int, float, or String).
 
         Args:
@@ -521,9 +510,9 @@ class PyYAMLParser(YAMLParser):
         # Boolean handling
         if isinstance(val, bool):
             return val
-        elif val == 'true':
+        elif val == "true":
             return True
-        elif val == 'false':
+        elif val == "false":
             return False
 
         # Number handling
@@ -546,13 +535,11 @@ class PyYAMLParser(YAMLParser):
 
         # parse expressions in the form of ${{ ... }}
         # we need the full string to calc indices for expression fixing
-        pattern = r'\${{\s*(.*?)\s*}}'
+        pattern = r"\${{\s*(.*?)\s*}}"
         full_str: str = token.start_mark.buffer
-        token_full_str = full_str[token.start_mark.index:token.end_mark.index]
+        token_full_str = full_str[token.start_mark.index : token.end_mark.index]
         matches = re.finditer(pattern, token_full_str)  # finds expressions in token string
-        expressions = self._parse_expressions(
-            matches, token_pos, token
-        )
+        expressions = self._parse_expressions(matches, token_pos, token)
 
         return String(token_string, token_pos, expressions)
 
@@ -563,10 +550,7 @@ class PyYAMLParser(YAMLParser):
         return Pos(token.start_mark.line, token.start_mark.column, token.start_mark.index)
 
     def _parse_expressions(
-        self,
-        matches: Iterator[re.Match[str]],
-        token_pos: Pos,
-        token: yaml.ScalarToken
+        self, matches: Iterator[re.Match[str]], token_pos: Pos, token: yaml.ScalarToken
     ) -> List[Expression]:
         """
         Parses expressions from the matches and builds an expression list.
@@ -578,7 +562,7 @@ class PyYAMLParser(YAMLParser):
             expr_str = match_obj.group(1)
 
             # Split expression into parts on dots
-            raw_parts_list = expr_str.split('.')
+            raw_parts_list = expr_str.split(".")
             parts_ast_nodes = []
 
             # determine the character index of the part
@@ -611,10 +595,12 @@ class PyYAMLParser(YAMLParser):
                 if i < len(raw_parts_list) - 1:  # If not the last part, account for the dot
                     part_pos.idx += 1
 
-            expressions.append(Expression(
-                pos=token_pos,  # Pos of the start of the part
-                string=expr_str,  # The full expression string
-                parts=parts_ast_nodes,  # List of String objects representing each expression part
-            ))
+            expressions.append(
+                Expression(
+                    pos=token_pos,  # Pos of the start of the part
+                    string=expr_str,  # The full expression string
+                    parts=parts_ast_nodes,  # List of String objects for each part
+                )
+            )
 
         return expressions

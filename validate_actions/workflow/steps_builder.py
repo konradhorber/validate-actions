@@ -13,6 +13,7 @@ class StepsBuilder(ABC):
     Builder for steps in a GitHub Actions workflow.
     Converts a list of step definitions into a list of Step objects.
     """
+
     @abstractmethod
     def build(
         self, steps_in: List[Dict[ast.String, Any]], local_contexts: Contexts
@@ -21,13 +22,9 @@ class StepsBuilder(ABC):
 
 
 class BaseStepsBuilder(StepsBuilder):
-    def __init__(
-        self, problems: Problems,
-        schema: Dict[str, Any],
-        contexts: Contexts
-    ) -> None:
+    def __init__(self, problems: Problems, schema: Dict[str, Any], contexts: Contexts) -> None:
         self.problems = problems
-        self.RULE_NAME = 'steps-syntax-error'
+        self.RULE_NAME = "steps-syntax-error"
         self.schema = schema
         self.contexts = contexts
 
@@ -65,40 +62,40 @@ class BaseStepsBuilder(StepsBuilder):
         for key in step_token_tree:
             key_str = key.string
             match key_str:
-                case 'id':
+                case "id":
                     id_ = step_token_tree[key]
-                case 'if':
+                case "if":
                     if_ = step_token_tree[key]
-                case 'name':
+                case "name":
                     name_ = step_token_tree[key]
-                case 'uses':
+                case "uses":
                     uses_ = step_token_tree[key]
                     exec_pos = Pos(line=key.pos.line, col=key.pos.col)
-                case 'run':
+                case "run":
                     run_ = step_token_tree[key]
                     exec_pos = Pos(line=key.pos.line, col=key.pos.col)
-                case 'working-directory':
+                case "working-directory":
                     working_directory_ = step_token_tree[key]
-                case 'shell':
+                case "shell":
                     shell_ = step_token_tree[key]
-                case 'with':
+                case "with":
                     for with_key, with_value in step_token_tree[key].items():
                         with_key_str = with_key.string
 
-                        if with_key_str == 'args':
+                        if with_key_str == "args":
                             with_args_ = with_value
-                        elif with_key_str == 'entrypoint':
+                        elif with_key_str == "entrypoint":
                             with_entrypoint_ = with_value
                         else:
                             with_[with_key] = with_value
-                case 'env':
+                case "env":
                     local_context.env = copy.deepcopy(local_context.env)
                     env_ = helper.build_env(
                         step_token_tree[key], local_context, self.problems, self.RULE_NAME
                     )
-                case 'continue-on-error':
+                case "continue-on-error":
                     continue_on_error_ = step_token_tree[key]
-                case 'timeout-minutes':
+                case "timeout-minutes":
                     timeout_minutes_ = step_token_tree[key]
                 case _:
                     self.problems.append(

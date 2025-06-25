@@ -10,12 +10,7 @@ if TYPE_CHECKING:
 
 
 class Rule(ABC):
-    def __init__(
-        self,
-        workflow: Workflow,
-        fix: bool,
-        fixer: Fixer
-    ):
+    def __init__(self, workflow: Workflow, fix: bool, fixer: Fixer):
         """
         Initialize the rule with a flag indicating whether to fix issues
         and an optional fixer instance.
