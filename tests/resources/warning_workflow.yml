@@ -1,0 +1,15 @@
+name: Warning Workflow
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout  # Missing version - should trigger warning
+      - name: Setup Node
+        uses: actions/setup-node  # Missing version - should trigger warning
+        with:
+          node-version: '18'

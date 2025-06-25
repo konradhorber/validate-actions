@@ -1,0 +1,15 @@
+name: Fixable Workflow
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout  # no version
+      - name: Setup Node
+        uses: actions/setup-node  # no version
+        with:
+          node-version: '18'

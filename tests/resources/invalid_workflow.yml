@@ -1,0 +1,19 @@
+name: Invalid Workflow
+on:
+  push:
+    branches: [$default-branch]  # Invalid syntax
+  pullrequest:  # Typo: should be pull_request
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout  # Missing version
+      - name: Invalid Action
+        uses: nonexistent/action@v1
+        with:
+          unknown_input: value  # Invalid input
+      - name: Context Error
+        run: echo "${{ github.invalid_context }}"  # Invalid context
