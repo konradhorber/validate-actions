@@ -46,7 +46,7 @@ def test_job_outputs_input_match():
     gen_matches = rule.check()
     result_matches = list(gen_matches)
     assert result_matches == []
-    
+
     workflow_doesnt_match_string = """
     name: Reusable workflow
 
@@ -78,12 +78,15 @@ def test_job_outputs_input_match():
         - id: step2
           run: echo "secondword=world" >> $GITHUB_OUTPUT
     """
-    workflow_doesnt_match, problems_doesnt_match = parse_workflow_string(workflow_doesnt_match_string)
+    workflow_doesnt_match, problems_doesnt_match = parse_workflow_string(
+        workflow_doesnt_match_string
+    )
     rule = rules.ExpressionsContexts(workflow_doesnt_match, False, None)
     gen_doesnt_match = rule.check()
     result_doesnt_match = list(gen_doesnt_match)
     assert len(result_doesnt_match) == 1
-    assert result_doesnt_match[0].rule == 'expressions-contexts'
+    assert result_doesnt_match[0].rule == "expressions-contexts"
+
 
 def test_env_match():
     workflow_string = """
@@ -111,7 +114,7 @@ def test_env_match():
     gen = rule.check()
     result = list(gen)
     assert result == []
-    
+
     workflow_string = """
     name: 'Test Steps IO Match with uses'
 
@@ -137,6 +140,7 @@ def test_env_match():
     gen = rule.check()
     result = list(gen)
     assert len(result) == 1
+
 
 def test_local_env():
     workflow_string = """
@@ -402,13 +406,15 @@ def test_fix_expression_context_typo():
     temp_file_path = None
     try:
         # Create a named temporary file
-        with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.yml', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w+", delete=False, suffix=".yml", encoding="utf-8"
+        ) as f:
             f.write(workflow_string_with_typo)
             temp_file_path = Path(f.name)
 
         # Parse the workflow string (content is what matters for parsing positions)
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typo)
-        
+
         # Assuming the parser itself doesn't find problems with this specific typo,
         # or that such problems are not relevant to this test's focus.
         # If initial_problems could contain the typo, you might want to assert its presence here.
@@ -427,7 +433,7 @@ def test_fix_expression_context_typo():
         assert problems_after_fix[0].level == ProblemLevel.NON  # No problems should remain
 
         # Read the content of the modified file
-        fixed_content = temp_file_path.read_text(encoding='utf-8')
+        fixed_content = temp_file_path.read_text(encoding="utf-8")
 
         # Assert that the file content is as expected
         # Using strip() to handle potential differences in trailing newlines
@@ -436,6 +442,7 @@ def test_fix_expression_context_typo():
     finally:
         if temp_file_path:
             temp_file_path.unlink(missing_ok=True)
+
 
 def test_fix_service_port_typo():
     workflow_string_with_typo = """
@@ -468,7 +475,9 @@ def test_fix_service_port_typo():
     """
     temp_file_path = None
     try:
-        with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.yml', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w+", delete=False, suffix=".yml", encoding="utf-8"
+        ) as f:
             f.write(workflow_string_with_typo)
             temp_file_path = Path(f.name)
 
@@ -480,11 +489,12 @@ def test_fix_service_port_typo():
         # Assert that the problem was fixed and non problem is reported for this specific issue
         assert len(problems_after_fix) == 1
         assert problems_after_fix[0].level == ProblemLevel.NON  # No problems should remain
-        fixed_content = temp_file_path.read_text(encoding='utf-8')
+        fixed_content = temp_file_path.read_text(encoding="utf-8")
         assert fixed_content.strip() == expected_fixed.strip()
     finally:
         if temp_file_path:
             temp_file_path.unlink(missing_ok=True)
+
 
 def test_fix_multiple_expressions_in_string():
     workflow_string_with_typo = """
@@ -507,7 +517,9 @@ def test_fix_multiple_expressions_in_string():
     """
     temp_file_path = None
     try:
-        with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.yml', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w+", delete=False, suffix=".yml", encoding="utf-8"
+        ) as f:
             f.write(workflow_string_with_typo)
             temp_file_path = Path(f.name)
 
@@ -517,11 +529,12 @@ def test_fix_multiple_expressions_in_string():
         rule = rules.ExpressionsContexts(workflow_obj, True, fixer)
         problems_after_fix = list(rule.check())
         assert not problems_after_fix
-        fixed_content = temp_file_path.read_text(encoding='utf-8')
+        fixed_content = temp_file_path.read_text(encoding="utf-8")
         assert fixed_content.strip() == expected_fixed.strip()
     finally:
         if temp_file_path:
             temp_file_path.unlink(missing_ok=True)
+
 
 def test_fix_typo_in_middle_of_expression():
     workflow_string_with_typo = """
@@ -544,7 +557,9 @@ def test_fix_typo_in_middle_of_expression():
     """
     temp_file_path = None
     try:
-        with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.yml', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w+", delete=False, suffix=".yml", encoding="utf-8"
+        ) as f:
             f.write(workflow_string_with_typo)
             temp_file_path = Path(f.name)
 
@@ -556,11 +571,12 @@ def test_fix_typo_in_middle_of_expression():
         # Assert that the problem was fixed and non problem is reported for this specific issue
         assert len(problems_after_fix) == 1
         assert problems_after_fix[0].level == ProblemLevel.NON  # No problems should remain
-        fixed_content = temp_file_path.read_text(encoding='utf-8')
+        fixed_content = temp_file_path.read_text(encoding="utf-8")
         assert fixed_content.strip() == expected_fixed.strip()
     finally:
         if temp_file_path:
             temp_file_path.unlink(missing_ok=True)
+
 
 def test_fix_two_expression_context_typos():
     workflow_string_with_typos = """
@@ -608,7 +624,9 @@ def test_fix_two_expression_context_typos():
 
     temp_file_path = None
     try:
-        with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.yml', encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w+", delete=False, suffix=".yml", encoding="utf-8"
+        ) as f:
             f.write(workflow_string_with_typos)
             temp_file_path = Path(f.name)
 
@@ -623,7 +641,7 @@ def test_fix_two_expression_context_typos():
         assert len(problems_after_fix) == 2
         assert all(p.level == ProblemLevel.NON for p in problems_after_fix)
 
-        fixed_content = temp_file_path.read_text(encoding='utf-8')
+        fixed_content = temp_file_path.read_text(encoding="utf-8")
         assert fixed_content.strip() == expected_workflow_string_fixed.strip()
 
     finally:

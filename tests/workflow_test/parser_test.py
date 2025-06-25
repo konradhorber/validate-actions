@@ -21,20 +21,22 @@ jobs:
           name: ${{ steps.step1.outputs.ref }}
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    ref = workflow.jobs_['test-job'].steps_[1].exec.with_['name']
+    ref = workflow.jobs_["test-job"].steps_[1].exec.with_["name"]
     parts = [
-        'steps',
-        'step1',
-        'outputs',
-        'ref',
+        "steps",
+        "step1",
+        "outputs",
+        "ref",
     ]
     should_be = ast.String(
         pos=Pos(line=14, col=16),
-        string='${{ steps.step1.outputs.ref }}',
-        expr=[ast.Expression(
-            pos=Pos(line=14, col=16),
-            string='${{ steps.step1.outputs.ref }}',
-            parts=parts,
-        )],
+        string="${{ steps.step1.outputs.ref }}",
+        expr=[
+            ast.Expression(
+                pos=Pos(line=14, col=16),
+                string="${{ steps.step1.outputs.ref }}",
+                parts=parts,
+            )
+        ],
     )
     assert ref == should_be

@@ -32,7 +32,7 @@ def test_no_io_match():
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], Problem)
-    assert result[0].rule == 'steps-io-match'
+    assert result[0].rule == "steps-io-match"
     assert result[0].level == ProblemLevel.ERR
     assert result[0].desc == "'some_output' not as 'outputs' in 'step1'"
     assert result[0].pos.line == 18
@@ -93,7 +93,7 @@ def test_no_step_with_that_id():
     result = list(gen)
     assert len(result) == 1
     assert isinstance(result[0], Problem)
-    assert result[0].rule == 'steps-io-match'
+    assert result[0].rule == "steps-io-match"
     assert result[0].level == ProblemLevel.ERR
     assert result[0].desc == "Step 'stepOne' in job 'test-job' does not exist"
     assert result[0].pos.line == 18

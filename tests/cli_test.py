@@ -24,9 +24,7 @@ jobs:
         with:
           status: 'test'
 """
-    with tempfile.NamedTemporaryFile(
-        suffix='.yml', mode='w+', delete=False
-    ) as temp_file:
+    with tempfile.NamedTemporaryFile(suffix=".yml", mode="w+", delete=False) as temp_file:
         temp_file.write(workflow_string)
         temp_file_path = Path(temp_file.name)
 
@@ -39,8 +37,8 @@ jobs:
     problems_list = problems.problems
 
     assert len(problems_list) == 4
-    rule_event = 'events-syntax-error'
-    rule_input = 'jobs-steps-uses'
+    rule_event = "events-syntax-error"
+    rule_input = "jobs-steps-uses"
     assert problems_list[0].rule == rule_event
     assert problems_list[1].rule == rule_input
     assert problems_list[1].level == ProblemLevel.WAR
