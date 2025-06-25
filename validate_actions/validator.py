@@ -56,4 +56,8 @@ class Validator:
                     continue
                 problems.append(problem)
 
+        # Apply all batched fixes if in fix mode
+        if fix:
+            fixer.flush()
+
         return problems

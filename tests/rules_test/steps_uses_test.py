@@ -230,6 +230,8 @@ def test_fix_missing_version_spec(tmp_path, monkeypatch):
         fix = fixer.BaseFixer(temp_file_path)
         rule = rules.JobsStepsUses(workflow_obj, True, fix)
         problems_after_fix = list(rule.check())
+        # Apply the batched fixes
+        fix.flush()
         # Assert that the problem was fixed and non problem is reported for this specific issue
         assert len(problems_after_fix) == 1
         assert problems_after_fix[0].level == ProblemLevel.NON  # 1 Non problem after fix
@@ -504,6 +506,8 @@ def test_fix_outdated_version():
         fix = fixer.BaseFixer(temp_file_path)
         rule = rules.JobsStepsUses(workflow_obj, True, fix)
         problems_after_fix = list(rule.check())
+        # Apply the batched fixes
+        fix.flush()
 
         # Should have at least one NON problem after fix
         fixed_problems = [p for p in problems_after_fix if p.level == ProblemLevel.NON]

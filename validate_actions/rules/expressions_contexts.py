@@ -146,7 +146,7 @@ class ExpressionsContexts(Rule):
 
                     return self.fixer.edit_yaml_at_position(
                         idx=part.pos.idx,
-                        num_delete=len(part.string),
+                        old_text=part.string,
                         new_text=max_key,
                         problem=problem,
                         new_problem_desc=updated_problem_desc,

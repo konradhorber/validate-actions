@@ -103,7 +103,7 @@ class JobsStepsUses(Rule):
                     self.workflow.path
                     problem = self.fixer.edit_yaml_at_position(
                         action.uses_.pos.idx,
-                        len(slug),
+                        slug,
                         new_slug,
                         problem,
                         f"Fixed '{slug}' to include version to '{new_slug}'",
@@ -215,7 +215,7 @@ class JobsStepsUses(Rule):
             if self.fix:
                 problem = self.fixer.edit_yaml_at_position(
                     action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
-                    len(commit_sha),
+                    commit_sha,
                     current_latest,
                     problem,
                     f"Fixed commit SHA {commit_sha} to latest version {current_latest}",
@@ -250,7 +250,7 @@ class JobsStepsUses(Rule):
             if self.fix:
                 problem = self.fixer.edit_yaml_at_position(
                     action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
-                    len(commit_sha),
+                    commit_sha,
                     current_latest,
                     problem,
                     f"Fixed outdated commit SHA {commit_sha} to latest version {current_latest}",
@@ -291,7 +291,7 @@ class JobsStepsUses(Rule):
                 if self.fix:
                     problem = self.fixer.edit_yaml_at_position(
                         action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
-                        len(version_spec),
+                        version_spec,
                         current_latest,
                         problem,
                         f"Fixed unresolvable version {version_spec} to latest {current_latest}",
@@ -326,7 +326,7 @@ class JobsStepsUses(Rule):
                 if self.fix:
                     problem = self.fixer.edit_yaml_at_position(
                         action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
-                        len(version_spec),
+                        version_spec,
                         current_latest,
                         problem,
                         f"Fixed outdated version {version_spec} to latest {current_latest}",
@@ -359,7 +359,7 @@ class JobsStepsUses(Rule):
                 if self.fix:
                     problem = self.fixer.edit_yaml_at_position(
                         action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
-                        len(version_spec),
+                        version_spec,
                         current_latest,
                         problem,
                         f"Fixed outdated version {version_spec} to latest {current_latest}",

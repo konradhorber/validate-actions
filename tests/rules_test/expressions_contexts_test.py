@@ -427,6 +427,8 @@ def test_fix_expression_context_typo():
         fixer = BaseFixer(temp_file_path)
         rule = rules.ExpressionsContexts(workflow_obj, True, fixer)
         problems_after_fix = list(rule.check())
+        # Apply the batched fixes
+        fixer.flush()
 
         # Assert that the problem was fixed and non problem is reported for this specific issue
         assert len(problems_after_fix) == 1
@@ -486,6 +488,8 @@ def test_fix_service_port_typo():
         fixer = BaseFixer(temp_file_path)
         rule = rules.ExpressionsContexts(workflow_obj, True, fixer)
         problems_after_fix = list(rule.check())
+        # Apply the batched fixes
+        fixer.flush()
         # Assert that the problem was fixed and non problem is reported for this specific issue
         assert len(problems_after_fix) == 1
         assert problems_after_fix[0].level == ProblemLevel.NON  # No problems should remain
@@ -528,6 +532,8 @@ def test_fix_multiple_expressions_in_string():
         fixer = BaseFixer(temp_file_path)
         rule = rules.ExpressionsContexts(workflow_obj, True, fixer)
         problems_after_fix = list(rule.check())
+        # Apply the batched fixes
+        fixer.flush()
         assert not problems_after_fix
         fixed_content = temp_file_path.read_text(encoding="utf-8")
         assert fixed_content.strip() == expected_fixed.strip()
@@ -568,6 +574,8 @@ def test_fix_typo_in_middle_of_expression():
         fixer = BaseFixer(temp_file_path)
         rule = rules.ExpressionsContexts(workflow_obj, True, fixer)
         problems_after_fix = list(rule.check())
+        # Apply the batched fixes
+        fixer.flush()
         # Assert that the problem was fixed and non problem is reported for this specific issue
         assert len(problems_after_fix) == 1
         assert problems_after_fix[0].level == ProblemLevel.NON  # No problems should remain
@@ -636,6 +644,8 @@ def test_fix_two_expression_context_typos():
         fixer = BaseFixer(temp_file_path)
         rule = rules.ExpressionsContexts(workflow_obj, True, fixer)
         problems_after_fix = list(rule.check())
+        # Apply the batched fixes
+        fixer.flush()
 
         # Assert that the problems were fixed and no problem is reported for these specific issues
         assert len(problems_after_fix) == 2
