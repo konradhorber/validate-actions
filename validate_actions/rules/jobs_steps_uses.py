@@ -51,6 +51,8 @@ class JobsStepsUses(Rule):
 
         for action in actions:
             yield from self.not_using_version_spec(action)
+            yield from self.is_outdated_version(action)
+            
             input_result = self.get_inputs(action)
             if isinstance(input_result, Problem):
                 yield input_result
@@ -100,6 +102,12 @@ class JobsStepsUses(Rule):
                     )
                     action.uses_.string = f"{slug}@{version}"
             yield problem
+
+    def is_outdated_version(self, action: ExecAction) -> Generator[Problem, None, None]:
+        # TODO: Implement outdated version checking
+        # For now, return empty generator so tests can run
+        return
+        yield  # This line makes it a generator but never executes
 
     def get_inputs(self, action: ExecAction) -> Union[Tuple[List[str], List[str]], Problem]:
         """
