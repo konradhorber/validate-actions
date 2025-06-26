@@ -9,6 +9,7 @@ from validate_actions.workflow import helper
 from validate_actions.workflow.contexts import Contexts
 from validate_actions.workflow.director import BaseDirector
 from validate_actions.workflow.events_builder import BaseEventsBuilder
+from validate_actions.workflow.job_order import JobOrderAnalyzer
 from validate_actions.workflow.jobs_builder import BaseJobsBuilder
 from validate_actions.workflow.parser import PyYAMLParser
 from validate_actions.workflow.steps_builder import BaseStepsBuilder
@@ -30,6 +31,7 @@ class Validator:
         events_builder = BaseEventsBuilder(problems, workflow_schema)
         steps_builder = BaseStepsBuilder(problems, workflow_schema, contexts)
         jobs_builder = BaseJobsBuilder(problems, workflow_schema, steps_builder, contexts)
+        job_order_analyzer = JobOrderAnalyzer()
         director = BaseDirector(
             workflow_file=file,
             parser=parser,
@@ -37,6 +39,7 @@ class Validator:
             events_builder=events_builder,
             jobs_builder=jobs_builder,
             contexts=contexts,
+            job_order_analyzer=job_order_analyzer,
         )
 
         workflow, problems = director.build()

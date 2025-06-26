@@ -638,11 +638,12 @@ class TestJobOrderIntegrationWithExistingRules:
 
         assert len(problems) == 1
         assert problems[0].level == ProblemLevel.ERR
-        assert "invalid_test" in problems[0].desc
+        assert "needs.build.outputs.artifact-name" in problems[0].desc
+        assert problems[0].pos.line == 21  # Line of invalid_test job
 
         assert execution_plan.stages[0].parallel_jobs[0].job_id_ == "build"
         stage2_jobs = {job.job_id_ for job in execution_plan.stages[1].parallel_jobs}
-        assert stage2_jobs == {"test", "invalid_test"}
+        assert stage2_jobs == {"test"}
 
 
 class TestJobOrderPerformance:
