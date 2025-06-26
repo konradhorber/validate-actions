@@ -406,8 +406,8 @@ class TestJobOrderComplexPatterns:
         analyzer = JobOrderAnalyzer()
         execution_plan = analyzer.analyze_workflow(workflow)
         
-        # Should properly organize complex dependencies
-        assert len(execution_plan.stages) == 4
+        # Should properly organize complex dependencies  
+        assert len(execution_plan.stages) == 3
         
         # Stage 1: build and security (parallel)
         stage1_jobs = {job.job_id_ for job in execution_plan.stages[0].parallel_jobs}

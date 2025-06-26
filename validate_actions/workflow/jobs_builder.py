@@ -94,9 +94,9 @@ class BaseJobsBuilder(JobsBuilder):
                         job_dict[key], self.problems, self.RULE_NAME
                     )
                 case "needs":
-                    pass
+                    needs_ = self._build_needs(key, job_dict[key])
                 case "if":
-                    pass
+                    if_ = self._build_if(key, job_dict[key])
                 case "runs-on":
                     runs_on_ = self._build_runs_on(
                         key, job_dict[key], self.problems, self.RULE_NAME
@@ -942,4 +942,73 @@ class BaseJobsBuilder(JobsBuilder):
             )
         )
 
+        return None
+
+    def _build_needs(self, key: ast.String, needs_value: Any) -> Optional[List[ast.String]]:
+        """Build the 'needs' field for a job."""
+        if needs_value is None:
+            return None
+
+        if isinstance(needs_value, ast.String):
+            return [needs_value]
+
+        if isinstance(needs_value, list):
+            needs_list = []
+            for item in needs_value:
+                if isinstance(item, ast.String):
+                    needs_list.append(item)
+                else:
+                    self.problems.append(
+                        Problem(
+                            pos=key.pos,
+                            desc=(
+                                f"Invalid 'needs' item: must be a string, "
+                                f"got {type(item).__name__}"
+                            ),
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME,
+                        )
+                    )
+            return needs_list if needs_list else None
+
+        self.problems.append(
+            Problem(
+                pos=key.pos,
+                desc=(
+                    f"Invalid 'needs' value: must be a string or list of strings, "
+                    f"got {type(needs_value).__name__}"
+                ),
+                level=ProblemLevel.ERR,
+                rule=self.RULE_NAME,
+            )
+        )
+        return None
+
+    def _build_if(self, key: ast.String, if_value: Any) -> Optional[ast.String]:
+        """Build the 'if' field for a job."""
+        if if_value is None:
+            return None
+
+        if isinstance(if_value, ast.String):
+            return if_value
+
+        # Handle boolean values (like false/true)
+        if isinstance(if_value, bool):
+            return ast.String(str(if_value).lower(), key.pos)
+
+        # Handle other scalar types that can be converted to string
+        if isinstance(if_value, (int, float, str)):
+            return ast.String(str(if_value), key.pos)
+
+        self.problems.append(
+            Problem(
+                pos=key.pos,
+                desc=(
+                    f"Invalid 'if' value: must be a string or boolean, "
+                    f"got {type(if_value).__name__}"
+                ),
+                level=ProblemLevel.ERR,
+                rule=self.RULE_NAME,
+            )
+        )
         return None

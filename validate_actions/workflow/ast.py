@@ -252,8 +252,8 @@ class Job:
     contexts: Contexts
     name_: Optional["String"] = None
     permissions_: Permissions = Permissions()
-    needs_: Optional[None] = None
-    if_: Optional[None] = None
+    needs_: Optional[List["String"]] = None
+    if_: Optional["String"] = None
     runs_on_: Optional[RunsOn] = None
     environment_: Optional[Environment] = None
     concurrency_: Optional[Concurrency] = None
