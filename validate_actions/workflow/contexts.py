@@ -215,7 +215,7 @@ class Contexts:
     env: EnvContext = field(default_factory=EnvContext)
     vars: VarsContext = field(default_factory=VarsContext)
     job: Optional[JobContext] = None
-    jobs: JobsContext = field(default_factory=JobsContext)
+    jobs: Optional[JobsContext] = None
     steps: StepsContext = field(default_factory=StepsContext)
     runner: Optional[RunnerContext] = None
     secrets: SecretsContext = field(default_factory=SecretsContext)

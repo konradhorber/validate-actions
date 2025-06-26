@@ -74,7 +74,7 @@ class ExpressionsContexts(Rule):
         if any(op in expr.string for op in operators):  # TODO
             return None
 
-        web_contexts_not_to_check = ["vars", "secrets", "inputs", "needs", "steps"]
+        web_contexts_not_to_check = ["vars", "secrets", "inputs", "steps"]
         # TODO unshelf needs and steps
         if not parts:
             return problem
