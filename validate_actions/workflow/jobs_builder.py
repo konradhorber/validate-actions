@@ -82,6 +82,7 @@ class BaseJobsBuilder(JobsBuilder):
         runner_context = RunnerContext()
 
         local_contexts = copy.copy(self.contexts)
+        local_contexts.jobs = None
         local_contexts.job = job_context
         local_contexts.runner = runner_context
 

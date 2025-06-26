@@ -905,3 +905,77 @@ jobs:
     assert secrets_ is not None
     assert len(problems.problems) == 1
     assert "Each secret value must be a string." in problems.problems[0].desc
+
+
+def test_jobs_output_accessible_at_workflow_level():
+    """Test that jobs.<jobid>.outputs.<output_name> is accessible at workflow level."""
+    workflow_string = """
+name: Reusable workflow
+
+on:
+  workflow_call:
+    outputs:
+      firstword:
+        description: "The first output string"
+        value: ${{ jobs.example_job.outputs.output1 }}
+      secondword:
+        description: "The second output string"
+        value: ${{ jobs.example_job.outputs.output2 }}
+
+jobs:
+  example_job:
+    name: Generate output
+    runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.step1.outputs.ref }}
+      output2: ${{ steps.step2.outputs.ref }}
+    steps:
+      - id: step1
+        uses: actions/checkout@v4
+      - id: step2
+        uses: actions/checkout@v4
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert problems.problems == []
+    
+    # Verify jobs context is available at workflow level
+    jobs_context = workflow_out.contexts.jobs
+    assert jobs_context is not None
+    assert isinstance(jobs_context, contexts.JobsContext)
+    
+    # Verify example_job has the outputs in the context
+    job_context = jobs_context.children_["example_job"]
+    assert isinstance(job_context, contexts.JobVarContext)
+    assert "output1" in job_context.outputs.children_
+    assert "output2" in job_context.outputs.children_
+    assert job_context.outputs.children_["output1"] == contexts.ContextType.string
+    assert job_context.outputs.children_["output2"] == contexts.ContextType.string
+
+
+def test_jobs_output_not_accessible_within_job():
+    """Test that jobs.<jobid>.outputs.<output_name> is NOT accessible within any job."""
+    workflow_string = """
+on: push
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    outputs:
+      my_output: ${{ steps.step1.outputs.value }}
+    steps:
+      - id: step1
+        run: echo "value=hello" >> $GITHUB_OUTPUT
+  job2:
+    runs-on: ubuntu-latest
+    needs: job1
+    steps:
+      - run: echo "The output from job1 is ${{ jobs.job1.outputs.my_output }}"
+"""
+    workflow_out, problems = parse_workflow_string(workflow_string)
+    assert problems.problems == []
+    
+    # Verify jobs context is NOT available within individual jobs
+    job1 = workflow_out.jobs_["job1"]
+    assert job1.contexts.jobs is None
+    
+    job2 = workflow_out.jobs_["job2"]
+    assert job2.contexts.jobs is None
