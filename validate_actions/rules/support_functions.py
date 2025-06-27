@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 SESSION = requests.Session()
 GITHUB_URL = "https://raw.githubusercontent.com/"
-token = os.getenv("GITHUB_TOKEN")
+token = os.getenv("GH_TOKEN")
 if token:
     SESSION.headers.update({"Authorization": f"token {token}"})
 

@@ -203,7 +203,7 @@ def test_fix_missing_version_spec(tmp_path, monkeypatch):
           - uses: actions/checkout
     """
     url = "https://api.github.com/repos/actions/checkout/tags"
-    token = os.getenv("GITHUB_TOKEN")
+    token = os.getenv("GH_TOKEN")
     header = {}
     if token:
         header = {"Authorization": f"token {token}"}
