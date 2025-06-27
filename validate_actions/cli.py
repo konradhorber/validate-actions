@@ -20,17 +20,20 @@ class CLI:
         "neutral": "\033[2m",
     }
 
-    def start(self, fix: bool) -> None:
-        project_root = self.find_workflows()
-        if not project_root:
-            print(
-                f'{self.DEF_STYLE["neutral"]}Could not find .github/workflows directory. '
-                f"Please run from your project root or create the directory structure: .github/workflows/"
-                f'{self.DEF_STYLE["format_end"]}'
-            )
-            raise typer.Exit(1)
-        directory = project_root / ".github/workflows"
-        self.run_directory(directory, fix)
+    def start(self, fix: bool, workflow_file: str = None) -> None:
+        if workflow_file:
+            self.run_single_file(Path(workflow_file), fix)
+        else:
+            project_root = self.find_workflows()
+            if not project_root:
+                print(
+                    f'{self.DEF_STYLE["neutral"]}Could not find .github/workflows directory. '
+                    f"Please run from your project root or create the directory structure: .github/workflows/"
+                    f'{self.DEF_STYLE["format_end"]}'
+                )
+                raise typer.Exit(1)
+            directory = project_root / ".github/workflows"
+            self.run_directory(directory, fix)
 
     def find_workflows(self, marker=".github"):
         start_dir = Path.cwd()
@@ -95,6 +98,36 @@ class CLI:
                 return_code = 1
             case _:
                 raise ValueError(f"Invalid problem level: {max_level}")
+
+        sys.exit(return_code)
+
+    def run_single_file(self, file: Path, fix: bool) -> None:
+        if not self._validate_file(file):
+            print(
+                f'{self.DEF_STYLE["neutral"]}File {file} is not accessible, does not exist, or is not a valid YAML workflow file.'
+                f'{self.DEF_STYLE["format_end"]}'
+            )
+            raise typer.Exit(1)
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            transient=True,
+        ) as progress:
+            progress.add_task(description=f"Validating {file.name}...", total=None)
+            prob_level, n_errors, n_warnings = self.run(file, fix)
+
+        self.show_end_msg(prob_level, n_errors, n_warnings)
+
+        match prob_level:
+            case ProblemLevel.NON:
+                return_code = 0
+            case ProblemLevel.WAR:
+                return_code = 2
+            case ProblemLevel.ERR:
+                return_code = 1
+            case _:
+                raise ValueError(f"Invalid problem level: {prob_level}")
 
         sys.exit(return_code)
 
