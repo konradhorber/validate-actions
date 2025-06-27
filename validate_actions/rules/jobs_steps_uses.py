@@ -102,7 +102,8 @@ class JobsStepsUses(Rule):
             problem = Problem(
                 action.pos,
                 ProblemLevel.WAR,
-                f"Using specific version of {slug} is recommended. Consider using {slug}{version_suggestion}",
+                f"Using specific version of {slug} is recommended. "
+                f"Consider using {slug}{version_suggestion}",
                 self.NAME,
             )
             if self.fix:

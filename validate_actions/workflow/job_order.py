@@ -8,7 +8,6 @@ to determine the optimal execution plan for a workflow.
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set
 
-from validate_actions.pos import Pos
 from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow.ast import Job, Workflow
 
@@ -48,8 +47,10 @@ class CyclicDependency:
 
 class JobOrderAnalyzer:
     """Analyzes job execution order and dependencies."""
+
     def __init__(self, problems: Problems) -> None:
         self.problems = problems
+        self.circle: bool = False
 
     def analyze_workflow(self, workflow: Workflow) -> JobExecutionPlan:
         """
@@ -63,31 +64,14 @@ class JobOrderAnalyzer:
         """
         jobs = list(workflow.jobs_.values())
 
-        # Build dependency graph and extract job dependencies
+        # Build dependency graph and validate job dependencies
         dependency_graph = self._build_dependency_graph(jobs)
+        self._validate_job_dependencies(jobs, dependency_graph)
         conditional_jobs = self._analyze_conditions(jobs)
 
-        # Validate dependencies and collect problems
-        validation_problems = self.validate_dependencies(jobs)
-        for problem in validation_problems:
-            self.problems.append(problem)
-
         # Check for cycles
-        cycles = self.detect_cycles(jobs)
+        cycles = self.detect_cycles(jobs, dependency_graph)
         if cycles:
-            # Add problems for cycles
-            for cycle in cycles:
-                self.problems.append(
-                    Problem(
-                        pos=Pos(0, 0),
-                        desc=(
-                            f"Circular dependency detected: "
-                            f"{' -> '.join(cycle.job_ids)} -> {cycle.job_ids[0]}"
-                        ),
-                        level=ProblemLevel.ERR,
-                        rule="job-order-circular-dependency",
-                    )
-                )
             # Return empty plan if there are cycles
             return JobExecutionPlan(
                 stages=[], conditional_jobs=conditional_jobs, dependency_graph=dependency_graph
@@ -100,23 +84,26 @@ class JobOrderAnalyzer:
             stages=stages, conditional_jobs=conditional_jobs, dependency_graph=dependency_graph
         )
 
-    def detect_cycles(self, jobs: List[Job]) -> List[CyclicDependency]:
+    def detect_cycles(
+        self, jobs: List[Job], dependency_graph: Optional[Dict[str, List[str]]] = None
+    ) -> List[CyclicDependency]:
         """
         Detect circular dependencies in job graph and add problems.
 
         Args:
             jobs: List of jobs to analyze
+            dependency_graph: Optional pre-built dependency graph
 
         Returns:
             List of detected circular dependencies
         """
-        dependency_graph = self._build_dependency_graph(jobs)
+        if dependency_graph is None:
+            dependency_graph = self._build_dependency_graph(jobs)
         cycles = []
-        job_lookup = {job.job_id_: job for job in jobs}
 
         # Use DFS to detect cycles
-        visited = set()
-        rec_stack = set()
+        visited: Set[str] = set()
+        rec_stack: Set[str] = set()
 
         def dfs(job_id: str, path: List[str]):
             if job_id in rec_stack:
@@ -126,9 +113,7 @@ class JobOrderAnalyzer:
                 cycle = CyclicDependency(job_ids=cycle_jobs[:-1])  # Remove duplicate
                 cycles.append(cycle)
 
-                # Add problem for this cycle
-                job = job_lookup.get(job_id)
-                pos = job.pos if job else Pos(0, 0)
+                pos = job.pos
                 self.problems.append(
                     Problem(
                         pos=pos,
@@ -161,64 +146,6 @@ class JobOrderAnalyzer:
 
         return cycles
 
-    def validate_dependencies(self, jobs: List[Job]) -> List[Problem]:
-        """
-        Validate job dependencies for errors.
-
-        Args:
-            jobs: List of jobs to validate
-
-        Returns:
-            List of validation problems
-        """
-        problems = []
-        job_ids = {job.job_id_ for job in jobs}
-        dependency_graph = self._build_dependency_graph(jobs)
-
-        # Check for cycles
-        cycles = self.detect_cycles(jobs)
-        for cycle in cycles:
-            problems.append(
-                Problem(
-                    pos=Pos(0, 0),
-                    desc=(
-                        f"Circular dependency detected: "
-                        f"{' -> '.join(cycle.job_ids)} -> {cycle.job_ids[0]}"
-                    ),
-                    level=ProblemLevel.ERR,
-                    rule="job-order-circular-dependency",
-                )
-            )
-
-        # Check for self-dependencies and non-existent job references
-        for job in jobs:
-            dependencies = dependency_graph.get(job.job_id_, [])
-
-            for dep in dependencies:
-                # Check for self-dependency
-                if dep == job.job_id_:
-                    problems.append(
-                        Problem(
-                            pos=job.pos,
-                            desc=f"Job '{job.job_id_}' cannot depend on itself",
-                            level=ProblemLevel.ERR,
-                            rule="job-order-self-dependency",
-                        )
-                    )
-
-                # Check for non-existent job reference
-                if dep not in job_ids:
-                    problems.append(
-                        Problem(
-                            pos=job.pos,
-                            desc=f"Job '{job.job_id_}' depends on non-existent job '{dep}'",
-                            level=ProblemLevel.ERR,
-                            rule="job-order-invalid-reference",
-                        )
-                    )
-
-        return problems
-
     def get_execution_order(self, jobs: List[Job]) -> List[List[Job]]:
         """
         Get the execution order as a list of parallel stages.
@@ -237,9 +164,8 @@ class JobOrderAnalyzer:
         return [stage.parallel_jobs for stage in execution_plan.stages]
 
     def _build_dependency_graph(self, jobs: List[Job]) -> Dict[str, List[str]]:
-        """Build a dependency graph from job needs and validate references."""
+        """Build a dependency graph from job needs."""
         graph = {}
-        job_ids = {job.job_id_ for job in jobs}
 
         for job in jobs:
             dependencies = []
@@ -249,6 +175,21 @@ class JobOrderAnalyzer:
                 for need in job.needs_:
                     dep_id = need.string
                     dependencies.append(dep_id)
+
+            graph[job.job_id_] = dependencies
+
+        return graph
+
+    def _validate_job_dependencies(
+        self, jobs: List[Job], dependency_graph: Dict[str, List[str]]
+    ) -> None:
+        """Validate job dependency references."""
+        job_ids = {job.job_id_ for job in jobs}
+
+        for job in jobs:
+            if job.needs_ is not None:
+                for need in job.needs_:
+                    dep_id = need.string
 
                     # Check for self-dependency
                     if dep_id == job.job_id_:
@@ -271,10 +212,6 @@ class JobOrderAnalyzer:
                                 rule="job-order-invalid-reference",
                             )
                         )
-
-            graph[job.job_id_] = dependencies
-
-        return graph
 
     def _analyze_conditions(self, jobs: List[Job]) -> Dict[str, JobCondition]:
         """Analyze job conditions and return conditional job info."""
@@ -358,16 +295,7 @@ class JobOrderAnalyzer:
                     )
 
             if not ready_jobs and not jobs_to_skip:
-                # No more jobs can run - report unreachable jobs
-                for job_id, job in remaining_jobs.items():
-                    self.problems.append(
-                        Problem(
-                            pos=job.pos,
-                            desc=f"Job '{job_id}' is unreachable due to unsatisfied dependencies",
-                            level=ProblemLevel.ERR,
-                            rule="job-order-unreachable-job",
-                        )
-                    )
+                # No more jobs can run
                 break
 
             # Create stage with ready jobs (if any)

@@ -137,7 +137,10 @@ class ExpressionsContexts(Rule):
                         f" Available options {context_path}: '{options_list}'{more_text}"
                     )
 
-                problem.desc = f"Expression '{expr.string}' does not match any context. Unknown property '{part.string}'{suggestion_text}"
+                problem.desc = (
+                    f"Expression '{expr.string}' does not match any context. "
+                    f"Unknown property '{part.string}'{suggestion_text}"
+                )
 
                 if self.fix:
                     field_names = []

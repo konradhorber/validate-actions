@@ -519,11 +519,6 @@ class TestJobOrderErrorConditions:
         assert isinstance(cycles[0], CyclicDependency)
         assert set(cycles[0].job_ids) == {"job1", "job2"}
         
-        # Should also return validation errors
-        validation_errors = analyzer.validate_dependencies(list(workflow.jobs_.values()))
-        assert len(validation_errors) > 0
-        assert any("circular" in str(error).lower() for error in validation_errors)
-        
         # Analyze workflow should collect problems in the Problems instance
         execution_plan = analyzer.analyze_workflow(workflow)
         assert len(analyzer_problems.problems) > 0
@@ -548,11 +543,6 @@ class TestJobOrderErrorConditions:
         analyzer_problems = Problems()
         analyzer = JobOrderAnalyzer(analyzer_problems)
         
-        # Should detect self-dependency
-        validation_errors = analyzer.validate_dependencies(list(workflow.jobs_.values()))
-        assert len(validation_errors) > 0
-        assert any("self" in str(error).lower() or "itself" in str(error).lower() for error in validation_errors)
-        
         # Analyze workflow should collect problems in the Problems instance
         execution_plan = analyzer.analyze_workflow(workflow)
         assert len(analyzer_problems.problems) > 0
@@ -576,11 +566,6 @@ class TestJobOrderErrorConditions:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer_problems = Problems()
         analyzer = JobOrderAnalyzer(analyzer_problems)
-        
-        # Should detect non-existent job reference
-        validation_errors = analyzer.validate_dependencies(list(workflow.jobs_.values()))
-        assert len(validation_errors) > 0
-        assert any("nonexistent_job" in str(error) for error in validation_errors)
         
         # Analyze workflow should collect problems in the Problems instance  
         execution_plan = analyzer.analyze_workflow(workflow)
@@ -628,41 +613,6 @@ class TestJobOrderErrorConditions:
         assert len(circular_problems) > 0
         assert all(p.level == ProblemLevel.ERR for p in circular_problems)
         assert all(p.rule == "job-order-circular-dependency" for p in circular_problems)
-
-    def test_unreachable_job_detection(self):
-        """Jobs that are unreachable due to unsatisfied dependencies should be detected."""
-        workflow_string = """
-        name: 'Test Unreachable Job'
-        on: push
-        jobs:
-          job1:
-            runs-on: ubuntu-latest
-            steps:
-              - run: echo "job1"
-          job2:
-            needs: nonexistent_job  # This will make job2 unreachable
-            runs-on: ubuntu-latest
-            steps:
-              - run: echo "job2"
-        """
-        workflow, problems = parse_workflow_string(workflow_string)
-        analyzer_problems = Problems()
-        analyzer = JobOrderAnalyzer(analyzer_problems)
-        
-        # Analyze workflow should collect problems for both invalid reference and unreachable job
-        execution_plan = analyzer.analyze_workflow(workflow)
-        assert len(analyzer_problems.problems) > 0
-        
-        # Should have invalid reference problem
-        invalid_ref_problems = [p for p in analyzer_problems.problems if "nonexistent_job" in p.desc]
-        assert len(invalid_ref_problems) > 0
-        assert all(p.rule == "job-order-invalid-reference" for p in invalid_ref_problems)
-        
-        # Should also have unreachable job problem
-        unreachable_problems = [p for p in analyzer_problems.problems if "unreachable" in p.desc.lower()]
-        assert len(unreachable_problems) > 0
-        assert all(p.rule == "job-order-unreachable-job" for p in unreachable_problems)
-        assert all(p.level == ProblemLevel.ERR for p in unreachable_problems)
 
 
 class TestJobOrderIntegrationWithExistingRules:

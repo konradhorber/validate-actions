@@ -71,7 +71,10 @@ class StepsIOMatch(Rule):
 
         yield Problem(
             rule=self.NAME,
-            desc=f"Step '{referenced_step_id.string}' in job '{job.job_id_}' does not exist.{available_text}",
+            desc=(
+                f"Step '{referenced_step_id.string}' in job '{job.job_id_}' "
+                f"does not exist.{available_text}"
+            ),
             pos=ref.pos,
             level=ProblemLevel.ERR,
         )

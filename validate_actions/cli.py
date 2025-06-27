@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from typing import Tuple
+from typing import Optional, Tuple
 
 import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -20,7 +20,7 @@ class CLI:
         "neutral": "\033[2m",
     }
 
-    def start(self, fix: bool, workflow_file: str = None) -> None:
+    def start(self, fix: bool, workflow_file: Optional[str] = None) -> None:
         if workflow_file:
             self.run_single_file(Path(workflow_file), fix)
         else:
@@ -28,8 +28,8 @@ class CLI:
             if not project_root:
                 print(
                     f'{self.DEF_STYLE["neutral"]}Could not find .github/workflows directory. '
-                    f"Please run from your project root or create the directory structure: .github/workflows/"
-                    f'{self.DEF_STYLE["format_end"]}'
+                    f"Please run from your project root or create the directory structure: "
+                    f".github/workflows/{self.DEF_STYLE['format_end']}"
                 )
                 raise typer.Exit(1)
             directory = project_root / ".github/workflows"
@@ -46,8 +46,8 @@ class CLI:
         # Validate directory exists and is accessible
         if not self._validate_directory(directory):
             print(
-                f'{self.DEF_STYLE["neutral"]}Directory {directory} is not accessible or does not exist.'
-                f'{self.DEF_STYLE["format_end"]}'
+                f'{self.DEF_STYLE["neutral"]}Directory {directory} is not accessible or '
+                f'does not exist.{self.DEF_STYLE["format_end"]}'
             )
             raise typer.Exit(1)
 
@@ -61,8 +61,8 @@ class CLI:
         # Validate that we found workflow files
         if not files:
             print(
-                f'{self.DEF_STYLE["neutral"]}No workflow files (*.yml, *.yaml) found in {directory}. '
-                f"Create workflow files or check the directory path."
+                f'{self.DEF_STYLE["neutral"]}No workflow files (*.yml, *.yaml) found in '
+                f"{directory}. Create workflow files or check the directory path."
                 f'{self.DEF_STYLE["format_end"]}'
             )
             raise typer.Exit(1)
@@ -104,8 +104,8 @@ class CLI:
     def run_single_file(self, file: Path, fix: bool) -> None:
         if not self._validate_file(file):
             print(
-                f'{self.DEF_STYLE["neutral"]}File {file} is not accessible, does not exist, or is not a valid YAML workflow file.'
-                f'{self.DEF_STYLE["format_end"]}'
+                f'{self.DEF_STYLE["neutral"]}File {file} is not accessible, does not exist, '
+                f'or is not a valid YAML workflow file.{self.DEF_STYLE["format_end"]}'
             )
             raise typer.Exit(1)
 

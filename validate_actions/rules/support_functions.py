@@ -51,18 +51,16 @@ def _make_request_with_retry(
     Returns:
         Response object if successful, None if all retries failed
     """
-    last_exception = None
-
     for attempt in range(max_retries + 1):  # +1 for initial attempt
         try:
             response = SESSION.get(url, timeout=REQUEST_TIMEOUT)
             return response
         except (requests.RequestException, requests.Timeout) as e:
-            last_exception = e
             if attempt < max_retries:  # Don't sleep after the last attempt
                 sleep_time = RETRY_BACKOFF_FACTOR**attempt
                 logger.debug(
-                    f"Request failed (attempt {attempt + 1}/{max_retries + 1}): {e}. Retrying in {sleep_time:.1f}s..."
+                    f"Request failed (attempt {attempt + 1}/{max_retries + 1}): {e}. "
+                    f"Retrying in {sleep_time:.1f}s..."
                 )
                 time.sleep(sleep_time)
             else:
