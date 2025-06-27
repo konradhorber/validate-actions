@@ -3,7 +3,7 @@ import re
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Tuple
+from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 import yaml
 
@@ -88,6 +88,18 @@ class PyYAMLParser(YAMLParser):
             )
             return {}, self.problems
 
+        # Basic structure validation
+        if not self._validate_basic_yaml_structure(tokens):
+            self.problems.append(
+                Problem(
+                    pos=Pos(0, 0),
+                    desc="File does not appear to be a valid GitHub Actions workflow YAML",
+                    level=ProblemLevel.ERR,
+                    rule=self.RULE,
+                )
+            )
+            return {}, self.problems
+
         # Process the tokens to build a structured representation
         content: Dict[String, Any] = {}
         error_desc = "Error parsing top-level workflow structure"
@@ -147,7 +159,17 @@ class PyYAMLParser(YAMLParser):
             elif isinstance(token, yaml.KeyToken):
                 # The token after KeyToken is the actual key
                 index += 1
-                next_token = tokens[index]
+                next_token = self.__safe_token_access(tokens, index)
+                if next_token is None:
+                    self.problems.append(
+                        Problem(
+                            pos=self.__parse_pos(token),
+                            desc="Unexpected end of tokens while parsing key",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE,
+                        )
+                    )
+                    return {}, index
 
                 if isinstance(next_token, yaml.ScalarToken):
                     key = self.__parse_str(next_token)
@@ -166,6 +188,16 @@ class PyYAMLParser(YAMLParser):
             elif isinstance(token, yaml.ValueToken):
                 # The token after ValueToken is the actual value
                 index += 1
+                if index >= len(tokens):
+                    self.problems.append(
+                        Problem(
+                            pos=self.__parse_pos(token),
+                            desc="Unexpected end of tokens while parsing value",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE,
+                        )
+                    )
+                    return {}, index
                 value, index = self.__parse_block_value(tokens, index)
                 mapping[key] = value
 
@@ -183,9 +215,11 @@ class PyYAMLParser(YAMLParser):
 
         # If we reach here, it means there's an unexpected error in the
         # block mapping
+        error_token = self.__safe_token_access(tokens, index)
+        error_pos = self.__parse_pos(error_token) if error_token else Pos(0, 0, 0)
         self.problems.append(
             Problem(
-                pos=self.__parse_pos(tokens[index]),
+                pos=error_pos,
                 desc=error_desc,
                 level=ProblemLevel.ERR,
                 rule=self.RULE,
@@ -283,9 +317,11 @@ class PyYAMLParser(YAMLParser):
 
         # If we reach here, it means there's an unexpected error in the
         # block sequence
+        error_token = self.__safe_token_access(tokens, index)
+        error_pos = self.__parse_pos(error_token) if error_token else Pos(0, 0, 0)
         self.problems.append(
             Problem(
-                pos=self.__parse_pos(tokens[index]),
+                pos=error_pos,
                 desc="Error parsing block sequence",
                 level=ProblemLevel.ERR,
                 rule=self.RULE,
@@ -413,9 +449,11 @@ class PyYAMLParser(YAMLParser):
 
         # If we reach here, it means there's an unexpected error in the
         # flow mapping
+        error_token = self.__safe_token_access(tokens, index)
+        error_pos = self.__parse_pos(error_token) if error_token else Pos(0, 0, 0)
         self.problems.append(
             Problem(
-                pos=self.__parse_pos(tokens[index]),
+                pos=error_pos,
                 desc=error_desc,
                 level=ProblemLevel.ERR,
                 rule=self.RULE,
@@ -455,9 +493,11 @@ class PyYAMLParser(YAMLParser):
 
             index += 1
 
+        error_token = self.__safe_token_access(tokens, index)
+        error_pos = self.__parse_pos(error_token) if error_token else Pos(0, 0, 0)
         self.problems.append(
             Problem(
-                pos=self.__parse_pos(tokens[index]),
+                pos=error_pos,
                 desc="Error parsing flow sequence",
                 level=ProblemLevel.ERR,
                 rule=self.RULE,
@@ -522,7 +562,7 @@ class PyYAMLParser(YAMLParser):
                 return int(val)
             # Otherwise parse as float
             return float(val)
-        except (ValueError, TypeError):
+        except ValueError:
             # If not a boolean or number, return as String
             return self.__parse_str(token)
 
@@ -548,6 +588,14 @@ class PyYAMLParser(YAMLParser):
         Reads a token and returns a Pos object.
         """
         return Pos(token.start_mark.line, token.start_mark.column, token.start_mark.index)
+
+    def __safe_token_access(self, tokens: List[yaml.Token], index: int) -> Optional[yaml.Token]:
+        """
+        Safely access a token at the given index, returning None if out of bounds.
+        """
+        if 0 <= index < len(tokens):
+            return tokens[index]
+        return None
 
     def _parse_expressions(
         self, matches: Iterator[re.Match[str]], token_pos: Pos, token: yaml.ScalarToken
@@ -604,3 +652,25 @@ class PyYAMLParser(YAMLParser):
             )
 
         return expressions
+
+    def _validate_basic_yaml_structure(self, tokens: List[yaml.Token]) -> bool:
+        """Basic validation that this looks like a GitHub Actions workflow.
+
+        Checks for minimal expected structure:
+        - Contains at least a mapping structure
+        - Not just empty or whitespace
+        - Has reasonable token count
+        """
+        if not tokens:
+            return False
+
+        # Must have at least stream start/end and some content
+        if len(tokens) < 3:
+            return False
+
+        # Should start with StreamStart and contain at least one mapping
+        has_stream_start = any(isinstance(token, yaml.StreamStartToken) for token in tokens)
+        has_mapping = any(isinstance(token, yaml.BlockMappingStartToken) for token in tokens)
+        has_stream_end = any(isinstance(token, yaml.StreamEndToken) for token in tokens)
+
+        return has_stream_start and has_mapping and has_stream_end

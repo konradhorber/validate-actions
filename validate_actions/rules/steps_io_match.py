@@ -62,9 +62,16 @@ class StepsIOMatch(Rule):
             if referenced_step_id == step.id_:
                 yield from self.__check_steps_ref_content(ref, step, job)
                 return
+        # Get available step IDs for suggestion
+        available_steps = [step.id_.string for step in job.steps_ if step.id_]
+        available_text = ""
+        if available_steps:
+            steps_list = "', '".join(available_steps)
+            available_text = f" Available steps in this job: '{steps_list}'"
+
         yield Problem(
             rule=self.NAME,
-            desc=(f"Step '{referenced_step_id.string}' in job '{job.job_id_}' does not exist"),
+            desc=f"Step '{referenced_step_id.string}' in job '{job.job_id_}' does not exist.{available_text}",
             pos=ref.pos,
             level=ProblemLevel.ERR,
         )
@@ -78,6 +85,8 @@ class StepsIOMatch(Rule):
         if not isinstance(step.exec, ast.ExecAction):
             return  # TODO check for run exec type
         prev_step_metadata = parse_action(step.exec.uses_)
+        if prev_step_metadata is None:
+            return  # Unable to fetch action metadata
 
         ref_step_attr = ref.parts[2]  # e.g., outputs
         ref_step_var = ref.parts[3]

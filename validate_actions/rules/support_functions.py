@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+import time
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Type
 
@@ -29,8 +30,45 @@ token = os.getenv("GITHUB_TOKEN")
 if token:
     SESSION.headers.update({"Authorization": f"token {token}"})
 
+# Request timeout and retry configuration
+REQUEST_TIMEOUT = 10  # seconds
+MAX_RETRIES = 3
+RETRY_BACKOFF_FACTOR = 1.5  # exponential backoff multiplier
+
 parse_action_cache: Dict[str, Any] = {}
 action_tags_cache: Dict[str, List[Dict]] = {}
+
+
+def _make_request_with_retry(
+    url: str, max_retries: int = MAX_RETRIES
+) -> Optional[requests.Response]:
+    """Make HTTP request with timeout and exponential backoff retry logic.
+
+    Args:
+        url: URL to request
+        max_retries: Maximum number of retry attempts
+
+    Returns:
+        Response object if successful, None if all retries failed
+    """
+    last_exception = None
+
+    for attempt in range(max_retries + 1):  # +1 for initial attempt
+        try:
+            response = SESSION.get(url, timeout=REQUEST_TIMEOUT)
+            return response
+        except (requests.RequestException, requests.Timeout) as e:
+            last_exception = e
+            if attempt < max_retries:  # Don't sleep after the last attempt
+                sleep_time = RETRY_BACKOFF_FACTOR**attempt
+                logger.debug(
+                    f"Request failed (attempt {attempt + 1}/{max_retries + 1}): {e}. Retrying in {sleep_time:.1f}s..."
+                )
+                time.sleep(sleep_time)
+            else:
+                logger.warning(f"Request failed after {max_retries + 1} attempts for {url}: {e}")
+
+    return None
 
 
 def parse_semantic_version(version_str: str) -> Optional[Tuple[int, Optional[int], Optional[int]]]:
@@ -137,14 +175,14 @@ def get_action_tags(slug: str) -> List[Dict]:
 
     url = f"https://api.github.com/repos/{slug}/tags"
 
-    try:
-        response = SESSION.get(url)
-        if response.status_code == 200:
+    response = _make_request_with_retry(url)
+    if response is not None and response.status_code == 200:
+        try:
             tags = response.json()
             action_tags_cache[slug] = tags
             return tags
-    except (requests.RequestException, ValueError, KeyError) as e:
-        logger.warning(f"Request error for {url}: {e}")
+        except (ValueError, KeyError) as e:
+            logger.warning(f"JSON parsing error for {url}: {e}")
 
     # Cache empty result to avoid repeated failed requests
     action_tags_cache[slug] = []
@@ -224,10 +262,8 @@ def parse_action(slug):
             return parse_action_cache[url_no_ext]
 
         for ext in [".yml", ".yaml"]:
-            try:
-                response = SESSION.get(f"{url_no_ext}{ext}")
-            except requests.RequestException as e:
-                logger.warning(f"Request error for {url_no_ext}{ext}: {e}")
+            response = _make_request_with_retry(f"{url_no_ext}{ext}")
+            if response is None:
                 continue
 
             if response.status_code == 200:
@@ -259,7 +295,7 @@ def get_current_action_version(slug: str) -> Optional[str]:
     # Use the new get_action_tags function for consistency
     tags = get_action_tags(slug)
     if tags:
-        return tags[0]["name"]
+        return tags[0].get("name")
     return None
 
 
@@ -286,8 +322,8 @@ def edit_yaml_at_position(
 
         problem.level = ProblemLevel.NON
         problem.desc = new_problem_desc
-
-    except (OSError, ValueError, TypeError, UnicodeError):
         return problem
-    finally:
+
+    except (OSError, UnicodeError) as e:
+        logger.warning(f"File operation error for {file_path}: {e}")
         return problem

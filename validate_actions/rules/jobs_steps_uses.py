@@ -1,4 +1,7 @@
+import logging
 from typing import Generator, List, Tuple, Union
+
+import requests
 
 from validate_actions.problems import Problem, ProblemLevel
 from validate_actions.rules.rule import Rule
@@ -12,6 +15,8 @@ from validate_actions.rules.support_functions import (
     resolve_version_to_latest,
 )
 from validate_actions.workflow.ast import ExecAction
+
+logger = logging.getLogger(__name__)
 
 
 class JobsStepsUses(Rule):
@@ -90,10 +95,14 @@ class JobsStepsUses(Rule):
         """
         slug = action.uses_.string
         if "@" not in slug:
+            # Get latest version for suggestion
+            latest_version = get_current_action_version(slug)
+            version_suggestion = f"@{latest_version}" if latest_version else "@version"
+
             problem = Problem(
                 action.pos,
                 ProblemLevel.WAR,
-                (f"Using specific version of {slug} is " f"recommended @version"),
+                f"Using specific version of {slug} is recommended. Consider using {slug}{version_suggestion}",
                 self.NAME,
             )
             if self.fix:
@@ -170,9 +179,10 @@ class JobsStepsUses(Rule):
                     action, action_slug, version_spec, current_latest, current_tuple
                 )
 
-        except Exception:
-            # Graceful handling of any unexpected errors
-            # Don't crash the validation, just skip this check
+        except (requests.RequestException, ValueError, TypeError, IndexError) as e:
+            # Graceful handling of expected errors during version checking
+            # Network issues, parsing errors, or malformed version data
+            logger.debug(f"Version check failed for {action_slug}: {e}")
             return
 
     def _handle_commit_sha_version(
@@ -393,7 +403,7 @@ class JobsStepsUses(Rule):
                 self.NAME,
             )
 
-        inputs = action_metadata["inputs"]
+        inputs = action_metadata.get("inputs", {})
         possible_inputs = list(inputs.keys())
         required_inputs = [key for key, value in inputs.items() if value.get("required") is True]
         return required_inputs, possible_inputs

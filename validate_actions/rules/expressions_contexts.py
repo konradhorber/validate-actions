@@ -5,7 +5,7 @@ from typing import Generator, Optional
 
 from validate_actions.problems import Problem, ProblemLevel
 from validate_actions.rules.rule import Rule
-from validate_actions.workflow.ast import Expression
+from validate_actions.workflow.ast import Expression, String
 from validate_actions.workflow.contexts import Contexts
 
 
@@ -78,7 +78,7 @@ class ExpressionsContexts(Rule):
         # TODO unshelf needs and steps
         if not parts:
             return problem
-        parts_visited = []
+        parts_visited: list[String] = []
         for part in parts:
             if part in web_contexts_not_to_check:
                 break
@@ -92,6 +92,53 @@ class ExpressionsContexts(Rule):
                 index = cur.index(part.string)
                 cur = cur[index]
             else:
+                # Get available options for error message
+                available_options: list[str] = []
+                if isinstance(cur, list):
+                    available_options = cur
+                else:
+                    field_names = [f.name for f in fields(cur)]
+                    available_options.extend(field_names)
+                    if hasattr(cur, "children_"):
+                        available_options.extend(cur.children_.keys())
+                    elif hasattr(cur, "functions_"):
+                        available_options.extend(cur.functions_.keys())
+
+                # Find closest match for suggestion
+                closest_match = None
+                if available_options:
+                    scores = {
+                        opt: SequenceMatcher(None, part.string, opt).ratio()
+                        for opt in available_options
+                    }
+                    best_match, best_score = max(scores.items(), key=lambda x: x[1])
+                    if best_score > 0.6:  # Only suggest if reasonably similar
+                        closest_match = best_match
+
+                # Enhanced error message with context
+                parts_visited_str = ".".join([p.string for p in parts_visited])
+                context_path = (
+                    f"in context '{parts_visited_str}'" if parts_visited_str else "at root level"
+                )
+
+                suggestion_text = ""
+                if closest_match:
+                    suggestion_text = f" Did you mean '{closest_match}'?"
+                elif available_options:
+                    options_list = "', '".join(
+                        sorted(available_options)[:5]
+                    )  # Show up to 5 options
+                    more_text = (
+                        f" (and {len(available_options) - 5} more)"
+                        if len(available_options) > 5
+                        else ""
+                    )
+                    suggestion_text = (
+                        f" Available options {context_path}: '{options_list}'{more_text}"
+                    )
+
+                problem.desc = f"Expression '{expr.string}' does not match any context. Unknown property '{part.string}'{suggestion_text}"
+
                 if self.fix:
                     field_names = []
                     others: list[str] = []

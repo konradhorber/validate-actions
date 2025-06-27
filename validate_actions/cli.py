@@ -24,8 +24,8 @@ class CLI:
         project_root = self.find_workflows()
         if not project_root:
             print(
-                f'{self.DEF_STYLE["neutral"]}Could not find workflows directory. '
-                f"Please run this script from the root of your project."
+                f'{self.DEF_STYLE["neutral"]}Could not find .github/workflows directory. '
+                f"Please run from your project root or create the directory structure: .github/workflows/"
                 f'{self.DEF_STYLE["format_end"]}'
             )
             raise typer.Exit(1)
@@ -40,13 +40,39 @@ class CLI:
         return None
 
     def run_directory(self, directory: Path, fix: bool) -> None:
+        # Validate directory exists and is accessible
+        if not self._validate_directory(directory):
+            print(
+                f'{self.DEF_STYLE["neutral"]}Directory {directory} is not accessible or does not exist.'
+                f'{self.DEF_STYLE["format_end"]}'
+            )
+            raise typer.Exit(1)
+
         max_level = ProblemLevel.NON
         total_errors = 0
         total_warnings = 0
 
         prob_level: ProblemLevel
         files = list(directory.glob("*.yml")) + list(directory.glob("*.yaml"))
-        for file in files:
+
+        # Validate that we found workflow files
+        if not files:
+            print(
+                f'{self.DEF_STYLE["neutral"]}No workflow files (*.yml, *.yaml) found in {directory}. '
+                f"Create workflow files or check the directory path."
+                f'{self.DEF_STYLE["format_end"]}'
+            )
+            raise typer.Exit(1)
+
+        # Filter out files we can't read
+        valid_files = [f for f in files if self._validate_file(f)]
+        if not valid_files:
+            print(
+                f'{self.DEF_STYLE["neutral"]}No readable workflow files found in {directory}.'
+                f'{self.DEF_STYLE["format_end"]}'
+            )
+            raise typer.Exit(1)
+        for file in valid_files:
             with Progress(
                 SpinnerColumn(),
                 TextColumn("[progress.description]{task.description}"),
@@ -127,3 +153,32 @@ class CLI:
             f'({n_error} errors, {n_warning} warnings){self.DEF_STYLE["format_end"]}'
         )
         print()
+
+    def _validate_directory(self, directory: Path) -> bool:
+        """Validate that directory exists and is accessible."""
+        try:
+            return directory.exists() and directory.is_dir()
+        except (OSError, PermissionError):
+            return False
+
+    def _validate_file(self, file_path: Path) -> bool:
+        """Validate that file exists, is readable, and has correct extension."""
+        try:
+            if not file_path.exists() or not file_path.is_file():
+                return False
+
+            # Check if file is readable
+            file_path.stat()
+
+            # Validate file extension
+            if file_path.suffix not in [".yml", ".yaml"]:
+                return False
+
+            # Quick check that file is not empty and starts reasonably
+            with open(file_path, "r", encoding="utf-8") as f:
+                first_line = f.readline()
+                # Very basic check - should not be empty and contain some content
+                return len(first_line.strip()) > 0
+
+        except (OSError, PermissionError, UnicodeDecodeError):
+            return False

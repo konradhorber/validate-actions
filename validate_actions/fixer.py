@@ -1,8 +1,11 @@
+import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Dict, List
 
 from validate_actions.problems import Problem, ProblemLevel
+
+logger = logging.getLogger(__name__)
 
 
 class Fixer(ABC):
@@ -78,6 +81,7 @@ class BaseFixer(Fixer):
             # Clear pending edits after successful application
             self.pending_edits.clear()
 
-        except (OSError, ValueError, TypeError, UnicodeError):
+        except (OSError, UnicodeError) as e:
             # On error, leave pending_edits intact for potential retry
+            logger.warning(f"File operation error during fix flush: {e}")
             pass

@@ -124,7 +124,7 @@ class TestE2E:
             result = self.run_cli(Path(temp_dir))
 
             assert result.returncode == 1
-            assert "Could not find workflows directory" in result.stdout
+            assert "Could not find .github/workflows directory" in result.stdout
 
     def test_empty_workflows_directory(self, temp_project):
         """Test behavior with empty workflows directory."""
@@ -132,8 +132,8 @@ class TestE2E:
 
         result = self.run_cli(project_root)
 
-        # Should succeed with no files to validate
-        assert result.returncode == 0
+        # Should fail with no files to validate
+        assert result.returncode == 1
 
     def test_yaml_and_yml_extensions(self, temp_project):
         """Test that both .yml and .yaml extensions are processed."""

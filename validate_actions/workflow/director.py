@@ -143,17 +143,17 @@ class BaseDirector(Director):
             )
 
         workflow = ast.Workflow(
-                path=self.workflow_file,
-                on_=on_,
-                jobs_=jobs_,
-                name_=name_,
-                run_name_=run_name_,
-                permissions_=permissions_,
-                env_=env_,
-                defaults_=defaults_,
-                concurrency_=concurrency_,
-                contexts=self.contexts,
-            )
+            path=self.workflow_file,
+            on_=on_,
+            jobs_=jobs_,
+            name_=name_,
+            run_name_=run_name_,
+            permissions_=permissions_,
+            env_=env_,
+            defaults_=defaults_,
+            concurrency_=concurrency_,
+            contexts=self.contexts,
+        )
 
         execution_plan = self.job_order_analyzer.analyze_workflow(workflow)
 
@@ -182,9 +182,7 @@ class BaseDirector(Director):
                         need_context = NeedContext(
                             type_=ContextType.object,
                             result=ContextType.string,
-                            outputs=self._build_needs_outputs_context(
-                                dep_job_id, workflow
-                            )
+                            outputs=self._build_needs_outputs_context(dep_job_id, workflow),
                         )
                         needs_context.children_[dep_job_id] = need_context
 

@@ -95,5 +95,5 @@ def test_no_step_with_that_id():
     assert isinstance(result[0], Problem)
     assert result[0].rule == "steps-io-match"
     assert result[0].level == ProblemLevel.ERR
-    assert result[0].desc == "Step 'stepOne' in job 'test-job' does not exist"
+    assert result[0].desc == "Step 'stepOne' in job 'test-job' does not exist. Available steps in this job: 'step1', 'step2'"
     assert result[0].pos.line == 18

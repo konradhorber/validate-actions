@@ -427,7 +427,7 @@ jobs:
     result = list(gen)
 
     # Should find missing version spec warning but no outdated version warning
-    version_spec_warnings = [p for p in result if "recommended @version" in p.desc]
+    version_spec_warnings = [p for p in result if "Using specific version of" in p.desc]
     outdated_warnings = [p for p in result if "outdated" in p.desc.lower()]
 
     assert len(version_spec_warnings) == 1
