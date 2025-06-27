@@ -32,7 +32,7 @@ def parse_workflow_string(
         jobs_builder = validate_actions.workflow.BaseJobsBuilder(
             problems, schema, steps_builder, contexts
         )
-        job_order_analyzer = validate_actions.workflow.JobOrderAnalyzer()
+        job_order_analyzer = validate_actions.workflow.JobOrderAnalyzer(problems)
 
         director = validate_actions.workflow.BaseDirector(
             temp_file_path,

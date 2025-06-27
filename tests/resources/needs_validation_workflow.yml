@@ -1,0 +1,23 @@
+name: Demo - Job Needs Validation
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Building..."
+
+  test-valid:
+    runs-on: ubuntu-latest
+    needs: build  # ✅ Valid - job exists
+    steps:
+      - run: echo "Testing with valid needs reference"
+      - run: echo "Access build result - ${{ needs.build.result }}"  # ✅ Valid needs context
+
+  test-invalid:
+    runs-on: ubuntu-latest
+    needs: missing-job  # ❌ Invalid - job doesn't exist
+    steps:
+      - run: echo "This will show an error"
+      - run: echo "Invalid needs context - ${{ needs.build.result }}"  # ❌ Invalid needs context

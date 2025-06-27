@@ -31,7 +31,7 @@ class Validator:
         events_builder = BaseEventsBuilder(problems, workflow_schema)
         steps_builder = BaseStepsBuilder(problems, workflow_schema, contexts)
         jobs_builder = BaseJobsBuilder(problems, workflow_schema, steps_builder, contexts)
-        job_order_analyzer = JobOrderAnalyzer()
+        job_order_analyzer = JobOrderAnalyzer(problems)
         director = BaseDirector(
             workflow_file=file,
             parser=parser,

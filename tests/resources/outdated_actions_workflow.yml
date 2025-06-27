@@ -1,0 +1,30 @@
+name: Demo - Outdated Actions
+
+on: push
+
+jobs:
+  outdated-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3      # ❌ Outdated - should be @v4
+      - uses: actions/setup-node@v3    # ❌ Outdated - should be @v4
+        with:
+          node-version: '18'
+      - uses: actions/cache@v3         # ❌ Outdated - should be @v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}
+
+  current-demo:
+    runs-on: ubuntu-latest  
+    steps:
+      - uses: actions/checkout@v4      # ✅ Current version
+      - uses: actions/setup-node@v4    # ✅ Current version
+        with:
+          node-version: '20'
+          
+  sha-version-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608  # ❌ SHA instead of tag
+      - uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d  # ❌ SHA instead of tag

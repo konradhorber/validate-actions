@@ -194,3 +194,64 @@ class TestE2E:
         result = self.run_cli(project_root)
         assert result.returncode == 2
         assert "⚠" in result.stdout  # Should show warning indicator
+
+    def test_demo_needs_validation_workflow(self, temp_project):
+        """Test demo workflow with invalid job needs references."""
+        project_root, workflows_dir = temp_project
+
+        # Copy the needs validation demo workflow
+        demo_workflow = Path(__file__).parent / "resources" / "needs_validation_workflow.yml"
+        shutil.copy(demo_workflow, workflows_dir / "needs-validation.yml")
+
+        result = self.run_cli(project_root)
+
+        # Should fail due to invalid needs reference
+        assert result.returncode == 1
+        assert "needs-validation.yml" in result.stdout
+        assert "✗" in result.stdout  # Error indicator
+        
+        # Should detect missing job reference
+        assert "missing-job" in result.stdout or "does not exist" in result.stdout.lower()
+        
+        # Should detect invalid needs context
+        output_lower = result.stdout.lower()
+        assert "needs" in output_lower and ("context" in output_lower or "reference" in output_lower)
+
+    def test_demo_circular_dependencies_workflow(self, temp_project):
+        """Test demo workflow with circular job dependencies."""
+        project_root, workflows_dir = temp_project
+
+        # Copy the circular dependencies demo workflow
+        demo_workflow = Path(__file__).parent / "resources" / "circular_dependencies_workflow.yml"
+        shutil.copy(demo_workflow, workflows_dir / "circular-deps.yml")
+
+        result = self.run_cli(project_root)
+
+        # Should fail due to circular dependencies
+        assert result.returncode == 1
+        assert "circular-deps.yml" in result.stdout
+        assert "✗" in result.stdout  # Error indicator
+        
+        # Should detect circular dependency
+        output_lower = result.stdout.lower()
+        assert "circular" in output_lower or "cycle" in output_lower or "dependency" in output_lower
+
+    def test_demo_outdated_actions_workflow(self, temp_project):
+        """Test demo workflow with outdated action versions."""
+        project_root, workflows_dir = temp_project
+
+        # Copy the outdated actions demo workflow
+        demo_workflow = Path(__file__).parent / "resources" / "outdated_actions_workflow.yml"
+        shutil.copy(demo_workflow, workflows_dir / "outdated-actions.yml")
+
+        result = self.run_cli(project_root)
+
+        # Should fail or warn due to outdated actions
+        assert result.returncode in [1, 2]  # Error or warning
+        assert "outdated-actions.yml" in result.stdout
+        assert ("✗" in result.stdout or "⚠" in result.stdout)  # Error or warning indicator
+        
+        # Should detect outdated versions
+        output_lower = result.stdout.lower()
+        assert ("outdated" in output_lower or "v3" in result.stdout or "v4" in result.stdout or 
+                "sha" in output_lower or "version" in output_lower)
