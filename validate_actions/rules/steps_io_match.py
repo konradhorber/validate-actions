@@ -91,8 +91,18 @@ class StepsIOMatch(Rule):
         if prev_step_metadata is None:
             return  # Unable to fetch action metadata
 
-        ref_step_attr = ref.parts[2]  # e.g., outputs
-        ref_step_var = ref.parts[3]
+        try:
+            ref_step_attr = ref.parts[2]  # e.g., outputs
+            ref_step_var = ref.parts[3]
+        except IndexError:
+            yield Problem(
+                rule=self.NAME,
+                desc=f"Invalid reference '{ref.string}'",
+                level=ProblemLevel.ERR,
+                pos=ref.pos,
+            )
+            return
+
         if ref_step_attr in prev_step_metadata:
             type_: Dict[str, str] = prev_step_metadata[ref_step_attr]
             if type_ is None or len(type_) == 0:  # type is empty TODO check if none needed
