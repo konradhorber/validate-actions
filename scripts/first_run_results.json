@@ -1,0 +1,2254 @@
+{
+  "total_workflows": 168,
+  "by_status": {
+    "PASS": 61,
+    "FAIL": 39,
+    "EXCEPTION": 30,
+    "WARN": 38
+  },
+  "total_problems": 124,
+  "total_errors": 70,
+  "total_warnings": 54,
+  "processing_time": 12.299409866333008,
+  "slowest_workflows": [
+    {
+      "file": "resources/official_workflows/code-scanning/snyk-infrastructure.yml",
+      "time": 0.46115589141845703
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/snyk-container.yml",
+      "time": 0.4524197578430176
+    },
+    {
+      "file": "resources/official_workflows/ci/r.yml",
+      "time": 0.44917726516723633
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/jscrambler-code-integrity.yml",
+      "time": 0.4031031131744385
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/codeql.yml",
+      "time": 0.39342689514160156
+    }
+  ],
+  "most_problematic": [
+    {
+      "file": "resources/official_workflows/code-scanning/codeql.yml",
+      "errors": 5,
+      "warnings": 1
+    },
+    {
+      "file": "resources/official_workflows/ci/ios.yml",
+      "errors": 4,
+      "warnings": 0
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/prisma.yml",
+      "errors": 3,
+      "warnings": 1
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/synopsys-io.yml",
+      "errors": 3,
+      "warnings": 1
+    },
+    {
+      "file": "resources/official_workflows/automation/summary.yml",
+      "errors": 3,
+      "warnings": 0
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-functions-app-java-gradle.yml",
+      "errors": 3,
+      "warnings": 0
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-functions-app-java.yml",
+      "errors": 3,
+      "warnings": 0
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-functions-app-python.yml",
+      "errors": 3,
+      "warnings": 0
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/brakeman.yml",
+      "errors": 2,
+      "warnings": 1
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/checkmarx.yml",
+      "errors": 2,
+      "warnings": 1
+    }
+  ],
+  "detailed_results": [
+    {
+      "file": "resources/official_workflows/automation/greetings.yml",
+      "status": "PASS",
+      "processing_time": 0.1763448715209961,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/automation/label.yml",
+      "status": "PASS",
+      "processing_time": 0.047866106033325195,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/automation/manual.yml",
+      "status": "PASS",
+      "processing_time": 0.003448963165283203,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/automation/stale.yml",
+      "status": "PASS",
+      "processing_time": 0.07195305824279785,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/automation/summary.yml",
+      "status": "FAIL",
+      "processing_time": 0.09819269180297852,
+      "error_count": 3,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 22,
+          "column": 18,
+          "level": "ERR",
+          "message": "Expression 'github.event.issue.title' does not match any context. Unknown property 'issue'"
+        },
+        {
+          "line": 22,
+          "column": 18,
+          "level": "ERR",
+          "message": "Expression 'github.event.issue.body' does not match any context. Unknown property 'issue'"
+        },
+        {
+          "line": 32,
+          "column": 24,
+          "level": "ERR",
+          "message": "Expression 'github.event.issue.number' does not match any context. Unknown property 'issue'"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/ci/ada.yml",
+      "status": "PASS",
+      "processing_time": 0.0033690929412841797,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/android.yml",
+      "status": "PASS",
+      "processing_time": 0.056626081466674805,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/ant.yml",
+      "status": "PASS",
+      "processing_time": 0.003293275833129883,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/blank.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.0026929378509521484,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/c-cpp.yml",
+      "status": "PASS",
+      "processing_time": 0.0025148391723632812,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/clojure.yml",
+      "status": "PASS",
+      "processing_time": 0.0024361610412597656,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/cmake-multi-platform.yml",
+      "status": "PASS",
+      "processing_time": 0.005620241165161133,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/cmake-single-platform.yml",
+      "status": "PASS",
+      "processing_time": 0.0028319358825683594,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/crystal.yml",
+      "status": "PASS",
+      "processing_time": 0.0016298294067382812,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/d.yml",
+      "status": "PASS",
+      "processing_time": 0.043396949768066406,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/dart.yml",
+      "status": "PASS",
+      "processing_time": 0.046647071838378906,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/datadog-synthetics.yml",
+      "status": "PASS",
+      "processing_time": 0.05019712448120117,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/deno.yml",
+      "status": "PASS",
+      "processing_time": 0.046095848083496094,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/django.yml",
+      "status": "PASS",
+      "processing_time": 0.04752707481384277,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/docker-image.yml",
+      "status": "PASS",
+      "processing_time": 0.001905202865600586,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/docker-publish.yml",
+      "status": "FAIL",
+      "processing_time": 0.24913978576660156,
+      "error_count": 2,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 67,
+          "column": 8,
+          "level": "ERR",
+          "message": "docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 requires inputs: context, images, github-token"
+        },
+        {
+          "line": 67,
+          "column": 8,
+          "level": "ERR",
+          "message": "docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 requires inputs: context, images, github-token"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/ci/dotnet-desktop.yml",
+      "status": "PASS",
+      "processing_time": 0.1479330062866211,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/dotnet.yml",
+      "status": "PASS",
+      "processing_time": 0.0039370059967041016,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/elixir.yml",
+      "status": "FAIL",
+      "processing_time": 0.09897804260253906,
+      "error_count": 1,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 33,
+          "column": 13,
+          "level": "ERR",
+          "message": "Expression 'hashFiles('**/mix.lock')' does not match any context. Unknown property 'hashFiles('**/mix'"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/ci/erlang.yml",
+      "status": "PASS",
+      "processing_time": 0.0027239322662353516,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/gem-push.yml",
+      "status": "PASS",
+      "processing_time": 0.05043196678161621,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/generator-generic-ossf-slsa3-publish.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.003787994384765625,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/go-ossf-slsa3-publish.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.0026721954345703125,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/go.yml",
+      "status": "PASS",
+      "processing_time": 0.05208897590637207,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/gradle-publish.yml",
+      "status": "WARN",
+      "processing_time": 0.377882719039917,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 32,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/ci/gradle.yml",
+      "status": "WARN",
+      "processing_time": 0.04055619239807129,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 33,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/ci/haskell.yml",
+      "status": "FAIL",
+      "processing_time": 0.05665469169616699,
+      "error_count": 2,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 29,
+          "column": 13,
+          "level": "ERR",
+          "message": "Expression 'hashFiles('**/*.cabal')' does not match any context. Unknown property 'hashFiles('**/*'"
+        },
+        {
+          "line": 29,
+          "column": 13,
+          "level": "ERR",
+          "message": "Expression 'hashFiles('**/cabal.project')' does not match any context. Unknown property 'hashFiles('**/cabal'"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/ci/ios.yml",
+      "status": "FAIL",
+      "processing_time": 0.004785060882568359,
+      "error_count": 4,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 24,
+          "column": 18,
+          "level": "ERR",
+          "message": "Expression ''default'' does not match any context. Unknown property ''default''"
+        },
+        {
+          "line": 25,
+          "column": 20,
+          "level": "ERR",
+          "message": "Expression ''iOS Simulator'' does not match any context. Unknown property ''iOS Simulator''"
+        },
+        {
+          "line": 35,
+          "column": 18,
+          "level": "ERR",
+          "message": "Expression ''default'' does not match any context. Unknown property ''default''"
+        },
+        {
+          "line": 36,
+          "column": 20,
+          "level": "ERR",
+          "message": "Expression ''iOS Simulator'' does not match any context. Unknown property ''iOS Simulator''"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/ci/jekyll-docker.yml",
+      "status": "PASS",
+      "processing_time": 0.0023412704467773438,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/laravel.yml",
+      "status": "PASS",
+      "processing_time": 0.04793882369995117,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/makefile.yml",
+      "status": "PASS",
+      "processing_time": 0.0032279491424560547,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/maven-publish.yml",
+      "status": "PASS",
+      "processing_time": 0.003335714340209961,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/maven.yml",
+      "status": "PASS",
+      "processing_time": 0.046113014221191406,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/msbuild.yml",
+      "status": "FAIL",
+      "processing_time": 0.022555828094482422,
+      "error_count": 2,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 36,
+          "column": 25,
+          "level": "ERR",
+          "message": "Expression 'env.GITHUB_WORKSPACE' does not match any context. Unknown property 'GITHUB_WORKSPACE'"
+        },
+        {
+          "line": 40,
+          "column": 25,
+          "level": "ERR",
+          "message": "Expression 'env.GITHUB_WORKSPACE' does not match any context. Unknown property 'GITHUB_WORKSPACE'"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/ci/node.js.yml",
+      "status": "PASS",
+      "processing_time": 0.05023789405822754,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/npm-grunt.yml",
+      "status": "PASS",
+      "processing_time": 0.0033838748931884766,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/npm-gulp.yml",
+      "status": "PASS",
+      "processing_time": 0.0024139881134033203,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/npm-publish-github-packages.yml",
+      "status": "PASS",
+      "processing_time": 0.003236055374145508,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/npm-publish.yml",
+      "status": "PASS",
+      "processing_time": 0.003439188003540039,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/objective-c-xcode.yml",
+      "status": "FAIL",
+      "processing_time": 0.002474069595336914,
+      "error_count": 1,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 24,
+          "column": 18,
+          "level": "ERR",
+          "message": "Expression ''default'' does not match any context. Unknown property ''default''"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/ci/php.yml",
+      "status": "FAIL",
+      "processing_time": 0.0024061203002929688,
+      "error_count": 1,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 27,
+          "column": 13,
+          "level": "ERR",
+          "message": "Expression 'hashFiles('**/composer.lock')' does not match any context. Unknown property 'hashFiles('**/composer'"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/ci/pylint.yml",
+      "status": "PASS",
+      "processing_time": 0.002051830291748047,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/python-app.yml",
+      "status": "PASS",
+      "processing_time": 0.002095937728881836,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/python-package-conda.yml",
+      "status": "PASS",
+      "processing_time": 0.001964092254638672,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/python-package.yml",
+      "status": "PASS",
+      "processing_time": 0.002177715301513672,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/python-publish.yml",
+      "status": "FAIL",
+      "processing_time": 0.11807894706726074,
+      "error_count": 1,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 50,
+          "column": 4,
+          "level": "ERR",
+          "message": "Invalid 'environment' 'url': 'None'"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/ci/r.yml",
+      "status": "WARN",
+      "processing_time": 0.44917726516723633,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 29,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for r-lib/actions/setup-r@f57f1301a053485946083d7a45022b278929a78a. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/ci/ruby.yml",
+      "status": "PASS",
+      "processing_time": 0.004855155944824219,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/rubyonrails.yml",
+      "status": "PASS",
+      "processing_time": 0.024762868881225586,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/rust.yml",
+      "status": "PASS",
+      "processing_time": 0.002758026123046875,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/scala.yml",
+      "status": "PASS",
+      "processing_time": 0.04906916618347168,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/super-linter.yml",
+      "status": "FAIL",
+      "processing_time": 0.04334521293640137,
+      "error_count": 1,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 26,
+          "column": 10,
+          "level": "ERR",
+          "message": "Invalid environment variable value: VALIDATE_ALL_CODEBASE"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/ci/swift.yml",
+      "status": "PASS",
+      "processing_time": 0.004240274429321289,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/ci/symfony.yml",
+      "status": "FAIL",
+      "processing_time": 0.01730799674987793,
+      "error_count": 1,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 34,
+          "column": 13,
+          "level": "ERR",
+          "message": "Expression 'hashFiles('**/composer.lock')' does not match any context. Unknown property 'hashFiles('**/composer'"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/ci/webpack.yml",
+      "status": "PASS",
+      "processing_time": 0.0023260116577148438,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/anchore-syft.yml",
+      "status": "PASS",
+      "processing_time": 0.04656791687011719,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/anchore.yml",
+      "status": "WARN",
+      "processing_time": 0.35893678665161133,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 45,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/apisec-scan.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.0052759647369384766,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/appknox.yml",
+      "status": "WARN",
+      "processing_time": 0.08156299591064453,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 51,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/bandit.yml",
+      "status": "PASS",
+      "processing_time": 0.053961992263793945,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/bearer.yml",
+      "status": "WARN",
+      "processing_time": 0.09193205833435059,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 40,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/black-duck-security-scan-ci.yml",
+      "status": "PASS",
+      "processing_time": 0.06423282623291016,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/brakeman.yml",
+      "status": "FAIL",
+      "processing_time": 0.030586957931518555,
+      "error_count": 2,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 43,
+          "column": 8,
+          "level": "ERR",
+          "message": "Invalid environment variable value: BRAKEMAN_VERSION"
+        },
+        {
+          "line": 0,
+          "column": 0,
+          "level": "ERR",
+          "message": "No valid environment variables found"
+        },
+        {
+          "line": 55,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/checkmarx-one.yml",
+      "status": "WARN",
+      "processing_time": 0.07951021194458008,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 51,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/checkmarx.yml",
+      "status": "FAIL",
+      "processing_time": 0.07654500007629395,
+      "error_count": 2,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 52,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        },
+        {
+          "line": 49,
+          "column": 16,
+          "level": "ERR",
+          "message": "Expression 'github.event.repository.name' does not match any context. Unknown property 'repository'"
+        },
+        {
+          "line": 49,
+          "column": 16,
+          "level": "ERR",
+          "message": "Expression 'github.event.repository.url' does not match any context. Unknown property 'repository'"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/clj-holmes.yml",
+      "status": "WARN",
+      "processing_time": 0.08282756805419922,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 40,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/clj-watson.yml",
+      "status": "WARN",
+      "processing_time": 0.2896239757537842,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 50,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/cloudrail.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.005079030990600586,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/codacy.yml",
+      "status": "WARN",
+      "processing_time": 0.08835887908935547,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 58,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/codeql.yml",
+      "status": "FAIL",
+      "processing_time": 0.39342689514160156,
+      "error_count": 5,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 43,
+          "column": 6,
+          "level": "ERR",
+          "message": "Strategy matrix must be a mapping"
+        },
+        {
+          "line": 65,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/init@v3. Continuing validation without"
+        },
+        {
+          "line": 67,
+          "column": 19,
+          "level": "ERR",
+          "message": "Expression 'matrix.language' does not match any context. Unknown property 'language'"
+        },
+        {
+          "line": 68,
+          "column": 20,
+          "level": "ERR",
+          "message": "Expression 'matrix.build-mode' does not match any context. Unknown property 'build-mode'"
+        },
+        {
+          "line": 95,
+          "column": 18,
+          "level": "ERR",
+          "message": "Expression 'matrix.language' does not match any context. Unknown property 'language'"
+        },
+        {
+          "line": 23,
+          "column": 10,
+          "level": "ERR",
+          "message": "Expression 'matrix.language' does not match any context. Unknown property 'language'"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/codescan.yml",
+      "status": "WARN",
+      "processing_time": 0.07915687561035156,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 46,
+          "column": 16,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/contrast-scan.yml",
+      "status": "WARN",
+      "processing_time": 0.0812990665435791,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 50,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/crda.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.007356166839599609,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/credo.yml",
+      "status": "WARN",
+      "processing_time": 0.05120110511779785,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 57,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/crunch42.yml",
+      "status": "PASS",
+      "processing_time": 0.26309990882873535,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/datree.yml",
+      "status": "FAIL",
+      "processing_time": 0.22938799858093262,
+      "error_count": 2,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 32,
+          "column": 8,
+          "level": "ERR",
+          "message": "datreeio/action-datree@de67ae7a5133d719dc794e1b75682cd4c5f94d8a requires inputs: path, isHelmChart, isKustomization"
+        },
+        {
+          "line": 32,
+          "column": 8,
+          "level": "ERR",
+          "message": "datreeio/action-datree@de67ae7a5133d719dc794e1b75682cd4c5f94d8a requires inputs: path, isHelmChart, isKustomization"
+        },
+        {
+          "line": 44,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/debricked.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.004765033721923828,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/defender-for-devops.yml",
+      "status": "WARN",
+      "processing_time": 0.07876706123352051,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 44,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/dependency-review.yml",
+      "status": "PASS",
+      "processing_time": 0.056260108947753906,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/detekt.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.005541324615478516,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/devskim.yml",
+      "status": "WARN",
+      "processing_time": 0.07562613487243652,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 31,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/endorlabs.yml",
+      "status": "WARN",
+      "processing_time": 0.08461165428161621,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 48,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/eslint.yml",
+      "status": "FAIL",
+      "processing_time": 0.03667402267456055,
+      "error_count": 2,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 39,
+          "column": 10,
+          "level": "ERR",
+          "message": "Invalid environment variable value: SARIF_ESLINT_IGNORE_SUPPRESSED"
+        },
+        {
+          "line": 0,
+          "column": 0,
+          "level": "ERR",
+          "message": "No valid environment variables found"
+        },
+        {
+          "line": 48,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/ethicalcheck.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.006926059722900391,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/flawfinder.yml",
+      "status": "WARN",
+      "processing_time": 0.07844185829162598,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 35,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/fortify.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.009605169296264648,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/frogbot-scan-and-fix.yml",
+      "status": "PASS",
+      "processing_time": 0.048722028732299805,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/frogbot-scan-pr.yml",
+      "status": "FAIL",
+      "processing_time": 0.005427122116088867,
+      "error_count": 1,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 28,
+          "column": 15,
+          "level": "ERR",
+          "message": "Expression 'github.event.pull_request.head.sha' does not match any context. Unknown property 'pull_request'"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/hadolint.yml",
+      "status": "WARN",
+      "processing_time": 0.08236885070800781,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 43,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/jfrog-sast.yml",
+      "status": "WARN",
+      "processing_time": 0.036879777908325195,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 51,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/jscrambler-code-integrity.yml",
+      "status": "WARN",
+      "processing_time": 0.4031031131744385,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 38,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for jscrambler/code-integrity-actions/protect@ab65962a2ecffcc362b75a997e24a181d0bde5fb. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/kubesec.yml",
+      "status": "WARN",
+      "processing_time": 0.08423399925231934,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 38,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/lintr.yml",
+      "status": "WARN",
+      "processing_time": 0.31954312324523926,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 38,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for r-lib/actions/setup-r@4e1feaf90520ec1215d1882fdddfe3411c08e492. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/mayhem-for-api.yml",
+      "status": "WARN",
+      "processing_time": 0.08381175994873047,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 61,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/mobsf.yml",
+      "status": "FAIL",
+      "processing_time": 0.0835268497467041,
+      "error_count": 1,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 35,
+          "column": 8,
+          "level": "ERR",
+          "message": "MobSF/mobsfscan@a60d10a83af68e23e0b30611c6515da604f06f65 requires inputs: args"
+        },
+        {
+          "line": 40,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/msvc.yml",
+      "status": "WARN",
+      "processing_time": 0.07966208457946777,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 56,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/neuralegion.yml",
+      "status": "PASS",
+      "processing_time": 0.051174163818359375,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/njsscan.yml",
+      "status": "FAIL",
+      "processing_time": 0.2363591194152832,
+      "error_count": 1,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 35,
+          "column": 6,
+          "level": "ERR",
+          "message": "ajinabraham/njsscan-action@7237412fdd36af517e2745077cedbf9d6900d711 requires inputs: args"
+        },
+        {
+          "line": 39,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/nowsecure-mobile-sbom.yml",
+      "status": "FAIL",
+      "processing_time": 0.05211901664733887,
+      "error_count": 2,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 54,
+          "column": 23,
+          "level": "ERR",
+          "message": "Error parsing flow mapping"
+        },
+        {
+          "line": 54,
+          "column": 32,
+          "level": "ERR",
+          "message": "Error parsing block mapping"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/nowsecure.yml",
+      "status": "FAIL",
+      "processing_time": 0.08406305313110352,
+      "error_count": 2,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 46,
+          "column": 23,
+          "level": "ERR",
+          "message": "Error parsing flow mapping"
+        },
+        {
+          "line": 46,
+          "column": 32,
+          "level": "ERR",
+          "message": "Error parsing block mapping"
+        },
+        {
+          "line": 49,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/ossar.yml",
+      "status": "WARN",
+      "processing_time": 0.08733391761779785,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 53,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/osv-scanner.yml",
+      "status": "FAIL",
+      "processing_time": 0.005758047103881836,
+      "error_count": 1,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 17,
+          "column": 4,
+          "level": "ERR",
+          "message": "Unknown event filter key: branches"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/phpmd.yml",
+      "status": "FAIL",
+      "processing_time": 0.05688810348510742,
+      "error_count": 1,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 43,
+          "column": 8,
+          "level": "ERR",
+          "message": "shivammathur/setup-php@aa1fe473f9c687b6fb896056d771232c0bc41161 requires inputs: php-version"
+        },
+        {
+          "line": 53,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/pmd.yml",
+      "status": "WARN",
+      "processing_time": 0.08224701881408691,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 40,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/policy-validator-cfn.yaml",
+      "status": "PASS",
+      "processing_time": 0.2990269660949707,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/policy-validator-tf.yaml",
+      "status": "PASS",
+      "processing_time": 0.3893277645111084,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/powershell.yml",
+      "status": "WARN",
+      "processing_time": 0.08084893226623535,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 46,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/prisma.yml",
+      "status": "FAIL",
+      "processing_time": 0.08781814575195312,
+      "error_count": 3,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 39,
+          "column": 8,
+          "level": "ERR",
+          "message": "prisma-cloud-shiftleft/iac-scan-action@53278c231c438216d99b463308a3cbed351ba0c3 requires inputs: create_issue, create_pull_request_check, create_pull_request_comment, prisma_api_url, access_key, secret_key, asset_name, template_type"
+        },
+        {
+          "line": 39,
+          "column": 8,
+          "level": "ERR",
+          "message": "prisma-cloud-shiftleft/iac-scan-action@53278c231c438216d99b463308a3cbed351ba0c3 requires inputs: create_issue, create_pull_request_check, create_pull_request_comment, prisma_api_url, access_key, secret_key, asset_name, template_type"
+        },
+        {
+          "line": 39,
+          "column": 8,
+          "level": "ERR",
+          "message": "prisma-cloud-shiftleft/iac-scan-action@53278c231c438216d99b463308a3cbed351ba0c3 requires inputs: create_issue, create_pull_request_check, create_pull_request_comment, prisma_api_url, access_key, secret_key, asset_name, template_type"
+        },
+        {
+          "line": 51,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/psalm.yml",
+      "status": "WARN",
+      "processing_time": 0.07968783378601074,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 35,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/puppet-lint.yml",
+      "status": "WARN",
+      "processing_time": 0.0414121150970459,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 51,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/pyre.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.003793954849243164,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/pysa.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.0031359195709228516,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/rubocop.yml",
+      "status": "WARN",
+      "processing_time": 0.031007051467895508,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 49,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/rust-clippy.yml",
+      "status": "WARN",
+      "processing_time": 0.08221316337585449,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 51,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/scorecard.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.0030012130737304688,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/securitycodescan.yml",
+      "status": "WARN",
+      "processing_time": 0.16063904762268066,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 40,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/semgrep.yml",
+      "status": "FAIL",
+      "processing_time": 0.08120989799499512,
+      "error_count": 1,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 37,
+          "column": 8,
+          "level": "ERR",
+          "message": "returntocorp/semgrep-action@fcd5ab7459e8d91cb1777481980d1b18b4fc6735 uses unknown input: publishDeployment"
+        },
+        {
+          "line": 45,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/snyk-container.yml",
+      "status": "WARN",
+      "processing_time": 0.4524197578430176,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 42,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for snyk/actions/docker@14818c4695ecc4045f33c9cee9e795a788711ca4. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/snyk-infrastructure.yml",
+      "status": "WARN",
+      "processing_time": 0.46115589141845703,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 39,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for snyk/actions/iac@14818c4695ecc4045f33c9cee9e795a788711ca4. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/snyk-security.yml",
+      "status": "WARN",
+      "processing_time": 0.3219749927520752,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 41,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/sobelow.yml",
+      "status": "FAIL",
+      "processing_time": 0.08509278297424316,
+      "error_count": 1,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 36,
+          "column": 8,
+          "level": "ERR",
+          "message": "sobelow/action@1afd6d2cae70ae8bd900b58506f54487ed863912 requires inputs: report"
+        },
+        {
+          "line": 38,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/sonarcloud.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.004952192306518555,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/sonarqube.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.004378080368041992,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/soos-dast-scan.yml",
+      "status": "FAIL",
+      "processing_time": 0.08926892280578613,
+      "error_count": 1,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 38,
+          "column": 8,
+          "level": "ERR",
+          "message": "soos-io/soos-dast-github-action@a7eb40b94c1c81eb76b178ba1befdc21823f86fa requires inputs: client_id, api_key, project_name, scan_mode, api_url, target_url"
+        },
+        {
+          "line": 57,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/stackhawk.yml",
+      "status": "PASS",
+      "processing_time": 0.05160808563232422,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/synopsys-action.yml",
+      "status": "PASS",
+      "processing_time": 0.06047987937927246,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/synopsys-io.yml",
+      "status": "FAIL",
+      "processing_time": 0.12766718864440918,
+      "error_count": 3,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 55,
+          "column": 6,
+          "level": "ERR",
+          "message": "blackducksoftware/github-action@9ea442b34409737f64743781e9adc71fd8e17d38 requires inputs: args"
+        },
+        {
+          "line": 73,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        },
+        {
+          "line": 66,
+          "column": 32,
+          "level": "ERR",
+          "message": "'sastScan' does not exist in step"
+        },
+        {
+          "line": 66,
+          "column": 32,
+          "level": "ERR",
+          "message": "'scaScan' does not exist in step"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/sysdig-scan.yml",
+      "status": "FAIL",
+      "processing_time": 0.08469486236572266,
+      "error_count": 1,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 39,
+          "column": 6,
+          "level": "ERR",
+          "message": "sysdiglabs/scan-action@768d7626a14897e0948ea89c8437dd46a814b163 requires inputs: image-tag, sysdig-secure-token, github-token, input-type"
+        },
+        {
+          "line": 57,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/tfsec.yml",
+      "status": "WARN",
+      "processing_time": 0.08240699768066406,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 34,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/trivy.yml",
+      "status": "WARN",
+      "processing_time": 0.30482006072998047,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 45,
+          "column": 8,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/veracode.yml",
+      "status": "FAIL",
+      "processing_time": 0.08560013771057129,
+      "error_count": 2,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 52,
+          "column": 6,
+          "level": "ERR",
+          "message": "veracode/veracode-pipeline-scan-results-to-sarif@ff08ae5b45d5384cb4679932f184c013d34da9be requires inputs: pipeline-results-json, output-results-sarif, finding-rule-level"
+        },
+        {
+          "line": 52,
+          "column": 6,
+          "level": "ERR",
+          "message": "veracode/veracode-pipeline-scan-results-to-sarif@ff08ae5b45d5384cb4679932f184c013d34da9be requires inputs: pipeline-results-json, output-results-sarif, finding-rule-level"
+        },
+        {
+          "line": 55,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/xanitizer.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.006406068801879883,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/zscaler-iac-scan.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.004670143127441406,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/code-scanning/zscan.yml",
+      "status": "WARN",
+      "processing_time": 0.08469891548156738,
+      "error_count": 0,
+      "warning_count": 1,
+      "problems": [
+        {
+          "line": 57,
+          "column": 6,
+          "level": "WAR",
+          "message": "Couldn't fetch metadata for github/codeql-action/upload-sarif@v3. Continuing validation without"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/deployments/alibabacloud.yml",
+      "status": "FAIL",
+      "processing_time": 0.14809203147888184,
+      "error_count": 1,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 55,
+          "column": 6,
+          "level": "ERR",
+          "message": "aliyun/acr-login@v1 requires inputs: login-server"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/deployments/aws.yml",
+      "status": "PASS",
+      "processing_time": 0.17224979400634766,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-container-webapp.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.005421876907348633,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-functions-app-container.yml",
+      "status": "PASS",
+      "processing_time": 0.1654982566833496,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-functions-app-dotnet.yml",
+      "status": "PASS",
+      "processing_time": 0.06028008460998535,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-functions-app-java-gradle.yml",
+      "status": "FAIL",
+      "processing_time": 0.0046939849853515625,
+      "error_count": 3,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 31,
+          "column": 2,
+          "level": "ERR",
+          "message": "Invalid environment variable value: JAVA_VERSION"
+        },
+        {
+          "line": 53,
+          "column": 22,
+          "level": "ERR",
+          "message": "Expression 'env.JAVA_VERSION' does not match any context. Unknown property 'JAVA_VERSION'"
+        },
+        {
+          "line": 49,
+          "column": 12,
+          "level": "ERR",
+          "message": "Expression 'env.JAVA_VERSION' does not match any context. Unknown property 'JAVA_VERSION'"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-functions-app-java.yml",
+      "status": "FAIL",
+      "processing_time": 0.0037026405334472656,
+      "error_count": 3,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 28,
+          "column": 2,
+          "level": "ERR",
+          "message": "Invalid environment variable value: JAVA_VERSION"
+        },
+        {
+          "line": 48,
+          "column": 22,
+          "level": "ERR",
+          "message": "Expression 'env.JAVA_VERSION' does not match any context. Unknown property 'JAVA_VERSION'"
+        },
+        {
+          "line": 44,
+          "column": 12,
+          "level": "ERR",
+          "message": "Expression 'env.JAVA_VERSION' does not match any context. Unknown property 'JAVA_VERSION'"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-functions-app-nodejs.yml",
+      "status": "PASS",
+      "processing_time": 0.0032901763916015625,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-functions-app-powershell.yml",
+      "status": "PASS",
+      "processing_time": 0.002393960952758789,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-functions-app-python.yml",
+      "status": "FAIL",
+      "processing_time": 0.020917892456054688,
+      "error_count": 3,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 27,
+          "column": 2,
+          "level": "ERR",
+          "message": "Invalid environment variable value: PYTHON_VERSION"
+        },
+        {
+          "line": 46,
+          "column": 24,
+          "level": "ERR",
+          "message": "Expression 'env.PYTHON_VERSION' does not match any context. Unknown property 'PYTHON_VERSION'"
+        },
+        {
+          "line": 43,
+          "column": 12,
+          "level": "ERR",
+          "message": "Expression 'env.PYTHON_VERSION' does not match any context. Unknown property 'PYTHON_VERSION'"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-kubernetes-service-helm.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.0037298202514648438,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-kubernetes-service-kompose.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.0035920143127441406,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-kubernetes-service-kustomize.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.003504037857055664,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-kubernetes-service.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.003000974655151367,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-staticwebapp.yml",
+      "status": "FAIL",
+      "processing_time": 0.046617746353149414,
+      "error_count": 1,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 66,
+          "column": 8,
+          "level": "ERR",
+          "message": "Azure/static-web-apps-deploy@v1 requires inputs: action, app_location, azure_static_web_apps_api_token"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-webapps-dotnet-core.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.0033020973205566406,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-webapps-java-jar-gradle.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.0023179054260253906,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-webapps-java-jar.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.002270936965942383,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-webapps-node.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.0025720596313476562,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-webapps-php.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.0025680065155029297,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/azure-webapps-python.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.00214385986328125,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/google-cloudrun-docker.yml",
+      "status": "FAIL",
+      "processing_time": 0.14252471923828125,
+      "error_count": 2,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 83,
+          "column": 8,
+          "level": "ERR",
+          "message": "google-github-actions/deploy-cloudrun@33553064113a37d688aa6937bacbdc481580be17 requires inputs: env_vars_update_strategy, secrets_update_strategy"
+        },
+        {
+          "line": 83,
+          "column": 8,
+          "level": "ERR",
+          "message": "google-github-actions/deploy-cloudrun@33553064113a37d688aa6937bacbdc481580be17 requires inputs: env_vars_update_strategy, secrets_update_strategy"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/deployments/google-cloudrun-source.yml",
+      "status": "FAIL",
+      "processing_time": 0.0040531158447265625,
+      "error_count": 2,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 64,
+          "column": 8,
+          "level": "ERR",
+          "message": "google-github-actions/deploy-cloudrun@33553064113a37d688aa6937bacbdc481580be17 requires inputs: env_vars_update_strategy, secrets_update_strategy"
+        },
+        {
+          "line": 64,
+          "column": 8,
+          "level": "ERR",
+          "message": "google-github-actions/deploy-cloudrun@33553064113a37d688aa6937bacbdc481580be17 requires inputs: env_vars_update_strategy, secrets_update_strategy"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/deployments/google.yml",
+      "status": "PASS",
+      "processing_time": 0.05141711235046387,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/ibm.yml",
+      "status": "FAIL",
+      "processing_time": 0.003935098648071289,
+      "error_count": 1,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 24,
+          "column": 2,
+          "level": "ERR",
+          "message": "Invalid environment variable value: PORT"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/deployments/octopusdeploy.yml",
+      "status": "FAIL",
+      "processing_time": 0.20752191543579102,
+      "error_count": 1,
+      "warning_count": 0,
+      "problems": [
+        {
+          "line": 64,
+          "column": 8,
+          "level": "ERR",
+          "message": "docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7 requires inputs: images, github-token"
+        }
+      ]
+    },
+    {
+      "file": "resources/official_workflows/deployments/openshift.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.00851893424987793,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/tencent.yml",
+      "status": "PASS",
+      "processing_time": 0.05603623390197754,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    },
+    {
+      "file": "resources/official_workflows/deployments/terraform.yml",
+      "status": "EXCEPTION",
+      "processing_time": 0.0039806365966796875,
+      "error_count": 0,
+      "warning_count": 0,
+      "problems": []
+    }
+  ]
+}
