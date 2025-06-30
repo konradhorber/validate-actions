@@ -268,16 +268,10 @@ class PyYAMLParser(YAMLParser):
         elif isinstance(token, yaml.FlowMappingStartToken):
             value, index = self.__parse_flow_mapping(tokens, index)
 
-        # illegal token at value position
+        # else assume empty block mapping
         else:
-            self.problems.append(
-                Problem(
-                    pos=self.__parse_pos(tokens[index]),
-                    desc="Error parsing block value",
-                    level=ProblemLevel.ERR,
-                    rule=self.RULE,
-                )
-            )
+            value = {}
+            index -= 1  # Decrement index to reprocess current token
 
         return value, index
 
