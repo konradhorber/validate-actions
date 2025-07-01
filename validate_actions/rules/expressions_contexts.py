@@ -79,7 +79,7 @@ class ExpressionsContexts(Rule):
         if function_regex.search(expr.string):
             return None
 
-        web_contexts_not_to_check = ["vars", "secrets", "inputs", "steps"]
+        web_contexts_not_to_check = ["vars", "secrets", "inputs", "steps", "env"]
         # TODO unshelf needs and steps
         if not parts:
             return problem

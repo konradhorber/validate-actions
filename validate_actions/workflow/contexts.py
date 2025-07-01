@@ -56,12 +56,6 @@ class GithubContext:
 
 
 @dataclass
-class EnvContext:
-    type_: Optional[ContextType] = ContextType.object
-    children_: Dict[str, ContextType] = field(default_factory=dict)
-
-
-@dataclass
 class VarsContext:
     type_: Optional[ContextType] = ContextType.object
     children_: Dict[str, ContextType] = field(default_factory=dict)
@@ -212,7 +206,6 @@ functions_ = {
 @dataclass
 class Contexts:
     github: GithubContext = field(default_factory=GithubContext)
-    env: EnvContext = field(default_factory=EnvContext)
     vars: VarsContext = field(default_factory=VarsContext)
     job: Optional[JobContext] = None
     jobs: Optional[JobsContext] = None

@@ -111,7 +111,7 @@ class BaseDirector(Director):
                     )
                 case "env":
                     env_ = helper.build_env(
-                        workflow_dict[key], self.contexts, self.problems, self.RULE_NAME
+                        workflow_dict[key], self.problems, self.RULE_NAME
                     )
                 case "defaults":
                     defaults_ = helper.build_defaults(

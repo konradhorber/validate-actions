@@ -113,9 +113,8 @@ class BaseJobsBuilder(JobsBuilder):
                 case "outputs":
                     self._build_jobs_context_output(key, job_dict, job_jobs_context)
                 case "env":
-                    local_contexts.env = copy.deepcopy(local_contexts.env)
                     env_ = helper.build_env(
-                        job_dict[key], local_contexts, self.problems, self.RULE_NAME
+                        job_dict[key], self.problems, self.RULE_NAME
                     )
                 case "defaults":
                     defaults_ = helper.build_defaults(job_dict[key], self.problems, self.RULE_NAME)
@@ -244,7 +243,7 @@ class BaseJobsBuilder(JobsBuilder):
                         key, value, problems, rule_name
                     )
                 case "env":
-                    env_ = helper.build_env(value, local_contexts, problems, rule_name)
+                    env_ = helper.build_env(value, problems, rule_name)
                 case "ports":
                     if isinstance(value, list) and all(isinstance(i, ast.String) for i in value):
                         ports_ = value

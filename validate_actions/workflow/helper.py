@@ -7,11 +7,10 @@ from typing import Any, Dict, Optional, Union
 from validate_actions.pos import Pos
 from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow import ast
-from validate_actions.workflow.contexts import Contexts, ContextType
 
 
 def build_env(
-    env_vars: Dict[ast.String, Any], contexts: Contexts, problems: Problems, RULE_NAME: str
+    env_vars: Dict[ast.String, Any], problems: Problems, RULE_NAME: str
 ) -> Optional[ast.Env]:
     env_vars_out: Dict[ast.String, ast.String] = {}
     for key in env_vars:
@@ -19,17 +18,14 @@ def build_env(
             value = env_vars[key]
             if isinstance(value, ast.String):
                 env_vars_out[key] = value
-                contexts.env.children_[key.string] = ContextType.string
             elif isinstance(value, bool):
                 # Convert boolean to string
                 string_value = ast.String(str(value).lower(), key.pos)
                 env_vars_out[key] = string_value
-                contexts.env.children_[key.string] = ContextType.string
             elif isinstance(value, int):
                 # Convert integer to string
                 string_value = ast.String(str(value), key.pos)
                 env_vars_out[key] = string_value
-                contexts.env.children_[key.string] = ContextType.string
             else:
                 problems.append(
                     Problem(
