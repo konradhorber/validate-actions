@@ -1,3 +1,4 @@
+import re
 from collections.abc import Mapping, Sequence
 from dataclasses import fields, is_dataclass
 from difflib import SequenceMatcher
@@ -70,8 +71,12 @@ class ExpressionsContexts(Rule):
             rule=self.NAME,
         )
         operators = ["!", "<=", "<", ">=", ">", "==", "!=", "&&", "||"]
+        function_regex = re.compile(r"\b([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*([^)]*?)\s*\)")
 
         if any(op in expr.string for op in operators):  # TODO
+            return None
+
+        if function_regex.search(expr.string):
             return None
 
         web_contexts_not_to_check = ["vars", "secrets", "inputs", "steps"]
