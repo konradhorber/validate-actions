@@ -16,8 +16,19 @@ def build_env(
     env_vars_out: Dict[ast.String, ast.String] = {}
     for key in env_vars:
         if isinstance(key, ast.String):
-            if isinstance(env_vars[key], ast.String):
-                env_vars_out[key] = env_vars[key]
+            value = env_vars[key]
+            if isinstance(value, ast.String):
+                env_vars_out[key] = value
+                contexts.env.children_[key.string] = ContextType.string
+            elif isinstance(value, bool):
+                # Convert boolean to string
+                string_value = ast.String(str(value).lower(), key.pos)
+                env_vars_out[key] = string_value
+                contexts.env.children_[key.string] = ContextType.string
+            elif isinstance(value, int):
+                # Convert integer to string
+                string_value = ast.String(str(value), key.pos)
+                env_vars_out[key] = string_value
                 contexts.env.children_[key.string] = ContextType.string
             else:
                 problems.append(
