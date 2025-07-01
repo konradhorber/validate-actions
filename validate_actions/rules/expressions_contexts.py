@@ -83,6 +83,9 @@ class ExpressionsContexts(Rule):
         # TODO unshelf needs and steps
         if not parts:
             return problem
+        # If one part it is a literal
+        if len(parts) == 1:
+            return None
         parts_visited: list[String] = []
         for part in parts:
             if part in web_contexts_not_to_check:
