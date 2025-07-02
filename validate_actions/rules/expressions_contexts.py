@@ -87,9 +87,11 @@ class ExpressionsContexts(Rule):
         if len(parts) == 1:
             return None
         parts_visited: list[String] = []
-        for part in parts:
-            if part in web_contexts_not_to_check:
-                break
+        if parts[0] in web_contexts_not_to_check:
+            return None
+        if parts[0] == "github" and parts[1] == "event":
+            return None
+        for i, part in enumerate(parts):
             if hasattr(cur, part.string):
                 cur = getattr(cur, part.string)
             elif hasattr(cur, "children_") and part.string in getattr(cur, "children_"):
