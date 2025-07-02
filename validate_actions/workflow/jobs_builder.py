@@ -435,7 +435,25 @@ class BaseJobsBuilder(JobsBuilder):
         max_parallel_ = None
 
         for strategy_key, strategy_value in strategy_data.items():
-            if strategy_key.string == "matrix":
+            if strategy_key == "matrix":
+                if isinstance(strategy_value, ast.String):
+                    if strategy_value == "$codeql-languages-matrix":
+                        strategy_value = {
+                            ast.String("language", strategy_value.pos):
+                                ast.String("selected by codeql", strategy_value.pos),
+                            ast.String("build-mode", strategy_value.pos):
+                                ast.String("selected by codeql", strategy_value.pos)
+                        }
+                    else:
+                        self.problems.append(
+                            Problem(
+                                pos=strategy_key.pos,
+                                desc="Matrix must be a mapping",
+                                level=ProblemLevel.ERR,
+                                rule=self.RULE_NAME,
+                            )
+                        )
+                        continue
                 if not isinstance(strategy_value, dict):
                     self.problems.append(
                         Problem(
@@ -607,15 +625,19 @@ class BaseJobsBuilder(JobsBuilder):
             else:
                 # This is a matrix axis
                 if not isinstance(value, list):
-                    self.problems.append(
-                        Problem(
-                            pos=key.pos,
-                            desc=f"Matrix axis '{key.string}' must be a list",
-                            level=ProblemLevel.ERR,
-                            rule=self.RULE_NAME,
+                    if not isinstance(value, (ast.String, str, int, float, bool)):
+                        self.problems.append(
+                            Problem(
+                                pos=key.pos,
+                                desc=(
+                                    f"Matrix axis '{key.string}' value invalid"
+                                ),
+                                level=ProblemLevel.ERR,
+                                rule=self.RULE_NAME,
+                            )
                         )
-                    )
-                    continue
+                        continue
+                    value = [value]
                 matrix_axes[key] = value
 
         # Generate base matrix combinations from axes
