@@ -219,7 +219,7 @@ class JobsStepsUses(Rule):
             problem = Problem(
                 action.pos,
                 ProblemLevel.WAR,
-                f"Action {action_slug} uses commit SHA {commit_sha} which may be outdated. "
+                f"Action {action_slug} uses commit SHA which may be outdated. "
                 f"Current latest version is {current_latest}. Consider using versioned tags.",
                 self.NAME,
             )
@@ -229,7 +229,7 @@ class JobsStepsUses(Rule):
                     commit_sha,
                     current_latest,
                     problem,
-                    f"Fixed commit SHA {commit_sha} to latest version {current_latest}",
+                    f"Updated commit SHA to latest version {current_latest}",
                 )
                 action.uses_.string = f"{action_slug}@{current_latest}"
             yield problem
@@ -253,7 +253,7 @@ class JobsStepsUses(Rule):
             problem = Problem(
                 action.pos,
                 ProblemLevel.WAR,
-                f"Action {action_slug} uses commit SHA {commit_sha} "
+                f"Action {action_slug} uses commit SHA "
                 f"(corresponds to {commit_version}) which is {outdated_level} "
                 f"version outdated. Current latest is {current_latest}.",
                 self.NAME,
@@ -264,7 +264,7 @@ class JobsStepsUses(Rule):
                     commit_sha,
                     current_latest,
                     problem,
-                    f"Fixed outdated commit SHA {commit_sha} to latest version {current_latest}",
+                    f"Updated outdated commit SHA to latest version {current_latest}",
                 )
                 action.uses_.string = f"{action_slug}@{current_latest}"
             yield problem

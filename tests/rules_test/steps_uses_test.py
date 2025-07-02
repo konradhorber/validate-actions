@@ -384,7 +384,7 @@ jobs:
     assert len(outdated_warnings) == 1
     assert outdated_warnings[0].level == ProblemLevel.WAR
     assert outdated_warnings[0].rule == "jobs-steps-uses"
-    assert "8e5e7e5ab8b370d6c329ec480221332ada57f0ab" in outdated_warnings[0].desc
+    assert "SHA" in outdated_warnings[0].desc
 
 
 def test_current_latest_version_no_warning():
