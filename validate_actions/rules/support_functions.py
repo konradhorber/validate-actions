@@ -253,8 +253,19 @@ def parse_action(slug):
     action, sep, tag = slug.partition("@")
     tags = [tag] if sep else ["main", "master"]
 
+    directories = slug.split("/")
+    for i, directory in enumerate(directories):
+        dir_action, dir_sep, dir_tag = directory.partition("@")
+        directories[i] = dir_action
+
     for current_tag in tags:
-        url_no_ext = f"{GITHUB_URL}{action}/{current_tag}/action"
+        if len(directories) < 3:
+            url_no_ext = f"{GITHUB_URL}{action}/{current_tag}/action"
+        else:
+            url_no_ext = f"{GITHUB_URL}{directories[0]}/{directories[1]}/{current_tag}"
+            for directory in directories[2:]:
+                url_no_ext += f"/{directory}"
+            url_no_ext += "/action"
 
         if url_no_ext in parse_action_cache:
             return parse_action_cache[url_no_ext]

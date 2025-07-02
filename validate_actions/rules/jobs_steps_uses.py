@@ -406,7 +406,9 @@ class JobsStepsUses(Rule):
 
         inputs = action_metadata.get("inputs", {})
         possible_inputs = list(inputs.keys())
-        required_inputs = [key for key, value in inputs.items() if value.get("required") is True]
+        required_inputs = [key for key, value in inputs.items() if (
+            value.get("required") is True and value.get("default") is None
+            )]
         return required_inputs, possible_inputs
 
     def misses_required_input(
