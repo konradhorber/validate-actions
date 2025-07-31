@@ -16,7 +16,7 @@ from validate_actions.workflow.contexts import (
 from validate_actions.workflow.events_builder import EventsBuilder
 from validate_actions.workflow.job_order import JobExecutionPlan, JobOrderAnalyzer
 from validate_actions.workflow.jobs_builder import JobsBuilder
-from validate_actions.workflow.parser import YAMLParser
+from validate_actions.workflow.parser import IYAMLParser
 
 
 class Director(ABC):
@@ -46,7 +46,7 @@ class BaseDirector(Director):
     def __init__(
         self,
         workflow_file: Path,
-        parser: YAMLParser,
+        parser: IYAMLParser,
         problems: Problems,
         events_builder: EventsBuilder,
         jobs_builder: JobsBuilder,

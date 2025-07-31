@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Type
 
@@ -15,7 +16,31 @@ from validate_actions.workflow.parser import PyYAMLParser
 from validate_actions.workflow.steps_builder import BaseStepsBuilder
 
 
-class Validator:
+class IValidator(ABC):
+    """
+    Interface for Validator classes.
+
+    Classes implementing this interface should provide a `run` method
+    to validate workflow files and return problems found.
+    """
+
+    @staticmethod
+    @abstractmethod
+    def run(file: Path, fix: bool) -> Problems:
+        """
+        Validate a workflow file and return problems found.
+
+        Args:
+            file (Path): Path to the workflow file to validate.
+            fix (bool): Whether to attempt automatic fixes for detected problems.
+
+        Returns:
+            Problems: A collection of problems found during validation.
+        """
+        pass
+
+
+class Validator(IValidator):
     ACTIONS_ERROR_RULES: List[Type[Rule]] = [
         rules.JobsStepsUses,
         rules.StepsIOMatch,

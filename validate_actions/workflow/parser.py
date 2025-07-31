@@ -12,7 +12,7 @@ from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow.ast import Expression, String
 
 
-class YAMLParser(ABC):
+class IYAMLParser(ABC):
     """Abstract base class for YAML parser implementations.
 
     Args:
@@ -34,7 +34,7 @@ class YAMLParser(ABC):
         pass
 
 
-class PyYAMLParser(YAMLParser):
+class PyYAMLParser(IYAMLParser):
     """YAML parser implementation using PyYAML.
 
     Args:

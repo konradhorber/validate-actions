@@ -1,4 +1,5 @@
 import sys
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -6,10 +7,34 @@ import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from validate_actions.problems import Problem, ProblemLevel, Problems
-from validate_actions.validator import Validator
+from validate_actions.validator import IValidator, Validator
 
 
-class CLI:
+class ICLI(ABC):
+    """
+    Interface for Command Line Interface (CLI) classes.
+
+    Classes implementing this interface should provide a `start` method
+    to initiate the CLI workflow.
+    """
+
+    @abstractmethod
+    def start(self, fix: bool, workflow_file: Optional[str] = None) -> None:
+        """
+        Start the CLI process.
+
+        Args:
+            fix (bool): Whether to attempt automatic fixes for detected problems.
+            workflow_file (Optional[str]): Path to a specific workflow file to validate. If None,
+                validates all workflows in the default directory.
+
+        Returns:
+            None
+        """
+        pass
+
+
+class CLI(ICLI):
     STYLE = {
         ProblemLevel.NON: {"color_bold": "\033[1;92m", "color": "\033[92m", "sign": "✓"},
         ProblemLevel.ERR: {"color_bold": "\033[1;31m", "color": "\033[31m", "sign": "✗"},
@@ -213,5 +238,7 @@ class CLI:
                 # Very basic check - should not be empty and contain some content
                 return len(first_line.strip()) > 0
 
+        except (OSError, PermissionError, UnicodeDecodeError):
+            return False
         except (OSError, PermissionError, UnicodeDecodeError):
             return False
