@@ -276,8 +276,6 @@ def build_concurrency(
     return ast.Concurrency(pos=key.pos, group_=group, cancel_in_progress_=cancel_in_progress)
 
 
-
-
 def convert_string(input_string: str) -> str:
     """
     Converts hyphens to underscores in a string and adds an underscore to the end.

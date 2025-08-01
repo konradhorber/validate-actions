@@ -4,10 +4,10 @@ import pytest
 
 from tests.helper import parse_workflow_string
 from validate_actions.problems import ProblemLevel, Problems
-from validate_actions.workflow.job_order import (
+from validate_actions.job_orderer import (
     CyclicDependency,
     JobExecutionPlan,
-    JobOrderAnalyzer,
+    JobOrderer,
     JobStage,
 )
 
@@ -35,7 +35,7 @@ class TestJobOrderBasicDependencies:
               - run: echo "job3"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # All jobs should be in the first stage (parallel execution)
@@ -61,7 +61,7 @@ class TestJobOrderBasicDependencies:
               - run: echo "testing"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # Should have 2 stages: build first, then test
@@ -92,7 +92,7 @@ class TestJobOrderBasicDependencies:
               - run: echo "testing"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # Should have 2 stages: build+lint parallel, then test
@@ -125,7 +125,7 @@ class TestJobOrderBasicDependencies:
               - run: echo "deploying"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # Should have 3 stages: build -> test -> deploy
@@ -155,7 +155,7 @@ class TestJobOrderConditionalExecution:
               - run: echo "job2"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # Only job2 should be in execution plan
@@ -185,7 +185,7 @@ class TestJobOrderConditionalExecution:
               - run: echo "job2"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # No jobs should execute
@@ -214,7 +214,7 @@ class TestJobOrderConditionalExecution:
               - run: echo "job2"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # job2 should still execute despite job1 being skipped
@@ -244,7 +244,7 @@ class TestJobOrderConditionalExecution:
               - run: echo "deploy"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # Both jobs should be tracked as conditional
@@ -284,7 +284,7 @@ class TestJobOrderComplexPatterns:
               - run: echo "e2e tests"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # Should have 2 stages: build first, then all tests in parallel
@@ -316,7 +316,7 @@ class TestJobOrderComplexPatterns:
               - run: echo "deploying"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # Should have 2 stages: tests in parallel, then deploy
@@ -354,7 +354,7 @@ class TestJobOrderComplexPatterns:
               - run: echo "deploying"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # Should have 3 stages: build -> [test, lint] -> deploy
@@ -403,7 +403,7 @@ class TestJobOrderComplexPatterns:
               - run: echo "notifying"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # Should properly organize complex dependencies  
@@ -444,7 +444,7 @@ class TestJobOrderMatrixStrategy:
               - run: echo "deploying"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # Should have 2 stages: test matrix, then deploy
@@ -476,7 +476,7 @@ class TestJobOrderMatrixStrategy:
               - run: echo "deploying"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # Should still have proper ordering
@@ -511,7 +511,7 @@ class TestJobOrderErrorConditions:
         """
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer_problems = Problems()
-        analyzer = JobOrderAnalyzer(analyzer_problems)
+        analyzer = JobOrderer(analyzer_problems)
         
         # Should detect circular dependency
         cycles = analyzer._detect_cycles(list(workflow.jobs_.values()), analyzer._build_dependency_graph(list(workflow.jobs_.values())))
@@ -541,7 +541,7 @@ class TestJobOrderErrorConditions:
         """
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer_problems = Problems()
-        analyzer = JobOrderAnalyzer(analyzer_problems)
+        analyzer = JobOrderer(analyzer_problems)
         
         # Analyze workflow should collect problems in the Problems instance
         execution_plan = analyzer._analyze_workflow(workflow)
@@ -565,7 +565,7 @@ class TestJobOrderErrorConditions:
         """
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer_problems = Problems()
-        analyzer = JobOrderAnalyzer(analyzer_problems)
+        analyzer = JobOrderer(analyzer_problems)
         
         # Analyze workflow should collect problems in the Problems instance  
         execution_plan = analyzer._analyze_workflow(workflow)
@@ -599,7 +599,7 @@ class TestJobOrderErrorConditions:
         """
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer_problems = Problems() 
-        analyzer = JobOrderAnalyzer(analyzer_problems)
+        analyzer = JobOrderer(analyzer_problems)
         
         # Should detect circular dependency
         cycles = analyzer._detect_cycles(list(workflow.jobs_.values()), analyzer._build_dependency_graph(list(workflow.jobs_.values())))
@@ -670,7 +670,7 @@ class TestJobOrderNeedsContextPopulation:
               - run: echo "job2"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         
         # Populate needs contexts
         analyzer.prepare_workflow(workflow)
@@ -713,7 +713,7 @@ class TestJobOrderIntegrationWithExistingRules:
                 run: echo "Testing ${{ needs.build.outputs.artifact-name }}"  # build not a dependency
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
         
         # Job order should be: build -> test (parallel with invalid_test)
@@ -770,7 +770,7 @@ class TestJobOrderPerformance:
         """
         
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         
         # This should complete reasonably quickly
         import time
@@ -818,7 +818,7 @@ class TestJobOrderPerformance:
         """
         
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
+        analyzer = JobOrderer(Problems())
         
         # This should complete reasonably quickly
         import time

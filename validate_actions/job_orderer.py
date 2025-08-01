@@ -1,10 +1,11 @@
 """
-Job order analysis module for GitHub Actions workflows.
+Job ordering module for GitHub Actions workflows.
 
-This module analyzes job dependencies, execution order, and conditions
-to determine the optimal execution plan for a workflow.
+This module provides interfaces and implementations for analyzing job dependencies,
+execution order, and conditions to determine the optimal execution plan for a workflow.
 """
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set
 
@@ -52,8 +53,17 @@ class CyclicDependency:
     job_ids: List[str] = field(default_factory=list)
 
 
-class JobOrderAnalyzer:
-    """Prepares workflows with proper job dependency analysis and needs contexts."""
+class IJobOrderer(ABC):
+    """Interface for job ordering and dependency analysis."""
+
+    @abstractmethod
+    def prepare_workflow(self, workflow: ast.Workflow) -> None:
+        """Prepare workflow with job dependency analysis and needs contexts."""
+        pass
+
+
+class JobOrderer(IJobOrderer):
+    """Analyzes and prepares workflows with proper job dependency analysis and needs contexts."""
 
     def __init__(self, problems: Problems) -> None:
         self.problems = problems
@@ -203,7 +213,6 @@ class JobOrderAnalyzer:
             for job_id, job in remaining_jobs.items():
                 dependencies = dependency_graph.get(job_id, [])
 
-                # Check if job should be skipped due to conditions
                 if job_id in conditional_jobs:
                     condition = conditional_jobs[job_id]
                     if self._should_skip_job(
@@ -212,13 +221,11 @@ class JobOrderAnalyzer:
                         jobs_to_skip.append(job_id)
                         continue
 
-                # Check if job should be skipped due to skipped dependencies
                 if any(dep in skipped_jobs for dep in dependencies):
                     if job_id not in conditional_jobs or not conditional_jobs[job_id].always_run:
                         jobs_to_skip.append(job_id)
                         continue
 
-                # Check if all dependencies are met
                 deps_satisfied = True
                 for dep in dependencies:
                     if dep not in completed_jobs:
@@ -232,7 +239,6 @@ class JobOrderAnalyzer:
                 if deps_satisfied:
                     ready_jobs.append(job)
 
-            # Mark jobs to be skipped
             for job_id in jobs_to_skip:
                 skipped_jobs.add(job_id)
                 remaining_jobs.pop(job_id)

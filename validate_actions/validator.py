@@ -8,7 +8,7 @@ from validate_actions.problems import Problems
 from validate_actions.rules.rule import Rule
 from validate_actions.workflow.contexts import Contexts
 from validate_actions.workflow.events_builder import EventsBuilder
-from validate_actions.workflow.job_order import JobOrderAnalyzer
+from validate_actions.job_orderer import JobOrderer
 from validate_actions.workflow.jobs_builder import JobsBuilder
 from validate_actions.workflow.parser import PyYAMLParser
 from validate_actions.workflow.steps_builder import StepsBuilder
@@ -66,8 +66,8 @@ class Validator(IValidator):
         workflow, problems = director.build()
 
         # Prepare workflow with job dependency analysis and needs contexts
-        job_order_analyzer = JobOrderAnalyzer(problems)
-        job_order_analyzer.prepare_workflow(workflow)
+        job_orderer = JobOrderer(problems)
+        job_orderer.prepare_workflow(workflow)
 
         fixer = BaseFixer(file)
 

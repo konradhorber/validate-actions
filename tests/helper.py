@@ -31,7 +31,7 @@ def parse_workflow_string(
         jobs_builder = validate_actions.workflow.JobsBuilder(
             problems, steps_builder, contexts
         )
-        job_order_analyzer = validate_actions.workflow.JobOrderAnalyzer(problems)
+        job_orderer = validate_actions.job_orderer.JobOrderer(problems)
 
         director = validate_actions.workflow.WorkflowBuilder(
             temp_file_path,
@@ -44,7 +44,7 @@ def parse_workflow_string(
         workflow, problems = director.build()
         
         # Prepare workflow with job dependency analysis and needs contexts
-        job_order_analyzer.prepare_workflow(workflow)
+        job_orderer.prepare_workflow(workflow)
         
         return workflow, problems
     finally:
