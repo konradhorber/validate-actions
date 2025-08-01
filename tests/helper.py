@@ -41,8 +41,12 @@ def parse_workflow_string(
             events_builder,
             jobs_builder,
             contexts,
-            job_order_analyzer,
         )
-        return director.build()
+        workflow, problems = director.build()
+        
+        # Prepare workflow with job dependency analysis and needs contexts
+        job_order_analyzer.prepare_workflow(workflow)
+        
+        return workflow, problems
     finally:
         temp_file_path.unlink(missing_ok=True)

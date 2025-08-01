@@ -8,7 +8,6 @@ from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow import helper
 from validate_actions.workflow.contexts import Contexts
 from validate_actions.workflow.events_builder import EventsBuilder
-from validate_actions.workflow.job_order import JobOrderAnalyzer
 from validate_actions.workflow.jobs_builder import JobsBuilder
 from validate_actions.workflow.parser import IYAMLParser
 
@@ -45,7 +44,6 @@ class BaseDirector(Director):
         events_builder: EventsBuilder,
         jobs_builder: JobsBuilder,
         contexts: Contexts,
-        job_order_analyzer: JobOrderAnalyzer,
     ) -> None:
         """Initialize a WorkflowBuilder instance.
 
@@ -64,7 +62,6 @@ class BaseDirector(Director):
         self.events_builder = events_builder
         self.jobs_builder = jobs_builder
         self.contexts = contexts
-        self.job_order_analyzer = job_order_analyzer
 
     def build(self) -> Tuple[ast.Workflow, Problems]:
         """Parse the workflow file and build a structured workflow

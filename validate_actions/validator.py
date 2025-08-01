@@ -56,7 +56,6 @@ class Validator(IValidator):
         events_builder = BaseEventsBuilder(problems, workflow_schema)
         steps_builder = BaseStepsBuilder(problems, workflow_schema, contexts)
         jobs_builder = BaseJobsBuilder(problems, workflow_schema, steps_builder, contexts)
-        job_order_analyzer = JobOrderAnalyzer(problems)
         director = BaseDirector(
             workflow_file=file,
             parser=parser,
@@ -64,12 +63,12 @@ class Validator(IValidator):
             events_builder=events_builder,
             jobs_builder=jobs_builder,
             contexts=contexts,
-            job_order_analyzer=job_order_analyzer,
         )
 
         workflow, problems = director.build()
 
         # Prepare workflow with job dependency analysis and needs contexts
+        job_order_analyzer = JobOrderAnalyzer(problems)
         job_order_analyzer.prepare_workflow(workflow)
 
         fixer = BaseFixer(file)

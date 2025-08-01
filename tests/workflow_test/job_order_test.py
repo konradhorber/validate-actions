@@ -637,14 +637,9 @@ class TestJobOrderNeedsContextPopulation:
               - run: echo "testing"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer = JobOrderAnalyzer(Problems())
         
-        # Before population, needs context should be empty
+        # The needs context is already populated by parse_workflow_string
         test_job = workflow.jobs_["test"]
-        assert test_job.contexts.needs is None or len(test_job.contexts.needs.children_) == 0
-        
-        # Populate needs contexts
-        analyzer.prepare_workflow(workflow)
         
         # After population, test job should have build in needs context
         assert test_job.contexts.needs is not None
