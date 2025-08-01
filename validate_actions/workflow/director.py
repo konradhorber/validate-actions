@@ -6,15 +6,9 @@ import validate_actions.workflow.ast as ast
 from validate_actions.pos import Pos
 from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow import helper
-from validate_actions.workflow.contexts import (
-    Contexts,
-    ContextType,
-    NeedContext,
-    NeedOutputsContext,
-    NeedsContext,
-)
+from validate_actions.workflow.contexts import Contexts
 from validate_actions.workflow.events_builder import EventsBuilder
-from validate_actions.workflow.job_order import JobExecutionPlan, JobOrderAnalyzer
+from validate_actions.workflow.job_order import JobOrderAnalyzer
 from validate_actions.workflow.jobs_builder import JobsBuilder
 from validate_actions.workflow.parser import IYAMLParser
 
@@ -110,9 +104,7 @@ class BaseDirector(Director):
                         workflow_dict[key], self.problems, self.RULE_NAME
                     )
                 case "env":
-                    env_ = helper.build_env(
-                        workflow_dict[key], self.problems, self.RULE_NAME
-                    )
+                    env_ = helper.build_env(workflow_dict[key], self.problems, self.RULE_NAME)
                 case "defaults":
                     defaults_ = helper.build_defaults(
                         workflow_dict[key], self.problems, self.RULE_NAME
@@ -155,61 +147,4 @@ class BaseDirector(Director):
             contexts=self.contexts,
         )
 
-        execution_plan = self.job_order_analyzer.analyze_workflow(workflow)
-
-        # Populate needs contexts based on execution plan
-        self._populate_needs_contexts(workflow, execution_plan)
-
         return workflow, self.problems
-
-    def _populate_needs_contexts(
-        self, workflow: ast.Workflow, execution_plan: JobExecutionPlan
-    ) -> None:
-        """Populate each job's needs context based on execution plan dependencies."""
-
-        for job_id, job in workflow.jobs_.items():
-            # Get dependencies from execution plan (source of truth)
-            dependencies = execution_plan.dependency_graph.get(job_id.string, [])
-
-            if dependencies:
-                # Create needs context for this job
-                needs_context = NeedsContext()
-
-                for dep_job_id in dependencies:
-                    job_strings = [j.string for j in workflow.jobs_.keys()]
-                    if dep_job_id in job_strings:
-                        # Create context for this dependency
-                        need_context = NeedContext(
-                            type_=ContextType.object,
-                            result=ContextType.string,
-                            outputs=self._build_needs_outputs_context(dep_job_id, workflow),
-                        )
-                        needs_context.children_[dep_job_id] = need_context
-
-                # Set the populated needs context on the job
-                job.contexts.needs = needs_context
-                for step in job.steps_:
-                    step.contexts.needs = needs_context
-            else:
-                # No dependencies - empty needs context
-                job.contexts.needs = NeedsContext()
-                for step in job.steps_:
-                    step.contexts.needs = NeedsContext()
-
-    def _build_needs_outputs_context(
-        self, job_id: str, workflow: ast.Workflow
-    ) -> NeedOutputsContext:
-        """Build outputs context for a needed job by looking up its JobVarContext."""
-
-        # Look up the relevant JobVarContext from existing workflow contexts
-        if workflow.contexts.jobs and workflow.contexts.jobs.children_:
-            job_var_context = workflow.contexts.jobs.children_.get(job_id)
-
-            if job_var_context and job_var_context.outputs:
-                # Create new NeedOutputsContext with same children
-                outputs_context = NeedOutputsContext()
-                outputs_context.children_ = job_var_context.outputs.children_
-                return outputs_context
-
-        # Return empty outputs context if no outputs available
-        return NeedOutputsContext()

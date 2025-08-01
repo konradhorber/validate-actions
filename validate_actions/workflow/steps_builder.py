@@ -89,9 +89,7 @@ class BaseStepsBuilder(StepsBuilder):
                         else:
                             with_[with_key] = with_value
                 case "env":
-                    env_ = helper.build_env(
-                        step_token_tree[key], self.problems, self.RULE_NAME
-                    )
+                    env_ = helper.build_env(step_token_tree[key], self.problems, self.RULE_NAME)
                 case "continue-on-error":
                     continue_on_error_ = step_token_tree[key]
                 case "timeout-minutes":

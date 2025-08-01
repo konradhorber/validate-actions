@@ -113,9 +113,7 @@ class BaseJobsBuilder(JobsBuilder):
                 case "outputs":
                     self._build_jobs_context_output(key, job_dict, job_jobs_context)
                 case "env":
-                    env_ = helper.build_env(
-                        job_dict[key], self.problems, self.RULE_NAME
-                    )
+                    env_ = helper.build_env(job_dict[key], self.problems, self.RULE_NAME)
                 case "defaults":
                     defaults_ = helper.build_defaults(job_dict[key], self.problems, self.RULE_NAME)
                 case "steps":
@@ -439,10 +437,12 @@ class BaseJobsBuilder(JobsBuilder):
                 if isinstance(strategy_value, ast.String):
                     if strategy_value == "$codeql-languages-matrix":
                         strategy_value = {
-                            ast.String("language", strategy_value.pos):
-                                ast.String("selected by codeql", strategy_value.pos),
-                            ast.String("build-mode", strategy_value.pos):
-                                ast.String("selected by codeql", strategy_value.pos)
+                            ast.String("language", strategy_value.pos): ast.String(
+                                "selected by codeql", strategy_value.pos
+                            ),
+                            ast.String("build-mode", strategy_value.pos): ast.String(
+                                "selected by codeql", strategy_value.pos
+                            ),
                         }
                     else:
                         self.problems.append(
@@ -629,9 +629,7 @@ class BaseJobsBuilder(JobsBuilder):
                         self.problems.append(
                             Problem(
                                 pos=key.pos,
-                                desc=(
-                                    f"Matrix axis '{key.string}' value invalid"
-                                ),
+                                desc=(f"Matrix axis '{key.string}' value invalid"),
                                 level=ProblemLevel.ERR,
                                 rule=self.RULE_NAME,
                             )

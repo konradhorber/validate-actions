@@ -69,6 +69,9 @@ class Validator(IValidator):
 
         workflow, problems = director.build()
 
+        # Prepare workflow with job dependency analysis and needs contexts
+        job_order_analyzer.prepare_workflow(workflow)
+
         fixer = BaseFixer(file)
 
         jobs_steps_uses = rules.JobsStepsUses(workflow=workflow, fix=fix, fixer=fixer)
