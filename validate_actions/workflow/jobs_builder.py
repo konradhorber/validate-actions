@@ -19,7 +19,7 @@ from validate_actions.workflow.contexts import (
 from validate_actions.workflow.steps_builder import StepsBuilder
 
 
-class JobsBuilder(ABC):
+class IJobsBuilder(ABC):
     @abstractmethod
     def build(self, jobs_dict: Dict[ast.String, Any]) -> Dict[ast.String, ast.Job]:
         """
@@ -28,7 +28,7 @@ class JobsBuilder(ABC):
         pass
 
 
-class BaseJobsBuilder(JobsBuilder):
+class JobsBuilder(IJobsBuilder):
     def __init__(
         self,
         problems: Problems,

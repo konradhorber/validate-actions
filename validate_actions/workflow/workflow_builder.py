@@ -12,7 +12,7 @@ from validate_actions.workflow.jobs_builder import JobsBuilder
 from validate_actions.workflow.parser import IYAMLParser
 
 
-class Director(ABC):
+class IWorkflowBuilder(ABC):
     @abstractmethod
     def build(self) -> Tuple[ast.Workflow, Problems]:
         """
@@ -26,7 +26,7 @@ class Director(ABC):
         pass
 
 
-class BaseDirector(Director):
+class WorkflowBuilder(IWorkflowBuilder):
     """
     Constructs a structured representation of a GitHub Actions workflow file.
 

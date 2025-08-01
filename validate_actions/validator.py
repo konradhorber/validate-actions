@@ -8,12 +8,12 @@ from validate_actions.problems import Problems
 from validate_actions.rules.rule import Rule
 from validate_actions.workflow import helper
 from validate_actions.workflow.contexts import Contexts
-from validate_actions.workflow.director import BaseDirector
-from validate_actions.workflow.events_builder import BaseEventsBuilder
+from validate_actions.workflow.events_builder import EventsBuilder
 from validate_actions.workflow.job_order import JobOrderAnalyzer
-from validate_actions.workflow.jobs_builder import BaseJobsBuilder
+from validate_actions.workflow.jobs_builder import JobsBuilder
 from validate_actions.workflow.parser import PyYAMLParser
-from validate_actions.workflow.steps_builder import BaseStepsBuilder
+from validate_actions.workflow.steps_builder import StepsBuilder
+from validate_actions.workflow.workflow_builder import WorkflowBuilder
 
 
 class IValidator(ABC):
@@ -53,10 +53,10 @@ class Validator(IValidator):
         problems: Problems = Problems()
         contexts = Contexts()
         parser = PyYAMLParser()
-        events_builder = BaseEventsBuilder(problems, workflow_schema)
-        steps_builder = BaseStepsBuilder(problems, workflow_schema, contexts)
-        jobs_builder = BaseJobsBuilder(problems, workflow_schema, steps_builder, contexts)
-        director = BaseDirector(
+        events_builder = EventsBuilder(problems, workflow_schema)
+        steps_builder = StepsBuilder(problems, workflow_schema, contexts)
+        jobs_builder = JobsBuilder(problems, workflow_schema, steps_builder, contexts)
+        director = WorkflowBuilder(
             workflow_file=file,
             parser=parser,
             problems=problems,

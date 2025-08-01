@@ -8,7 +8,7 @@ from validate_actions.workflow import ast, helper
 from validate_actions.workflow.contexts import Contexts
 
 
-class StepsBuilder(ABC):
+class IStepsBuilder(ABC):
     """
     Builder for steps in a GitHub Actions workflow.
     Converts a list of step definitions into a list of Step objects.
@@ -21,7 +21,7 @@ class StepsBuilder(ABC):
         pass
 
 
-class BaseStepsBuilder(StepsBuilder):
+class StepsBuilder(IStepsBuilder):
     def __init__(self, problems: Problems, schema: Dict[str, Any], contexts: Contexts) -> None:
         self.problems = problems
         self.RULE_NAME = "steps-syntax-error"

@@ -7,7 +7,7 @@ import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from validate_actions.problems import Problem, ProblemLevel, Problems
-from validate_actions.validator import IValidator, Validator
+from validate_actions.validator import Validator
 
 
 class ICLI(ABC):

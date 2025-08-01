@@ -27,14 +27,14 @@ def parse_workflow_string(
         problems = validate_actions.Problems()
         schema = validate_actions.workflow.helper.get_workflow_schema("github-workflow.json")
         contexts = validate_actions.workflow.Contexts()
-        events_builder = validate_actions.workflow.BaseEventsBuilder(problems, schema)
-        steps_builder = validate_actions.workflow.BaseStepsBuilder(problems, schema, contexts)
-        jobs_builder = validate_actions.workflow.BaseJobsBuilder(
+        events_builder = validate_actions.workflow.EventsBuilder(problems, schema)
+        steps_builder = validate_actions.workflow.StepsBuilder(problems, schema, contexts)
+        jobs_builder = validate_actions.workflow.JobsBuilder(
             problems, schema, steps_builder, contexts
         )
         job_order_analyzer = validate_actions.workflow.JobOrderAnalyzer(problems)
 
-        director = validate_actions.workflow.BaseDirector(
+        director = validate_actions.workflow.WorkflowBuilder(
             temp_file_path,
             yaml_parser,
             problems,

@@ -5,7 +5,7 @@ from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow import ast
 
 
-class EventsBuilder(ABC):
+class IEventsBuilder(ABC):
     """Builder interface for events (after on keyword in workflow file). Builds
     from parsed workflow data. Doens't parse the file.
 
@@ -44,7 +44,7 @@ class EventsBuilder(ABC):
         pass
 
 
-class BaseEventsBuilder(EventsBuilder):
+class EventsBuilder(IEventsBuilder):
     def __init__(
         self,
         problems: Problems,

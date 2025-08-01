@@ -1,22 +1,21 @@
 # Workflow package imports - available for AST and parsing
 from .ast import *  # noqa: F401, F403
-from .director import BaseDirector, Director
-from .events_builder import BaseEventsBuilder, EventsBuilder
+from .events_builder import EventsBuilder, IEventsBuilder
 from .job_order import JobOrderAnalyzer
-from .jobs_builder import BaseJobsBuilder, JobsBuilder
-from .parser import IYAMLParser, PyYAMLParser
-from .steps_builder import BaseStepsBuilder, StepsBuilder
+from .jobs_builder import IJobsBuilder, JobsBuilder
+from .parser import PyYAMLParser
+from .steps_builder import IStepsBuilder, StepsBuilder
+from .workflow_builder import IWorkflowBuilder, WorkflowBuilder
 
 __all__ = [
-    "BaseDirector",
-    "Director",
-    "BaseEventsBuilder",
+    "IWorkflowBuilder",
+    "WorkflowBuilder",
     "EventsBuilder",
+    "IEventsBuilder",
     "JobOrderAnalyzer",
-    "BaseJobsBuilder",
+    "IJobsBuilder",
     "JobsBuilder",
     "PyYAMLParser",
-    "YAMLParser",
-    "BaseStepsBuilder",
+    "IStepsBuilder",
     "StepsBuilder",
 ]
