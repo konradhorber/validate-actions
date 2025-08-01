@@ -25,12 +25,11 @@ def parse_workflow_string(
     try:
         yaml_parser = validate_actions.workflow.PyYAMLParser()
         problems = validate_actions.Problems()
-        schema = validate_actions.workflow.helper.get_workflow_schema("github-workflow.json")
         contexts = validate_actions.workflow.Contexts()
-        events_builder = validate_actions.workflow.EventsBuilder(problems, schema)
-        steps_builder = validate_actions.workflow.StepsBuilder(problems, schema, contexts)
+        events_builder = validate_actions.workflow.EventsBuilder(problems)
+        steps_builder = validate_actions.workflow.StepsBuilder(problems, contexts)
         jobs_builder = validate_actions.workflow.JobsBuilder(
-            problems, schema, steps_builder, contexts
+            problems, steps_builder, contexts
         )
         job_order_analyzer = validate_actions.workflow.JobOrderAnalyzer(problems)
 

@@ -22,10 +22,9 @@ class IStepsBuilder(ABC):
 
 
 class StepsBuilder(IStepsBuilder):
-    def __init__(self, problems: Problems, schema: Dict[str, Any], contexts: Contexts) -> None:
+    def __init__(self, problems: Problems, contexts: Contexts) -> None:
         self.problems = problems
         self.RULE_NAME = "steps-syntax-error"
-        self.schema = schema
         self.contexts = contexts
 
     def build(

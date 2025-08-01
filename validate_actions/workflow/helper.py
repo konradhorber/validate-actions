@@ -1,7 +1,5 @@
 import copy
 import dataclasses
-import importlib.resources as pkg_resources
-import json
 from typing import Any, Dict, Optional, Union
 
 from validate_actions.pos import Pos
@@ -278,10 +276,6 @@ def build_concurrency(
     return ast.Concurrency(pos=key.pos, group_=group, cancel_in_progress_=cancel_in_progress)
 
 
-def get_workflow_schema(file: str) -> dict:
-    schema_path = pkg_resources.files("validate_actions.resources").joinpath(file)
-    with schema_path.open("r", encoding="utf-8") as f:
-        return json.load(f)
 
 
 def convert_string(input_string: str) -> str:

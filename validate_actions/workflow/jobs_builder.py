@@ -32,13 +32,11 @@ class JobsBuilder(IJobsBuilder):
     def __init__(
         self,
         problems: Problems,
-        schema: Dict[str, Any],
         steps_builder: StepsBuilder,
         contexts: Contexts,
     ) -> None:
         self.problems = problems
         self.RULE_NAME = "jobs-syntax-error"
-        self.schema = schema
         self.contexts = contexts
         self.steps_builder = steps_builder
 

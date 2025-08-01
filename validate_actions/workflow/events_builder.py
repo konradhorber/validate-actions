@@ -15,7 +15,7 @@ class IEventsBuilder(ABC):
 
     RULE_NAME = "events-syntax-error"
 
-    def __init__(self, problems: Problems, schema: Dict[str, Any]) -> None:
+    def __init__(self, problems: Problems) -> None:
         """Initialize the builder with a list to track syntax problems in
         workflow file.
 
@@ -24,7 +24,42 @@ class IEventsBuilder(ABC):
                 encountered during the workflow file parsing.
         """
         self.problems = problems
-        self.ALL_EVENTS = schema["definitions"]["event"]["enum"]
+        self.ALL_EVENTS = [
+            "branch_protection_rule",
+            "check_run",
+            "check_suite",
+            "create",
+            "delete",
+            "deployment",
+            "deployment_status",
+            "discussion",
+            "discussion_comment",
+            "fork",
+            "gollum",
+            "issue_comment",
+            "issues",
+            "label",
+            "merge_group",
+            "milestone",
+            "page_build",
+            "project",
+            "project_card",
+            "project_column",
+            "public",
+            "pull_request",
+            "pull_request_review",
+            "pull_request_review_comment",
+            "pull_request_target",
+            "push",
+            "registry_package",
+            "release",
+            "status",
+            "watch",
+            "workflow_call",
+            "workflow_dispatch",
+            "workflow_run",
+            "repository_dispatch"
+        ]
 
     @abstractmethod
     def build(
@@ -48,9 +83,8 @@ class EventsBuilder(IEventsBuilder):
     def __init__(
         self,
         problems: Problems,
-        schema: Dict[str, Any],
     ) -> None:
-        super().__init__(problems, schema)
+        super().__init__(problems)
 
     def build(
         self, events_in: Union[ast.String, Dict[ast.String, Any], List[Any]]

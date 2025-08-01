@@ -6,7 +6,6 @@ from validate_actions import rules
 from validate_actions.fixer import BaseFixer
 from validate_actions.problems import Problems
 from validate_actions.rules.rule import Rule
-from validate_actions.workflow import helper
 from validate_actions.workflow.contexts import Contexts
 from validate_actions.workflow.events_builder import EventsBuilder
 from validate_actions.workflow.job_order import JobOrderAnalyzer
@@ -49,13 +48,12 @@ class Validator(IValidator):
 
     @staticmethod
     def run(file: Path, fix: bool) -> Problems:
-        workflow_schema = helper.get_workflow_schema("github-workflow.json")
         problems: Problems = Problems()
         contexts = Contexts()
+        events_builder = EventsBuilder(problems)
+        steps_builder = StepsBuilder(problems, contexts)
+        jobs_builder = JobsBuilder(problems, steps_builder, contexts)
         parser = PyYAMLParser()
-        events_builder = EventsBuilder(problems, workflow_schema)
-        steps_builder = StepsBuilder(problems, workflow_schema, contexts)
-        jobs_builder = JobsBuilder(problems, workflow_schema, steps_builder, contexts)
         director = WorkflowBuilder(
             workflow_file=file,
             parser=parser,
