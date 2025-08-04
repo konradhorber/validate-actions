@@ -1,7 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 from yaml import ScalarToken
@@ -39,7 +38,6 @@ class Permissions:
 
 @dataclass
 class Workflow:
-    path: Path
     on_: List["Event"]
     jobs_: Dict["String", "Job"]
     contexts: Contexts

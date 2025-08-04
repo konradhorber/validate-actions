@@ -305,9 +305,6 @@ def test_fix_expression_context_typo():
         # or that such problems are not relevant to this test's focus.
         # If initial_problems could contain the typo, you might want to assert its presence here.
 
-        # IMPORTANT: Set the path attribute on the workflow object to the temp file
-        workflow_obj.path = temp_file_path
-
         # Run the check with fix=True
         # The check function modifies the file in place if a fix is applied
         fixer = BaseFixer(temp_file_path)
@@ -370,7 +367,6 @@ def test_fix_service_port_typo():
             temp_file_path = Path(f.name)
 
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typo)
-        workflow_obj.path = temp_file_path
         fixer = BaseFixer(temp_file_path)
         rule = rules.ExpressionsContexts(workflow_obj, True, fixer)
         problems_after_fix = list(rule.check())
@@ -414,7 +410,6 @@ def test_fix_multiple_expressions_in_string():
             temp_file_path = Path(f.name)
 
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typo)
-        workflow_obj.path = temp_file_path
         fixer = BaseFixer(temp_file_path)
         rule = rules.ExpressionsContexts(workflow_obj, True, fixer)
         problems_after_fix = list(rule.check())
@@ -456,7 +451,6 @@ def test_fix_typo_in_middle_of_expression():
             temp_file_path = Path(f.name)
 
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typo)
-        workflow_obj.path = temp_file_path
         fixer = BaseFixer(temp_file_path)
         rule = rules.ExpressionsContexts(workflow_obj, True, fixer)
         problems_after_fix = list(rule.check())
@@ -525,7 +519,6 @@ def test_fix_two_expression_context_typos():
             temp_file_path = Path(f.name)
 
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_with_typos)
-        workflow_obj.path = temp_file_path
 
         fixer = BaseFixer(temp_file_path)
         rule = rules.ExpressionsContexts(workflow_obj, True, fixer)

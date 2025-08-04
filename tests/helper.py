@@ -39,7 +39,6 @@ def parse_workflow_string(
         
         # Build workflow from parsed dict
         director = validate_actions.workflow.WorkflowBuilder(
-            temp_file_path,
             workflow_dict,
             problems,
             events_builder,

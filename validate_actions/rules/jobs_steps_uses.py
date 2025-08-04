@@ -110,7 +110,6 @@ class JobsStepsUses(Rule):
                 version = get_current_action_version(slug)
                 if version:
                     new_slug = f"{slug}@{version}"
-                    self.workflow.path
                     problem = self.fixer.edit_yaml_at_position(
                         action.uses_.pos.idx,
                         slug,

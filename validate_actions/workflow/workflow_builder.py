@@ -1,15 +1,14 @@
 from abc import ABC, abstractmethod
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import validate_actions.workflow.ast as ast
 from validate_actions.pos import Pos
 from validate_actions.problems import Problem, ProblemLevel, Problems
 from validate_actions.workflow import helper
+from validate_actions.workflow.ast import String
 from validate_actions.workflow.contexts import Contexts
 from validate_actions.workflow.events_builder import EventsBuilder
 from validate_actions.workflow.jobs_builder import JobsBuilder
-from validate_actions.workflow.ast import String
 
 
 class IWorkflowBuilder(ABC):
@@ -38,7 +37,6 @@ class WorkflowBuilder(IWorkflowBuilder):
 
     def __init__(
         self,
-        workflow_file: Path,
         workflow_dict: Dict[String, Any],
         problems: Problems,
         events_builder: EventsBuilder,
@@ -48,7 +46,6 @@ class WorkflowBuilder(IWorkflowBuilder):
         """Initialize a WorkflowBuilder instance.
 
         Args:
-            workflow_file (Path): Path to the workflow YAML file.
             workflow_dict (Dict[String, Any]): Pre-parsed workflow dictionary.
             problems (Problems): Problems collection to extend with any issues.
             events_builder (EventsBuilder): Builder instance used to create
@@ -58,7 +55,6 @@ class WorkflowBuilder(IWorkflowBuilder):
             contexts (Contexts): Contexts instance for workflow validation.
         """
         self.RULE_NAME = "actions-syntax-error"
-        self.workflow_file = workflow_file
         self.workflow_dict = workflow_dict
         self.problems = problems
         self.events_builder = events_builder
@@ -68,7 +64,7 @@ class WorkflowBuilder(IWorkflowBuilder):
     def build(self) -> Tuple[ast.Workflow, Problems]:
         """Build a structured workflow representation from pre-parsed data.
 
-        This method processes the pre-parsed workflow dictionary into a structured 
+        This method processes the pre-parsed workflow dictionary into a structured
         Workflow object, validating the structure and collecting any problems encountered.
 
         Returns:
@@ -129,7 +125,6 @@ class WorkflowBuilder(IWorkflowBuilder):
             )
 
         workflow = ast.Workflow(
-            path=self.workflow_file,
             on_=on_,
             jobs_=jobs_,
             name_=name_,

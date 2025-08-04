@@ -226,7 +226,6 @@ def test_fix_missing_version_spec(tmp_path, monkeypatch):
             temp_file_path = Path(f.name)
 
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_without_version)
-        workflow_obj.path = temp_file_path
         fix = fixer.BaseFixer(temp_file_path)
         rule = rules.JobsStepsUses(workflow_obj, True, fix)
         problems_after_fix = list(rule.check())
@@ -502,7 +501,6 @@ def test_fix_outdated_version():
             temp_file_path = Path(f.name)
 
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_outdated)
-        workflow_obj.path = temp_file_path
         fix = fixer.BaseFixer(temp_file_path)
         rule = rules.JobsStepsUses(workflow_obj, True, fix)
         problems_after_fix = list(rule.check())
