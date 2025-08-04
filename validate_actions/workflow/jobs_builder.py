@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Set
 
 from validate_actions.pos import Pos
 from validate_actions.problems import Problem, ProblemLevel, Problems
-from validate_actions.workflow import ast, contexts, helper
+from validate_actions.workflow import ast, contexts
 from validate_actions.workflow.contexts import (
     Contexts,
     ContextType,
@@ -16,6 +16,7 @@ from validate_actions.workflow.contexts import (
     RunnerContext,
     StrategyContext,
 )
+from validate_actions.workflow.shared_components_builder import ISharedComponentsBuilder
 from validate_actions.workflow.steps_builder import StepsBuilder
 
 
@@ -34,11 +35,13 @@ class JobsBuilder(IJobsBuilder):
         problems: Problems,
         steps_builder: StepsBuilder,
         contexts: Contexts,
+        shared_components_builder: ISharedComponentsBuilder,
     ) -> None:
         self.problems = problems
         self.RULE_NAME = "jobs-syntax-error"
         self.contexts = contexts
         self.steps_builder = steps_builder
+        self.shared_components_builder = shared_components_builder
 
     def build(self, jobs_dict: Dict[ast.String, Any]) -> Dict[ast.String, ast.Job]:
         jobs = {}
@@ -89,9 +92,7 @@ class JobsBuilder(IJobsBuilder):
                 case "name":
                     name_ = job_dict[key]
                 case "permissions":
-                    permissions_ = helper.build_permissions(
-                        job_dict[key], self.problems, self.RULE_NAME
-                    )
+                    permissions_ = self.shared_components_builder.build_permissions(job_dict[key])
                 case "needs":
                     needs_ = self._build_needs(key, job_dict[key])
                 case "if":
@@ -105,15 +106,15 @@ class JobsBuilder(IJobsBuilder):
                         key, job_dict[key], self.problems, self.RULE_NAME
                     )
                 case "concurrency":
-                    concurrency_ = helper.build_concurrency(
-                        key, job_dict[key], self.problems, self.RULE_NAME
+                    concurrency_ = self.shared_components_builder.build_concurrency(
+                        key, job_dict[key]
                     )
                 case "outputs":
                     self._build_jobs_context_output(key, job_dict, job_jobs_context)
                 case "env":
-                    env_ = helper.build_env(job_dict[key], self.problems, self.RULE_NAME)
+                    env_ = self.shared_components_builder.build_env(job_dict[key])
                 case "defaults":
-                    defaults_ = helper.build_defaults(job_dict[key], self.problems, self.RULE_NAME)
+                    defaults_ = self.shared_components_builder.build_defaults(job_dict[key])
                 case "steps":
                     steps_ = self.steps_builder.build(job_dict[key], local_contexts)
                 case "timeout-minutes":
@@ -239,7 +240,7 @@ class JobsBuilder(IJobsBuilder):
                         key, value, problems, rule_name
                     )
                 case "env":
-                    env_ = helper.build_env(value, problems, rule_name)
+                    env_ = self.shared_components_builder.build_env(value)
                 case "ports":
                     if isinstance(value, list) and all(isinstance(i, ast.String) for i in value):
                         ports_ = value

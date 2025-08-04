@@ -4,11 +4,11 @@ from typing import Any, Dict, List, Optional, Tuple
 import validate_actions.workflow.ast as ast
 from validate_actions.pos import Pos
 from validate_actions.problems import Problem, ProblemLevel, Problems
-from validate_actions.workflow import helper
 from validate_actions.workflow.ast import String
 from validate_actions.workflow.contexts import Contexts
 from validate_actions.workflow.events_builder import EventsBuilder
 from validate_actions.workflow.jobs_builder import JobsBuilder
+from validate_actions.workflow.shared_components_builder import ISharedComponentsBuilder
 
 
 class IWorkflowBuilder(ABC):
@@ -42,6 +42,7 @@ class WorkflowBuilder(IWorkflowBuilder):
         events_builder: EventsBuilder,
         jobs_builder: JobsBuilder,
         contexts: Contexts,
+        shared_components_builder: ISharedComponentsBuilder,
     ) -> None:
         """Initialize a WorkflowBuilder instance.
 
@@ -53,6 +54,7 @@ class WorkflowBuilder(IWorkflowBuilder):
             jobs_builder (JobsBuilder): Builder instance used to create
                 jobs from the parsed data.
             contexts (Contexts): Contexts instance for workflow validation.
+            shared_components_builder (ISharedComponentsBuilder): Builder for shared components.
         """
         self.RULE_NAME = "actions-syntax-error"
         self.workflow_dict = workflow_dict
@@ -60,6 +62,7 @@ class WorkflowBuilder(IWorkflowBuilder):
         self.events_builder = events_builder
         self.jobs_builder = jobs_builder
         self.contexts = contexts
+        self.shared_components_builder = shared_components_builder
 
     def build(self) -> Tuple[ast.Workflow, Problems]:
         """Build a structured workflow representation from pre-parsed data.
@@ -90,18 +93,18 @@ class WorkflowBuilder(IWorkflowBuilder):
                 case "on":
                     on_ = self.events_builder.build(self.workflow_dict[key])
                 case "permissions":
-                    permissions_ = helper.build_permissions(
-                        self.workflow_dict[key], self.problems, self.RULE_NAME
+                    permissions_ = self.shared_components_builder.build_permissions(
+                        self.workflow_dict[key]
                     )
                 case "env":
-                    env_ = helper.build_env(self.workflow_dict[key], self.problems, self.RULE_NAME)
+                    env_ = self.shared_components_builder.build_env(self.workflow_dict[key])
                 case "defaults":
-                    defaults_ = helper.build_defaults(
-                        self.workflow_dict[key], self.problems, self.RULE_NAME
+                    defaults_ = self.shared_components_builder.build_defaults(
+                        self.workflow_dict[key]
                     )
                 case "concurrency":
-                    concurrency_ = helper.build_concurrency(
-                        key, self.workflow_dict[key], self.problems, self.RULE_NAME
+                    concurrency_ = self.shared_components_builder.build_concurrency(
+                        key, self.workflow_dict[key]
                     )
                 case "jobs":
                     jobs_ = self.jobs_builder.build(self.workflow_dict[key])

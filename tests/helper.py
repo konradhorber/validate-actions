@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Tuple
 
 import validate_actions
+import validate_actions.job_orderer
 
 
 def parse_workflow_string(
@@ -26,10 +27,11 @@ def parse_workflow_string(
         yaml_parser = validate_actions.workflow.PyYAMLParser()
         problems = validate_actions.Problems()
         contexts = validate_actions.workflow.Contexts()
+        shared_components_builder = validate_actions.workflow.shared_components_builder.SharedComponentsBuilder(problems)
         events_builder = validate_actions.workflow.EventsBuilder(problems)
-        steps_builder = validate_actions.workflow.StepsBuilder(problems, contexts)
+        steps_builder = validate_actions.workflow.StepsBuilder(problems, contexts, shared_components_builder)
         jobs_builder = validate_actions.workflow.JobsBuilder(
-            problems, steps_builder, contexts
+            problems, steps_builder, contexts, shared_components_builder
         )
         job_orderer = validate_actions.job_orderer.JobOrderer(problems)
 
@@ -44,6 +46,7 @@ def parse_workflow_string(
             events_builder,
             jobs_builder,
             contexts,
+            shared_components_builder,
         )
         workflow, problems = director.build()
         

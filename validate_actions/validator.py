@@ -11,6 +11,7 @@ from validate_actions.workflow.contexts import Contexts
 from validate_actions.workflow.events_builder import EventsBuilder
 from validate_actions.workflow.jobs_builder import JobsBuilder
 from validate_actions.workflow.parser import PyYAMLParser
+from validate_actions.workflow.shared_components_builder import SharedComponentsBuilder
 from validate_actions.workflow.steps_builder import StepsBuilder
 from validate_actions.workflow.workflow_builder import WorkflowBuilder
 
@@ -50,9 +51,10 @@ class Validator(IValidator):
     def run(file: Path, fix: bool) -> Problems:
         problems: Problems = Problems()
         contexts = Contexts()
+        shared_components_builder = SharedComponentsBuilder(problems)
         events_builder = EventsBuilder(problems)
-        steps_builder = StepsBuilder(problems, contexts)
-        jobs_builder = JobsBuilder(problems, steps_builder, contexts)
+        steps_builder = StepsBuilder(problems, contexts, shared_components_builder)
+        jobs_builder = JobsBuilder(problems, steps_builder, contexts, shared_components_builder)
 
         # Parse the workflow file first
         parser = PyYAMLParser()
@@ -66,6 +68,7 @@ class Validator(IValidator):
             events_builder=events_builder,
             jobs_builder=jobs_builder,
             contexts=contexts,
+            shared_components_builder=shared_components_builder,
         )
 
         workflow, problems = director.build()

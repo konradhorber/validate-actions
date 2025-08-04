@@ -4,8 +4,9 @@ from typing import Any, Dict, List, Optional
 
 from validate_actions.pos import Pos
 from validate_actions.problems import Problem, ProblemLevel, Problems
-from validate_actions.workflow import ast, helper
+from validate_actions.workflow import ast
 from validate_actions.workflow.contexts import Contexts
+from validate_actions.workflow.shared_components_builder import ISharedComponentsBuilder
 
 
 class IStepsBuilder(ABC):
@@ -22,10 +23,16 @@ class IStepsBuilder(ABC):
 
 
 class StepsBuilder(IStepsBuilder):
-    def __init__(self, problems: Problems, contexts: Contexts) -> None:
+    def __init__(
+        self,
+        problems: Problems,
+        contexts: Contexts,
+        shared_components_builder: ISharedComponentsBuilder,
+    ) -> None:
         self.problems = problems
         self.RULE_NAME = "steps-syntax-error"
         self.contexts = contexts
+        self.shared_components_builder = shared_components_builder
 
     def build(
         self, steps_in: List[Dict[ast.String, Any]], local_contexts: Contexts
@@ -88,7 +95,7 @@ class StepsBuilder(IStepsBuilder):
                         else:
                             with_[with_key] = with_value
                 case "env":
-                    env_ = helper.build_env(step_token_tree[key], self.problems, self.RULE_NAME)
+                    env_ = self.shared_components_builder.build_env(step_token_tree[key])
                 case "continue-on-error":
                     continue_on_error_ = step_token_tree[key]
                 case "timeout-minutes":

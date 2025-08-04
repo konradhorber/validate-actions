@@ -58,7 +58,7 @@ class IEventsBuilder(ABC):
             "workflow_call",
             "workflow_dispatch",
             "workflow_run",
-            "repository_dispatch"
+            "repository_dispatch",
         ]
 
     @abstractmethod
