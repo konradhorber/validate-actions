@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import validate_actions.workflow.ast as ast
 from validate_actions.pos import Pos
@@ -9,7 +9,7 @@ from validate_actions.workflow import helper
 from validate_actions.workflow.contexts import Contexts
 from validate_actions.workflow.events_builder import EventsBuilder
 from validate_actions.workflow.jobs_builder import JobsBuilder
-from validate_actions.workflow.parser import IYAMLParser
+from validate_actions.workflow.ast import String
 
 
 class IWorkflowBuilder(ABC):
@@ -39,7 +39,7 @@ class WorkflowBuilder(IWorkflowBuilder):
     def __init__(
         self,
         workflow_file: Path,
-        parser: IYAMLParser,
+        workflow_dict: Dict[String, Any],
         problems: Problems,
         events_builder: EventsBuilder,
         jobs_builder: JobsBuilder,
@@ -48,32 +48,33 @@ class WorkflowBuilder(IWorkflowBuilder):
         """Initialize a WorkflowBuilder instance.
 
         Args:
-            workflow_file (Path): Path to the workflow YAML file to be parsed
-                and built.
-            parser (YAMLParser): Parser instance used to parse the workflow
-                YAML file.
+            workflow_file (Path): Path to the workflow YAML file.
+            workflow_dict (Dict[String, Any]): Pre-parsed workflow dictionary.
+            problems (Problems): Problems collection to extend with any issues.
             events_builder (EventsBuilder): Builder instance used to create
                 events from the parsed data.
+            jobs_builder (JobsBuilder): Builder instance used to create
+                jobs from the parsed data.
+            contexts (Contexts): Contexts instance for workflow validation.
         """
         self.RULE_NAME = "actions-syntax-error"
         self.workflow_file = workflow_file
-        self.parser = parser
+        self.workflow_dict = workflow_dict
         self.problems = problems
         self.events_builder = events_builder
         self.jobs_builder = jobs_builder
         self.contexts = contexts
 
     def build(self) -> Tuple[ast.Workflow, Problems]:
-        """Parse the workflow file and build a structured workflow
-        representation.
+        """Build a structured workflow representation from pre-parsed data.
 
-        This method processes the YAML file into a structured Workflow object,
-        validating the structure and collecting any problems encountered.
+        This method processes the pre-parsed workflow dictionary into a structured 
+        Workflow object, validating the structure and collecting any problems encountered.
 
         Returns:
             Tuple[Workflow, Problems]: A tuple containing the built
                 Workflow object and a list of any lint problems found during
-                parsing.
+                building.
         """
         name_ = None
         run_name_ = None
@@ -84,34 +85,30 @@ class WorkflowBuilder(IWorkflowBuilder):
         concurrency_ = None
         jobs_: Dict[ast.String, ast.Job] = {}
 
-        # parse workflow yaml file
-        workflow_dict, parser_problems = self.parser.parse(self.workflow_file)
-        self.problems.extend(parser_problems)
-
-        for key in workflow_dict:
+        for key in self.workflow_dict:
             match key.string:
                 case "name":
-                    name_ = workflow_dict[key].string
+                    name_ = self.workflow_dict[key].string
                 case "run-name":
-                    run_name_ = workflow_dict[key].string
+                    run_name_ = self.workflow_dict[key].string
                 case "on":
-                    on_ = self.events_builder.build(workflow_dict[key])
+                    on_ = self.events_builder.build(self.workflow_dict[key])
                 case "permissions":
                     permissions_ = helper.build_permissions(
-                        workflow_dict[key], self.problems, self.RULE_NAME
+                        self.workflow_dict[key], self.problems, self.RULE_NAME
                     )
                 case "env":
-                    env_ = helper.build_env(workflow_dict[key], self.problems, self.RULE_NAME)
+                    env_ = helper.build_env(self.workflow_dict[key], self.problems, self.RULE_NAME)
                 case "defaults":
                     defaults_ = helper.build_defaults(
-                        workflow_dict[key], self.problems, self.RULE_NAME
+                        self.workflow_dict[key], self.problems, self.RULE_NAME
                     )
                 case "concurrency":
                     concurrency_ = helper.build_concurrency(
-                        key, workflow_dict[key], self.problems, self.RULE_NAME
+                        key, self.workflow_dict[key], self.problems, self.RULE_NAME
                     )
                 case "jobs":
-                    jobs_ = self.jobs_builder.build(workflow_dict[key])
+                    jobs_ = self.jobs_builder.build(self.workflow_dict[key])
                 case _:
                     self.problems.append(
                         Problem(

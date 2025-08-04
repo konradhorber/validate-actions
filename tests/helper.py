@@ -33,9 +33,14 @@ def parse_workflow_string(
         )
         job_orderer = validate_actions.job_orderer.JobOrderer(problems)
 
+        # Parse the workflow file first
+        workflow_dict, parser_problems = yaml_parser.parse(temp_file_path)
+        problems.extend(parser_problems)
+        
+        # Build workflow from parsed dict
         director = validate_actions.workflow.WorkflowBuilder(
             temp_file_path,
-            yaml_parser,
+            workflow_dict,
             problems,
             events_builder,
             jobs_builder,

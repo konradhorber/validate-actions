@@ -4,11 +4,11 @@ from typing import List, Type
 
 from validate_actions import rules
 from validate_actions.fixer import BaseFixer
+from validate_actions.job_orderer import JobOrderer
 from validate_actions.problems import Problems
 from validate_actions.rules.rule import Rule
 from validate_actions.workflow.contexts import Contexts
 from validate_actions.workflow.events_builder import EventsBuilder
-from validate_actions.job_orderer import JobOrderer
 from validate_actions.workflow.jobs_builder import JobsBuilder
 from validate_actions.workflow.parser import PyYAMLParser
 from validate_actions.workflow.steps_builder import StepsBuilder
@@ -53,10 +53,16 @@ class Validator(IValidator):
         events_builder = EventsBuilder(problems)
         steps_builder = StepsBuilder(problems, contexts)
         jobs_builder = JobsBuilder(problems, steps_builder, contexts)
+        
+        # Parse the workflow file first
         parser = PyYAMLParser()
+        workflow_dict, parser_problems = parser.parse(file)
+        problems.extend(parser_problems)
+        
+        # Build workflow from parsed dict
         director = WorkflowBuilder(
             workflow_file=file,
-            parser=parser,
+            workflow_dict=workflow_dict,
             problems=problems,
             events_builder=events_builder,
             jobs_builder=jobs_builder,
