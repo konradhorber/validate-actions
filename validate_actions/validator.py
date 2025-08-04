@@ -83,10 +83,7 @@ class Validator(IValidator):
         cur_rules: List[Rule] = [jobs_steps_uses, steps_io_match, expressions_contexts]
 
         for rule in cur_rules:
-            list_of_problems = rule.check()
-            for problem in list_of_problems:
-                if problem is None:
-                    continue
+            for problem in rule.check():
                 problems.append(problem)
 
         # Apply all batched fixes if in fix mode
