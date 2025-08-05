@@ -3,9 +3,9 @@
 import tempfile
 from pathlib import Path
 
-from validate_actions.fix.fixer import BaseFixer
 from validate_actions.core.problems import Problem, ProblemLevel
 from validate_actions.domain_model.pos import Pos
+from validate_actions.fixing.fixer import BaseFixer
 
 
 class TestFixerBatchEdits:

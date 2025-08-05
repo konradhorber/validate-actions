@@ -1,0 +1,127 @@
+from typing import Any, Dict, List, Optional, Tuple
+
+import validate_actions.domain_model.ast as ast
+from validate_actions.building.events_builder import EventsBuilder
+from validate_actions.building.interfaces import ISharedComponentsBuilder, IWorkflowBuilder
+from validate_actions.building.jobs_builder import JobsBuilder
+from validate_actions.core.problems import Problem, ProblemLevel, Problems
+from validate_actions.domain_model.ast import String
+from validate_actions.domain_model.contexts import Contexts
+from validate_actions.domain_model.pos import Pos
+
+
+class WorkflowBuilder(IWorkflowBuilder):
+    """
+    Constructs a structured representation of a GitHub Actions workflow file.
+
+    This class is responsible for parsing a GitHub Actions workflow YAML file
+    and transforming it into a structured abstract syntax tree (AST)
+    representation. It handles validation of the workflow structure during the
+    parsing process and collects any problems encountered.
+    """
+
+    def __init__(
+        self,
+        workflow_dict: Dict[String, Any],
+        problems: Problems,
+        events_builder: EventsBuilder,
+        jobs_builder: JobsBuilder,
+        contexts: Contexts,
+        shared_components_builder: ISharedComponentsBuilder,
+    ) -> None:
+        """Initialize a WorkflowBuilder instance.
+
+        Args:
+            workflow_dict (Dict[String, Any]): Pre-parsed workflow dictionary.
+            problems (Problems): Problems collection to extend with any issues.
+            events_builder (EventsBuilder): Builder instance used to create
+                events from the parsed data.
+            jobs_builder (JobsBuilder): Builder instance used to create
+                jobs from the parsed data.
+            contexts (Contexts): Contexts instance for workflow validation.
+            shared_components_builder (ISharedComponentsBuilder): Builder for shared components.
+        """
+        self.RULE_NAME = "actions-syntax-error"
+        self.workflow_dict = workflow_dict
+        self.problems = problems
+        self.events_builder = events_builder
+        self.jobs_builder = jobs_builder
+        self.contexts = contexts
+        self.shared_components_builder = shared_components_builder
+
+    def build(self) -> Tuple[ast.Workflow, Problems]:
+        """Build a structured workflow representation from pre-parsed data.
+
+        This method processes the pre-parsed workflow dictionary into a structured
+        Workflow object, validating the structure and collecting any problems encountered.
+
+        Returns:
+            Tuple[Workflow, Problems]: A tuple containing the built
+                Workflow object and a list of any lint problems found during
+                building.
+        """
+        name_ = None
+        run_name_ = None
+        on_: List[ast.Event] = []
+        permissions_ = ast.Permissions()
+        env_: Optional[ast.Env] = None
+        defaults_ = None
+        concurrency_ = None
+        jobs_: Dict[ast.String, ast.Job] = {}
+
+        for key in self.workflow_dict:
+            match key.string:
+                case "name":
+                    name_ = self.workflow_dict[key].string
+                case "run-name":
+                    run_name_ = self.workflow_dict[key].string
+                case "on":
+                    on_ = self.events_builder.build(self.workflow_dict[key])
+                case "permissions":
+                    permissions_ = self.shared_components_builder.build_permissions(
+                        self.workflow_dict[key]
+                    )
+                case "env":
+                    env_ = self.shared_components_builder.build_env(self.workflow_dict[key])
+                case "defaults":
+                    defaults_ = self.shared_components_builder.build_defaults(
+                        self.workflow_dict[key]
+                    )
+                case "concurrency":
+                    concurrency_ = self.shared_components_builder.build_concurrency(
+                        key, self.workflow_dict[key]
+                    )
+                case "jobs":
+                    jobs_ = self.jobs_builder.build(self.workflow_dict[key])
+                case _:
+                    self.problems.append(
+                        Problem(
+                            pos=key.pos,
+                            desc=f"Unknown top-level workflow key: {key.string}",
+                            level=ProblemLevel.ERR,
+                            rule=self.RULE_NAME,
+                        )
+                    )
+        if not on_ or not jobs_:
+            self.problems.append(
+                Problem(
+                    pos=Pos(0, 0),
+                    desc="Workflow must have at least one 'on' event and one job.",
+                    level=ProblemLevel.ERR,
+                    rule=self.RULE_NAME,
+                )
+            )
+
+        workflow = ast.Workflow(
+            on_=on_,
+            jobs_=jobs_,
+            name_=name_,
+            run_name_=run_name_,
+            permissions_=permissions_,
+            env_=env_,
+            defaults_=defaults_,
+            concurrency_=concurrency_,
+            contexts=self.contexts,
+        )
+
+        return workflow, self.problems

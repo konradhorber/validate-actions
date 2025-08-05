@@ -1,7 +1,7 @@
 from typing import Dict, Generator
 
-from validate_actions.analyze.rule import Rule
-from validate_actions.analyze.support_functions import parse_action
+from validate_actions.analyzing.rule import Rule
+from validate_actions.analyzing.support_functions import parse_action
 from validate_actions.core.problems import Problem, ProblemLevel
 from validate_actions.domain_model import ast
 from validate_actions.domain_model.contexts import Contexts

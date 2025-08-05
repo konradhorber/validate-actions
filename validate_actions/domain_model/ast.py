@@ -5,8 +5,8 @@ from typing import Dict, List, Optional, Union
 
 from yaml import ScalarToken
 
-from validate_actions.domain_model.pos import Pos
 from validate_actions.domain_model.contexts import Contexts
+from validate_actions.domain_model.pos import Pos
 
 
 @dataclass(frozen=True)

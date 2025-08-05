@@ -2,18 +2,18 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Type
 
-from validate_actions import analyze
-from validate_actions.fix.fixer import BaseFixer
-from validate_actions.order.job_orderer import JobOrderer
+from validate_actions import analyzing
+from validate_actions.analyzing.rule import Rule
+from validate_actions.building.events_builder import EventsBuilder
+from validate_actions.building.jobs_builder import JobsBuilder
+from validate_actions.building.shared_components_builder import SharedComponentsBuilder
+from validate_actions.building.steps_builder import StepsBuilder
+from validate_actions.building.workflow_builder import WorkflowBuilder
 from validate_actions.core.problems import Problems
-from validate_actions.analyze.rule import Rule
 from validate_actions.domain_model.contexts import Contexts
-from validate_actions.build.events_builder import EventsBuilder
-from validate_actions.build.jobs_builder import JobsBuilder
-from validate_actions.parse.parser import PyYAMLParser
-from validate_actions.build.shared_components_builder import SharedComponentsBuilder
-from validate_actions.build.steps_builder import StepsBuilder
-from validate_actions.build.workflow_builder import WorkflowBuilder
+from validate_actions.fixing.fixer import BaseFixer
+from validate_actions.ordering.job_orderer import JobOrderer
+from validate_actions.parsing.parser import PyYAMLParser
 
 
 class IValidator(ABC):
@@ -42,9 +42,9 @@ class IValidator(ABC):
 
 class Validator(IValidator):
     ACTIONS_ERROR_RULES: List[Type[Rule]] = [
-        analyze.JobsStepsUses,
-        analyze.StepsIOMatch,
-        analyze.ExpressionsContexts,
+        analyzing.JobsStepsUses,
+        analyzing.StepsIOMatch,
+        analyzing.ExpressionsContexts,
     ]
 
     @staticmethod
@@ -79,9 +79,11 @@ class Validator(IValidator):
 
         fixer = BaseFixer(file)
 
-        jobs_steps_uses = analyze.JobsStepsUses(workflow=workflow, fix=fix, fixer=fixer)
-        steps_io_match = analyze.StepsIOMatch(workflow=workflow, fix=fix, fixer=fixer)
-        expressions_contexts = analyze.ExpressionsContexts(workflow=workflow, fix=fix, fixer=fixer)
+        jobs_steps_uses = analyzing.JobsStepsUses(workflow=workflow, fix=fix, fixer=fixer)
+        steps_io_match = analyzing.StepsIOMatch(workflow=workflow, fix=fix, fixer=fixer)
+        expressions_contexts = analyzing.ExpressionsContexts(
+            workflow=workflow, fix=fix, fixer=fixer
+        )
 
         cur_rules: List[Rule] = [jobs_steps_uses, steps_io_match, expressions_contexts]
 

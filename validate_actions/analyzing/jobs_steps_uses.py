@@ -3,8 +3,8 @@ from typing import Generator, List, Tuple, Union
 
 import requests
 
-from validate_actions.analyze.rule import Rule
-from validate_actions.analyze.support_functions import (
+from validate_actions.analyzing.rule import Rule
+from validate_actions.analyzing.support_functions import (
     compare_semantic_versions,
     get_action_tags,
     get_current_action_version,

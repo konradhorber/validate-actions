@@ -1,7 +1,7 @@
 # flake8: noqa: E501
 
 from tests.helper import parse_workflow_string
-from validate_actions import analyze
+from validate_actions import analyzing
 from validate_actions.core.problems import Problem, ProblemLevel
 
 
@@ -27,7 +27,7 @@ def test_no_io_match():
             path: ${{ steps.step1.outputs.some_output }}  # Reference to output from a uses step (which doesn't exist)
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.StepsIOMatch(workflow, False, None)
+    rule = analyzing.StepsIOMatch(workflow, False, None)
     gen = rule.check()
     result = list(gen)
     assert len(result) == 1
@@ -60,7 +60,7 @@ def test_a_io_match():
             path: ${{ steps.step1.outputs.ref }}
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.StepsIOMatch(workflow, False, None)
+    rule = analyzing.StepsIOMatch(workflow, False, None)
     gen = rule.check()
     result = list(gen)
     assert len(result) == 0
@@ -88,7 +88,7 @@ def test_no_step_with_that_id():
             path: ${{ steps.stepOne.outputs.ref }}
     """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.StepsIOMatch(workflow, False, None)
+    rule = analyzing.StepsIOMatch(workflow, False, None)
     gen = rule.check()
     result = list(gen)
     assert len(result) == 1

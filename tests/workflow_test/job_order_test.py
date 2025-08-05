@@ -4,7 +4,7 @@ import pytest
 
 from tests.helper import parse_workflow_string
 from validate_actions.core.problems import ProblemLevel, Problems
-from validate_actions.order.job_orderer import (
+from validate_actions.ordering.job_orderer import (
     CyclicDependency,
     JobExecutionPlan,
     JobOrderer,
@@ -725,8 +725,8 @@ class TestJobOrderIntegrationWithExistingRules:
         # When integrated with ExpressionsContexts rule:
         # - test job should be valid (build is a dependency)
         # - invalid_test job should be invalid (build is not a dependency)
-        from validate_actions import analyze
-        rule = analyze.ExpressionsContexts(workflow, False, None)
+        from validate_actions import analyzing
+        rule = analyzing.ExpressionsContexts(workflow, False, None)
         problems = list(rule.check())
 
         assert len(problems) == 1

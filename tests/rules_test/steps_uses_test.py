@@ -5,9 +5,8 @@ from pathlib import Path
 import requests
 
 from tests.helper import parse_workflow_string
-from validate_actions import Problem, ProblemLevel
-from validate_actions.fix import fixer
-from validate_actions import analyze
+from validate_actions import Problem, ProblemLevel, analyzing
+from validate_actions.fixing import fixer
 
 
 # with
@@ -24,7 +23,7 @@ jobs:
           unknown_input: 'test'
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.JobsStepsUses(workflow, False, None)
+    rule = analyzing.JobsStepsUses(workflow, False, None)
     gen = rule.check()
     result = list(gen)
     assert len(result) == 1
@@ -158,7 +157,7 @@ jobs:
           status: 'test'
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.JobsStepsUses(workflow, False, None)
+    rule = analyzing.JobsStepsUses(workflow, False, None)
     gen = rule.check()
     result = list(gen)
     assert len(result) == 1
@@ -182,7 +181,7 @@ jobs:
           wrong_input: 'test'
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.JobsStepsUses(workflow, False, None)
+    rule = analyzing.JobsStepsUses(workflow, False, None)
     gen = rule.check()
     result = list(gen)
     assert len(result) == 1
@@ -229,7 +228,7 @@ def test_fix_missing_version_spec(tmp_path, monkeypatch):
 
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_without_version)
         fix = fixer.BaseFixer(temp_file_path)
-        rule = analyze.JobsStepsUses(workflow_obj, True, fix)
+        rule = analyzing.JobsStepsUses(workflow_obj, True, fix)
         problems_after_fix = list(rule.check())
         # Apply the batched fixes
         fix.flush()
@@ -246,7 +245,7 @@ def test_fix_missing_version_spec(tmp_path, monkeypatch):
 def throws_single_error(workflow_string: str):
     workflow, problems = parse_workflow_string(workflow_string)
     fixy = fixer.BaseFixer(Path(tempfile.gettempdir()))
-    rule = analyze.JobsStepsUses(workflow, False, fixy)
+    rule = analyzing.JobsStepsUses(workflow, False, fixy)
     gen = rule.check()
     result = list(gen)
     assert len(result) == 1
@@ -257,7 +256,7 @@ def throws_single_error(workflow_string: str):
 def throws_no_error(workflow_string: str):
     workflow, problems = parse_workflow_string(workflow_string)
     fixy = fixer.BaseFixer(Path(tempfile.gettempdir()))
-    rule = analyze.JobsStepsUses(workflow, False, fixy)
+    rule = analyzing.JobsStepsUses(workflow, False, fixy)
     gen = rule.check()
     result = list(gen)
     assert result == []
@@ -277,7 +276,7 @@ jobs:
         uses: actions/checkout@v3
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.JobsStepsUses(workflow, False, None)
+    rule = analyzing.JobsStepsUses(workflow, False, None)
     gen = rule.check()
     result = list(gen)
 
@@ -302,7 +301,7 @@ jobs:
         uses: actions/checkout@v4.1
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.JobsStepsUses(workflow, False, None)
+    rule = analyzing.JobsStepsUses(workflow, False, None)
     gen = rule.check()
     result = list(gen)
 
@@ -327,7 +326,7 @@ jobs:
         uses: actions/checkout@v4.2.1
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.JobsStepsUses(workflow, False, None)
+    rule = analyzing.JobsStepsUses(workflow, False, None)
     gen = rule.check()
     result = list(gen)
 
@@ -352,7 +351,7 @@ jobs:
         uses: actions/checkout@v4
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.JobsStepsUses(workflow, False, None)
+    rule = analyzing.JobsStepsUses(workflow, False, None)
     gen = rule.check()
     result = list(gen)
 
@@ -374,7 +373,7 @@ jobs:
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.JobsStepsUses(workflow, False, None)
+    rule = analyzing.JobsStepsUses(workflow, False, None)
     gen = rule.check()
     result = list(gen)
 
@@ -401,7 +400,7 @@ jobs:
         uses: actions/checkout@v4.2.2
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.JobsStepsUses(workflow, False, None)
+    rule = analyzing.JobsStepsUses(workflow, False, None)
     gen = rule.check()
     result = list(gen)
 
@@ -423,7 +422,7 @@ jobs:
         uses: actions/checkout
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.JobsStepsUses(workflow, False, None)
+    rule = analyzing.JobsStepsUses(workflow, False, None)
     gen = rule.check()
     result = list(gen)
 
@@ -452,7 +451,7 @@ jobs:
         uses: actions/cache@v2
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.JobsStepsUses(workflow, False, None)
+    rule = analyzing.JobsStepsUses(workflow, False, None)
     gen = rule.check()
     result = list(gen)
 
@@ -474,7 +473,7 @@ jobs:
         uses: private-org/private-action@v1.0.0
 """
     workflow, problems = parse_workflow_string(workflow_string)
-    rule = analyze.JobsStepsUses(workflow, False, None)
+    rule = analyzing.JobsStepsUses(workflow, False, None)
     gen = rule.check()
     result = list(gen)
 
@@ -504,7 +503,7 @@ def test_fix_outdated_version():
 
         workflow_obj, initial_problems = parse_workflow_string(workflow_string_outdated)
         fix = fixer.BaseFixer(temp_file_path)
-        rule = analyze.JobsStepsUses(workflow_obj, True, fix)
+        rule = analyzing.JobsStepsUses(workflow_obj, True, fix)
         problems_after_fix = list(rule.check())
         # Apply the batched fixes
         fix.flush()

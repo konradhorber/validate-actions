@@ -5,7 +5,7 @@ from typing import Generator
 
 from validate_actions.core.problems import Problem
 from validate_actions.domain_model.ast import Workflow
-from validate_actions.fix.fixer import Fixer
+from validate_actions.fixing.fixer import Fixer
 
 
 class Rule(ABC):

@@ -3,11 +3,17 @@ from pathlib import Path
 from typing import Tuple
 
 import validate_actions
-from validate_actions.order import job_orderer
+from validate_actions.building import (
+    events_builder,
+    jobs_builder,
+    shared_components_builder,
+    steps_builder,
+    workflow_builder,
+)
 from validate_actions.core import problems
 from validate_actions.domain_model import contexts
-from validate_actions.parse import parser
-from validate_actions.build import shared_components_builder, events_builder, steps_builder, jobs_builder, workflow_builder
+from validate_actions.ordering import job_orderer
+from validate_actions.parsing import parser
 
 
 def parse_workflow_string(
