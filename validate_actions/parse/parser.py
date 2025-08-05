@@ -7,9 +7,9 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 import yaml
 
-from validate_actions.pos import Pos
-from validate_actions.problems import Problem, ProblemLevel, Problems
-from validate_actions.workflow.ast import Expression, String
+from validate_actions.core.problems import Problem, ProblemLevel, Problems
+from validate_actions.domain_model.ast import Expression, String
+from validate_actions.domain_model.pos import Pos
 
 
 class IYAMLParser(ABC):

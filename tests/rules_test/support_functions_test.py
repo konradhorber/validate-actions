@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from validate_actions.rules.support_functions import get_current_action_version
+from validate_actions.analyze.support_functions import get_current_action_version
 
 
 class TestTagFetching:
@@ -15,7 +15,7 @@ class TestTagFetching:
 
     def setup_method(self):
         """Clear cache before each test"""
-        from validate_actions.rules.support_functions import (
+        from validate_actions.analyze.support_functions import (
             action_tags_cache,
             get_current_action_version_cache,
         )
@@ -36,7 +36,7 @@ class TestTagFetching:
         ]
 
         with patch(
-            "validate_actions.rules.support_functions.SESSION.get", return_value=mock_response
+            "validate_actions.analyze.support_functions.SESSION.get", return_value=mock_response
         ):
             latest = get_current_action_version("actions/checkout")
             assert latest == "v4.2.2"
@@ -47,7 +47,7 @@ class TestTagFetching:
         mock_response.status_code = 403
 
         with patch(
-            "validate_actions.rules.support_functions.SESSION.get", return_value=mock_response
+            "validate_actions.analyze.support_functions.SESSION.get", return_value=mock_response
         ):
             result = get_current_action_version("actions/checkout")
             assert result is None
@@ -58,7 +58,7 @@ class TestTagFetching:
         mock_response.status_code = 404
 
         with patch(
-            "validate_actions.rules.support_functions.SESSION.get", return_value=mock_response
+            "validate_actions.analyze.support_functions.SESSION.get", return_value=mock_response
         ):
             result = get_current_action_version("non-existent/repo")
             assert result is None
@@ -70,7 +70,7 @@ class TestTagFetching:
         mock_response.json.return_value = []
 
         with patch(
-            "validate_actions.rules.support_functions.SESSION.get", return_value=mock_response
+            "validate_actions.analyze.support_functions.SESSION.get", return_value=mock_response
         ):
             result = get_current_action_version("actions/checkout")
             assert result is None
@@ -82,7 +82,7 @@ class TestTagFetching:
         mock_response.json.side_effect = ValueError("Invalid JSON")
 
         with patch(
-            "validate_actions.rules.support_functions.SESSION.get", return_value=mock_response
+            "validate_actions.analyze.support_functions.SESSION.get", return_value=mock_response
         ):
             result = get_current_action_version("actions/checkout")
             assert result is None
@@ -93,7 +93,7 @@ class TestVersionParsing:
 
     def test_parse_full_semantic_version(self):
         """Test parsing full semantic versions"""
-        from validate_actions.rules.support_functions import parse_semantic_version
+        from validate_actions.analyze.support_functions import parse_semantic_version
 
         assert parse_semantic_version("v4.2.1") == (4, 2, 1)
         assert parse_semantic_version("4.2.1") == (4, 2, 1)
@@ -101,7 +101,7 @@ class TestVersionParsing:
 
     def test_parse_partial_versions(self):
         """Test parsing versions with missing components - preserves None for safety"""
-        from validate_actions.rules.support_functions import parse_semantic_version
+        from validate_actions.analyze.support_functions import parse_semantic_version
 
         assert parse_semantic_version("v4.2") == (4, 2, None)
         assert parse_semantic_version("v4") == (4, None, None)
@@ -109,7 +109,7 @@ class TestVersionParsing:
 
     def test_parse_invalid_versions(self):
         """Test parsing invalid version strings"""
-        from validate_actions.rules.support_functions import parse_semantic_version
+        from validate_actions.analyze.support_functions import parse_semantic_version
 
         assert parse_semantic_version("release-2023") is None
         assert parse_semantic_version("latest") is None
@@ -124,35 +124,35 @@ class TestVersionComparison:
 
     def test_major_version_outdated(self):
         """Test major version differences"""
-        from validate_actions.rules.support_functions import compare_semantic_versions
+        from validate_actions.analyze.support_functions import compare_semantic_versions
 
         assert compare_semantic_versions((4, 2, 1), (3, 6, 0)) == "major"
         assert compare_semantic_versions((5, 0, 0), (4, 9, 9)) == "major"
 
     def test_minor_version_outdated(self):
         """Test minor version differences"""
-        from validate_actions.rules.support_functions import compare_semantic_versions
+        from validate_actions.analyze.support_functions import compare_semantic_versions
 
         assert compare_semantic_versions((4, 2, 1), (4, 1, 0)) == "minor"
         assert compare_semantic_versions((4, 5, 0), (4, 3, 2)) == "minor"
 
     def test_patch_version_outdated(self):
         """Test patch version differences"""
-        from validate_actions.rules.support_functions import compare_semantic_versions
+        from validate_actions.analyze.support_functions import compare_semantic_versions
 
         assert compare_semantic_versions((4, 2, 2), (4, 2, 1)) == "patch"
         assert compare_semantic_versions((4, 2, 5), (4, 2, 0)) == "patch"
 
     def test_current_version_no_warning(self):
         """Test current version returns None"""
-        from validate_actions.rules.support_functions import compare_semantic_versions
+        from validate_actions.analyze.support_functions import compare_semantic_versions
 
         assert compare_semantic_versions((4, 2, 1), (4, 2, 1)) is None
         assert compare_semantic_versions((1, 0, 0), (1, 0, 0)) is None
 
     def test_future_version_no_warning(self):
         """Test future version returns None"""
-        from validate_actions.rules.support_functions import compare_semantic_versions
+        from validate_actions.analyze.support_functions import compare_semantic_versions
 
         assert compare_semantic_versions((4, 2, 1), (5, 0, 0)) is None
         assert compare_semantic_versions((4, 2, 1), (4, 3, 0)) is None
@@ -164,7 +164,7 @@ class TestCommitShaDetection:
 
     def test_commit_sha_detection(self):
         """Test detection of commit SHAs"""
-        from validate_actions.rules.support_functions import is_commit_sha
+        from validate_actions.analyze.support_functions import is_commit_sha
 
         assert is_commit_sha("11bd71901bbe5b1630ceea73d27597364c9af683") is True
         assert is_commit_sha("11bd719") is True  # Short SHA
@@ -172,7 +172,7 @@ class TestCommitShaDetection:
 
     def test_non_commit_sha_detection(self):
         """Test detection of non-SHA strings"""
-        from validate_actions.rules.support_functions import is_commit_sha
+        from validate_actions.analyze.support_functions import is_commit_sha
 
         assert is_commit_sha("v4.2.1") is False
         assert is_commit_sha("main") is False
@@ -186,7 +186,7 @@ class TestGetActionTags:
 
     def setup_method(self):
         """Clear cache before each test"""
-        from validate_actions.rules.support_functions import (
+        from validate_actions.analyze.support_functions import (
             action_tags_cache,
             get_current_action_version_cache,
         )
@@ -205,9 +205,9 @@ class TestGetActionTags:
         ]
 
         with patch(
-            "validate_actions.rules.support_functions.SESSION.get", return_value=mock_response
+            "validate_actions.analyze.support_functions.SESSION.get", return_value=mock_response
         ):
-            from validate_actions.rules.support_functions import get_action_tags
+            from validate_actions.analyze.support_functions import get_action_tags
 
             tags = get_action_tags("actions/checkout")
             assert len(tags) == 3
@@ -226,9 +226,9 @@ class TestGetActionTags:
         ]
 
         with patch(
-            "validate_actions.rules.support_functions.SESSION.get", return_value=mock_response
+            "validate_actions.analyze.support_functions.SESSION.get", return_value=mock_response
         ):
-            from validate_actions.rules.support_functions import resolve_version_to_latest
+            from validate_actions.analyze.support_functions import resolve_version_to_latest
 
             # v4 should resolve to v4.2.2, not v4.0.0
             resolved = resolve_version_to_latest("actions/checkout", "v4")

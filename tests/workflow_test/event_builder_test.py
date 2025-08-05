@@ -10,7 +10,7 @@ on:
 """
     workflow, problems = parse_workflow_string(workflow_string)
     cron_event = workflow.on_[0]
-    assert isinstance(cron_event, validate_actions.workflow.ScheduleEvent)
+    assert isinstance(cron_event, validate_actions.domain_model.ast.ScheduleEvent)
     assert cron_event.cron_[0].string == "0 0 * * *"
 
 
@@ -23,7 +23,7 @@ on:
 """
     workflow, problems = parse_workflow_string(workflow_string)
     cron_event = workflow.on_[0]
-    assert isinstance(cron_event, validate_actions.workflow.ScheduleEvent)
+    assert isinstance(cron_event, validate_actions.domain_model.ast.ScheduleEvent)
     assert cron_event.cron_[0].string == "0 0 * * *"
     assert cron_event.cron_[1].string == "0 1 * * *"
 
@@ -38,7 +38,7 @@ on:
 """
     workflow, problems = parse_workflow_string(workflow_string)
     pull_request_event = workflow.on_[0]
-    assert isinstance(pull_request_event, validate_actions.workflow.PathsBranchesFilterEvent)
+    assert isinstance(pull_request_event, validate_actions.domain_model.ast.PathsBranchesFilterEvent)
     assert pull_request_event.branches_[0].string == "main"
     assert pull_request_event.branches_[1].string == "dev"
     assert pull_request_event.paths_[0].string == "src/**"
@@ -56,7 +56,7 @@ on:
 """
     workflow, problems = parse_workflow_string(workflow_string)
     push_event = workflow.on_[0]
-    assert isinstance(push_event, validate_actions.workflow.TagsPathsBranchesFilterEvent)
+    assert isinstance(push_event, validate_actions.domain_model.ast.TagsPathsBranchesFilterEvent)
     assert push_event.branches_[0].string == "main"
     assert len(push_event.tags_) == 2
     assert push_event.tags_[0].string == "v2"
@@ -88,7 +88,7 @@ on:
 """
     workflow, problems = parse_workflow_string(workflow_string)
     workflow_call_event = workflow.on_[0]
-    assert isinstance(workflow_call_event, validate_actions.workflow.WorkflowCallEvent)
+    assert isinstance(workflow_call_event, validate_actions.domain_model.ast.WorkflowCallEvent)
     inputs = workflow_call_event.inputs_
     outputs = workflow_call_event.outputs_
     secrets = workflow_call_event.secrets_
@@ -100,7 +100,7 @@ on:
     assert inputs[0].description_.string == expected_desc
     assert inputs[0].default_.string == "john-doe"
     assert inputs[0].required_ is True
-    assert inputs[0].type_ == (validate_actions.workflow.WorkflowCallInputType.string)
+    assert inputs[0].type_ == (validate_actions.domain_model.ast.WorkflowCallInputType.string)
 
     assert len(outputs) == 2
     assert outputs[0].id.string == "workflow_output1"
@@ -130,7 +130,7 @@ on:
 """
     workflow, problems = parse_workflow_string(workflow_string)
     workflow_run_event = workflow.on_[0]
-    assert isinstance(workflow_run_event, validate_actions.workflow.WorkflowRunEvent)
+    assert isinstance(workflow_run_event, validate_actions.domain_model.ast.WorkflowRunEvent)
     assert workflow_run_event.id.string == "workflow_run"
     assert len(workflow_run_event.workflows_) == 1
     assert workflow_run_event.workflows_[0].string == "main"
@@ -172,7 +172,7 @@ on:
 """
     workflow, problems = parse_workflow_string(workflow_string)
     workflow_dispatch_event = workflow.on_[0]
-    assert isinstance(workflow_dispatch_event, validate_actions.workflow.WorkflowDispatchEvent)
+    assert isinstance(workflow_dispatch_event, validate_actions.domain_model.ast.WorkflowDispatchEvent)
     assert workflow_dispatch_event.id.string == "workflow_dispatch"
     inputs = workflow_dispatch_event.inputs_
     assert len(inputs) == 4
@@ -180,7 +180,7 @@ on:
     assert inputs[0].description_.string == "Log level"
     assert inputs[0].required_ is True
     assert inputs[0].default_.string == "warning"
-    type_ = validate_actions.workflow.WorkflowDispatchInputType.choice
+    type_ = validate_actions.domain_model.ast.WorkflowDispatchInputType.choice
     assert inputs[0].type_ == type_
     assert len(inputs[0].options_) == 3
     assert inputs[0].options_[0].string == "info"
@@ -189,17 +189,17 @@ on:
     assert inputs[1].id.string == "print_tags"
     assert inputs[1].description_.string == "True to print to STDOUT"
     assert inputs[1].required_ is True
-    type_ = validate_actions.workflow.WorkflowDispatchInputType.boolean
+    type_ = validate_actions.domain_model.ast.WorkflowDispatchInputType.boolean
     assert inputs[1].type_ == type_
     assert inputs[2].id.string == "tags"
     assert inputs[2].description_.string == "Test scenario tags"
     assert inputs[2].required_ is True
-    type_ = validate_actions.workflow.WorkflowDispatchInputType.string
+    type_ = validate_actions.domain_model.ast.WorkflowDispatchInputType.string
     assert inputs[2].type_ == type_
     assert inputs[3].id.string == "environment"
     assert inputs[3].description_.string == "Environment to run tests against"
     assert inputs[3].required_ is False
-    type_ = validate_actions.workflow.WorkflowDispatchInputType.environment
+    type_ = validate_actions.domain_model.ast.WorkflowDispatchInputType.environment
     assert inputs[3].type_ == type_
     assert inputs[3].options_ is None
 

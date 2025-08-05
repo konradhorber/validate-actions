@@ -1,5 +1,5 @@
 from tests.helper import parse_workflow_string
-from validate_actions.workflow import ast
+from validate_actions.domain_model import ast
 
 
 def test_workflow_env():

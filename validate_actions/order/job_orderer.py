@@ -9,10 +9,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set
 
-import validate_actions.workflow.ast as ast
-from validate_actions.problems import Problem, ProblemLevel, Problems
-from validate_actions.workflow.ast import Job, Workflow
-from validate_actions.workflow.contexts import (
+import validate_actions.domain_model.ast as ast
+from validate_actions.core.problems import Problem, ProblemLevel, Problems
+from validate_actions.domain_model.ast import Job, Workflow
+from validate_actions.domain_model.contexts import (
     ContextType,
     NeedContext,
     NeedOutputsContext,

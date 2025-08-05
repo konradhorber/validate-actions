@@ -1,10 +1,10 @@
 from typing import Dict, Generator
 
-from validate_actions.problems import Problem, ProblemLevel
-from validate_actions.rules.rule import Rule
-from validate_actions.rules.support_functions import parse_action
-from validate_actions.workflow import ast
-from validate_actions.workflow.contexts import Contexts
+from validate_actions.analyze.rule import Rule
+from validate_actions.analyze.support_functions import parse_action
+from validate_actions.core.problems import Problem, ProblemLevel
+from validate_actions.domain_model import ast
+from validate_actions.domain_model.contexts import Contexts
 
 
 class StepsIOMatch(Rule):

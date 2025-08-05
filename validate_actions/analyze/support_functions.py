@@ -8,8 +8,8 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Type
 import requests
 import yaml
 
-from validate_actions.problems import Problem, ProblemLevel
-from validate_actions.workflow.ast import String
+from validate_actions.core.problems import Problem, ProblemLevel
+from validate_actions.domain_model.ast import String
 
 # TODO fix and upgrade this mess
 

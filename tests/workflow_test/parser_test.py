@@ -1,6 +1,6 @@
 from tests.helper import parse_workflow_string
-from validate_actions.pos import Pos
-from validate_actions.workflow import ast
+from validate_actions.domain_model.pos import Pos
+from validate_actions.domain_model import ast
 
 
 def test_parse_str_to_ref():

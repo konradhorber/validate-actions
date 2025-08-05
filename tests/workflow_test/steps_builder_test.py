@@ -1,7 +1,7 @@
 # flake8: noqa: E501
 
 from tests.helper import parse_workflow_string
-from validate_actions.workflow import ast, contexts
+from validate_actions.domain_model import ast, contexts
 
 
 def test_step_env():

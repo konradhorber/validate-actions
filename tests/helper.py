@@ -3,12 +3,16 @@ from pathlib import Path
 from typing import Tuple
 
 import validate_actions
-import validate_actions.job_orderer
+from validate_actions.order import job_orderer
+from validate_actions.core import problems
+from validate_actions.domain_model import contexts
+from validate_actions.parse import parser
+from validate_actions.build import shared_components_builder, events_builder, steps_builder, jobs_builder, workflow_builder
 
 
 def parse_workflow_string(
     workflow_string: str,
-) -> Tuple[validate_actions.workflow.Workflow, validate_actions.Problems]:
+) -> Tuple[validate_actions.domain_model.ast.Workflow, problems.Problems]:
     """
     Helper function to parse a workflow string into a Workflow object.
 
@@ -24,35 +28,35 @@ def parse_workflow_string(
         temp_file_path = Path(temp_file.name)
 
     try:
-        yaml_parser = validate_actions.workflow.PyYAMLParser()
-        problems = validate_actions.Problems()
-        contexts = validate_actions.workflow.Contexts()
-        shared_components_builder = validate_actions.workflow.shared_components_builder.SharedComponentsBuilder(problems)
-        events_builder = validate_actions.workflow.EventsBuilder(problems)
-        steps_builder = validate_actions.workflow.StepsBuilder(problems, contexts, shared_components_builder)
-        jobs_builder = validate_actions.workflow.JobsBuilder(
-            problems, steps_builder, contexts, shared_components_builder
+        yaml_parser = parser.PyYAMLParser()
+        problems_instance = problems.Problems()
+        contexts_instance = contexts.Contexts()
+        shared_components_builder_instance = shared_components_builder.SharedComponentsBuilder(problems_instance)
+        events_builder_instance = events_builder.EventsBuilder(problems_instance)
+        steps_builder_instance = steps_builder.StepsBuilder(problems_instance, contexts_instance, shared_components_builder_instance)
+        jobs_builder_instance = jobs_builder.JobsBuilder(
+            problems_instance, steps_builder_instance, contexts_instance, shared_components_builder_instance
         )
-        job_orderer = validate_actions.job_orderer.JobOrderer(problems)
+        job_orderer_instance = job_orderer.JobOrderer(problems_instance)
 
         # Parse the workflow file first
         workflow_dict, parser_problems = yaml_parser.parse(temp_file_path)
-        problems.extend(parser_problems)
+        problems_instance.extend(parser_problems)
         
         # Build workflow from parsed dict
-        director = validate_actions.workflow.WorkflowBuilder(
+        director = workflow_builder.WorkflowBuilder(
             workflow_dict,
-            problems,
-            events_builder,
-            jobs_builder,
-            contexts,
-            shared_components_builder,
+            problems_instance,
+            events_builder_instance,
+            jobs_builder_instance,
+            contexts_instance,
+            shared_components_builder_instance,
         )
-        workflow, problems = director.build()
+        workflow, workflow_problems = director.build()
         
         # Prepare workflow with job dependency analysis and needs contexts
-        job_orderer.prepare_workflow(workflow)
+        job_orderer_instance.prepare_workflow(workflow)
         
-        return workflow, problems
+        return workflow, problems_instance
     finally:
         temp_file_path.unlink(missing_ok=True)

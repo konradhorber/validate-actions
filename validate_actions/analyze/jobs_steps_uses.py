@@ -3,9 +3,8 @@ from typing import Generator, List, Tuple, Union
 
 import requests
 
-from validate_actions.problems import Problem, ProblemLevel
-from validate_actions.rules.rule import Rule
-from validate_actions.rules.support_functions import (
+from validate_actions.analyze.rule import Rule
+from validate_actions.analyze.support_functions import (
     compare_semantic_versions,
     get_action_tags,
     get_current_action_version,
@@ -14,7 +13,8 @@ from validate_actions.rules.support_functions import (
     parse_semantic_version,
     resolve_version_to_latest,
 )
-from validate_actions.workflow.ast import ExecAction
+from validate_actions.core.problems import Problem, ProblemLevel
+from validate_actions.domain_model.ast import ExecAction
 
 logger = logging.getLogger(__name__)
 

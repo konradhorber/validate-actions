@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import List
 
-from validate_actions.pos import Pos
+from validate_actions.domain_model.pos import Pos
 
 
 class ProblemLevel(Enum):

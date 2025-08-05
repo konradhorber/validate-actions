@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generator
+from typing import Generator
 
-if TYPE_CHECKING:
-    from validate_actions.fixer import Fixer
-    from validate_actions.problems import Problem
-    from validate_actions.workflow.ast import Workflow
+from validate_actions.core.problems import Problem
+from validate_actions.domain_model.ast import Workflow
+from validate_actions.fix.fixer import Fixer
 
 
 class Rule(ABC):
