@@ -34,8 +34,8 @@ def parse_workflow_string(
         temp_file_path = Path(temp_file.name)
 
     try:
-        yaml_parser = parser.PyYAMLParser()
         problems_instance = problems.Problems()
+        yaml_parser = parser.PyYAMLParser(problems_instance)
         contexts_instance = contexts.Contexts()
         shared_components_builder_instance = shared_components_builder.SharedComponentsBuilder(problems_instance)
         events_builder_instance = events_builder.EventsBuilder(problems_instance)
@@ -46,19 +46,17 @@ def parse_workflow_string(
         job_orderer_instance = job_orderer.JobOrderer(problems_instance)
 
         # Parse the workflow file first
-        workflow_dict, parser_problems = yaml_parser.parse(temp_file_path)
-        problems_instance.extend(parser_problems)
+        workflow_dict = yaml_parser.process(temp_file_path)
         
         # Build workflow from parsed dict
         director = workflow_builder.WorkflowBuilder(
-            workflow_dict,
             problems_instance,
             events_builder_instance,
             jobs_builder_instance,
             contexts_instance,
             shared_components_builder_instance,
         )
-        workflow, workflow_problems = director.build()
+        workflow = director.process(workflow_dict)
         
         # Prepare workflow with job dependency analysis and needs contexts
         job_orderer_instance.prepare_workflow(workflow)

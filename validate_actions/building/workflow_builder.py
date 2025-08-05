@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import validate_actions.domain_model.ast as ast
 from validate_actions.building.events_builder import EventsBuilder
@@ -22,7 +22,6 @@ class WorkflowBuilder(IWorkflowBuilder):
 
     def __init__(
         self,
-        workflow_dict: Dict[String, Any],
         problems: Problems,
         events_builder: EventsBuilder,
         jobs_builder: JobsBuilder,
@@ -32,7 +31,6 @@ class WorkflowBuilder(IWorkflowBuilder):
         """Initialize a WorkflowBuilder instance.
 
         Args:
-            workflow_dict (Dict[String, Any]): Pre-parsed workflow dictionary.
             problems (Problems): Problems collection to extend with any issues.
             events_builder (EventsBuilder): Builder instance used to create
                 events from the parsed data.
@@ -41,24 +39,24 @@ class WorkflowBuilder(IWorkflowBuilder):
             contexts (Contexts): Contexts instance for workflow validation.
             shared_components_builder (ISharedComponentsBuilder): Builder for shared components.
         """
+        super().__init__(problems)
         self.RULE_NAME = "actions-syntax-error"
-        self.workflow_dict = workflow_dict
-        self.problems = problems
         self.events_builder = events_builder
         self.jobs_builder = jobs_builder
         self.contexts = contexts
         self.shared_components_builder = shared_components_builder
 
-    def build(self) -> Tuple[ast.Workflow, Problems]:
-        """Build a structured workflow representation from pre-parsed data.
+    def process(self, workflow_dict: Dict[String, Any]) -> ast.Workflow:
+        """Build a structured workflow representation from workflow dictionary.
 
-        This method processes the pre-parsed workflow dictionary into a structured
+        This method processes the workflow dictionary into a structured
         Workflow object, validating the structure and collecting any problems encountered.
 
+        Args:
+            workflow_dict (Dict[String, Any]): The workflow dictionary to process.
+
         Returns:
-            Tuple[Workflow, Problems]: A tuple containing the built
-                Workflow object and a list of any lint problems found during
-                building.
+            ast.Workflow: The built Workflow object.
         """
         name_ = None
         run_name_ = None
@@ -69,30 +67,30 @@ class WorkflowBuilder(IWorkflowBuilder):
         concurrency_ = None
         jobs_: Dict[ast.String, ast.Job] = {}
 
-        for key in self.workflow_dict:
+        for key in workflow_dict:
             match key.string:
                 case "name":
-                    name_ = self.workflow_dict[key].string
+                    name_ = workflow_dict[key].string
                 case "run-name":
-                    run_name_ = self.workflow_dict[key].string
+                    run_name_ = workflow_dict[key].string
                 case "on":
-                    on_ = self.events_builder.build(self.workflow_dict[key])
+                    on_ = self.events_builder.build(workflow_dict[key])
                 case "permissions":
                     permissions_ = self.shared_components_builder.build_permissions(
-                        self.workflow_dict[key]
+                        workflow_dict[key]
                     )
                 case "env":
-                    env_ = self.shared_components_builder.build_env(self.workflow_dict[key])
+                    env_ = self.shared_components_builder.build_env(workflow_dict[key])
                 case "defaults":
                     defaults_ = self.shared_components_builder.build_defaults(
-                        self.workflow_dict[key]
+                        workflow_dict[key]
                     )
                 case "concurrency":
                     concurrency_ = self.shared_components_builder.build_concurrency(
-                        key, self.workflow_dict[key]
+                        key, workflow_dict[key]
                     )
                 case "jobs":
-                    jobs_ = self.jobs_builder.build(self.workflow_dict[key])
+                    jobs_ = self.jobs_builder.build(workflow_dict[key])
                 case _:
                     self.problems.append(
                         Problem(
@@ -124,4 +122,4 @@ class WorkflowBuilder(IWorkflowBuilder):
             contexts=self.contexts,
         )
 
-        return workflow, self.problems
+        return workflow

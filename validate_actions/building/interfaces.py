@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
+from validate_actions.core.interfaces import ProcessStage
 from validate_actions.core.problems import Problems
 from validate_actions.domain_model import ast
 from validate_actions.domain_model.contexts import Contexts
@@ -62,16 +63,17 @@ class IEventsBuilder(ABC):
         pass
 
 
-class IWorkflowBuilder(ABC):
+class IWorkflowBuilder(ProcessStage[Dict[ast.String, Any], ast.Workflow]):
     @abstractmethod
-    def build(self) -> Tuple[ast.Workflow, Problems]:
+    def process(self, workflow_dict: Dict[ast.String, Any]) -> ast.Workflow:
         """
-        Build a structured workflow representation from the input YAML file.
+        Build a structured workflow representation from the input dictionary.
+
+        Args:
+            workflow_dict: Parsed workflow dictionary to build from
 
         Returns:
-            Tuple[Workflow, Problems]: A tuple containing the built
-                Workflow object and a list of any lint problems found during
-                parsing.
+            ast.Workflow: The built Workflow object.
         """
         pass
 

@@ -57,13 +57,11 @@ class Validator(IValidator):
         jobs_builder = JobsBuilder(problems, steps_builder, contexts, shared_components_builder)
 
         # Parse the workflow file first
-        parser = PyYAMLParser()
-        workflow_dict, parser_problems = parser.parse(file)
-        problems.extend(parser_problems)
+        parser = PyYAMLParser(problems)
+        workflow_dict = parser.process(file)
 
         # Build workflow from parsed dict
         director = WorkflowBuilder(
-            workflow_dict=workflow_dict,
             problems=problems,
             events_builder=events_builder,
             jobs_builder=jobs_builder,
@@ -71,7 +69,7 @@ class Validator(IValidator):
             shared_components_builder=shared_components_builder,
         )
 
-        workflow, problems = director.build()
+        workflow = director.process(workflow_dict)
 
         # Prepare workflow with job dependency analysis and needs contexts
         job_orderer = JobOrderer(problems)

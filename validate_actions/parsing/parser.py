@@ -1,61 +1,50 @@
 import copy
 import re
 import sys
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 import yaml
 
+from validate_actions.core.interfaces import ProcessStage
 from validate_actions.core.problems import Problem, ProblemLevel, Problems
 from validate_actions.domain_model.ast import Expression, String
 from validate_actions.domain_model.pos import Pos
 
 
-class IYAMLParser(ABC):
-    """Abstract base class for YAML parser implementations.
-
-    Args:
-        ABC: Abstract base class from the abc module.
-    """
+class IYAMLParser(ProcessStage[Path, Dict[String, Any]]):
+    """Abstract base class for YAML parser implementations."""
 
     @abstractmethod
-    def parse(self, file: Path) -> Tuple[Dict[String, Any], Problems]:
+    def process(self, file: Path) -> Dict[String, Any]:
         """Parse a YAML file into a structured representation.
 
         Args:
             file (Path): Path to the YAML file to parse.
 
         Returns:
-            Tuple[Dict[String, Any], Problems]: A tuple containing
-                the parsed YAML content as a dictionary and a list of lint
-                problems found during parsing.
+            Dict[String, Any]: The parsed YAML content as a dictionary.
         """
         pass
 
 
 class PyYAMLParser(IYAMLParser):
-    """YAML parser implementation using PyYAML.
+    """YAML parser implementation using PyYAML."""
 
-    Args:
-        YAMLParser: Abstract base class for YAML parsers.
-    """
-
-    def __init__(self) -> None:
+    def __init__(self, problems: Problems) -> None:
         """Initialize the PyYAMLParser."""
-        self.problems: Problems = Problems()
+        super().__init__(problems)
         self.RULE = "actions_syntax-error"
 
-    def parse(self, file: Path) -> Tuple[Dict[String, Any], Problems]:
+    def process(self, file: Path) -> Dict[String, Any]:
         """Parse a YAML file into a structured representation using PyYAML.
 
         Args:
             file (Path): Path to the YAML file to parse.
 
         Returns:
-            Tuple[Dict[String, Any], Problems]: A tuple containing
-                the parsed YAML content as a dictionary and a list of lint
-                problems found during parsing.
+            Dict[String, Any]: The parsed YAML content as a dictionary.
         """
 
         # Read file from I/O
@@ -72,7 +61,7 @@ class PyYAMLParser(IYAMLParser):
                     rule=self.RULE,
                 )
             )
-            return {}, self.problems
+            return {}
 
         # Use PyYAML to parse the file as a flat list of tokens
         try:
@@ -86,7 +75,7 @@ class PyYAMLParser(IYAMLParser):
                     rule=self.RULE,
                 )
             )
-            return {}, self.problems
+            return {}
 
         # Basic structure validation
         if not self._validate_basic_yaml_structure(tokens):
@@ -98,7 +87,7 @@ class PyYAMLParser(IYAMLParser):
                     rule=self.RULE,
                 )
             )
-            return {}, self.problems
+            return {}
 
         # Process the tokens to build a structured representation
         content: Dict[String, Any] = {}
@@ -109,7 +98,7 @@ class PyYAMLParser(IYAMLParser):
             if isinstance(token, yaml.StreamStartToken):
                 pass
             elif isinstance(token, yaml.StreamEndToken):
-                return content, self.problems
+                return content
             elif isinstance(token, yaml.BlockMappingStartToken):
                 content, i = self.__parse_block_mapping(tokens, i)
             elif isinstance(token, yaml.BlockEntryToken):
@@ -126,7 +115,7 @@ class PyYAMLParser(IYAMLParser):
         self.problems.append(
             Problem(pos=Pos(0, 0), desc=error_desc, level=ProblemLevel.ERR, rule=self.RULE)
         )
-        return {}, self.problems
+        return {}
 
     def __parse_block_mapping(
         self, tokens: List[yaml.Token], index: int = 0
