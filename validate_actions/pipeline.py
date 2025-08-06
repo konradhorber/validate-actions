@@ -1,6 +1,5 @@
 from abc import abstractmethod
 from pathlib import Path
-from typing import Optional
 
 from validate_actions import pipeline_stages
 from validate_actions.globals.fixer import Fixer

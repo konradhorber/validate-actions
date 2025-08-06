@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Generator, Optional
+from typing import Generator
 
 from validate_actions.domain_model.ast import Workflow
 from validate_actions.globals.fixer import Fixer

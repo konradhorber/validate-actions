@@ -123,7 +123,9 @@ class ExpressionsContexts(Rule):
     # FIXING METHODS
     # ====================
 
-    def _fix_unknown_property(self, expr: Expression, part: String, cur, problem: Problem) -> Problem:
+    def _fix_unknown_property(
+        self, expr: Expression, part: String, cur, problem: Problem
+    ) -> Problem:
         """Fix unknown property by finding and suggesting the best match."""
         field_names = []
         others: list[str] = []
@@ -146,21 +148,15 @@ class ExpressionsContexts(Rule):
             score = SequenceMatcher(None, part.string, key).ratio()
             others_scores[key] = score
 
-        fields_best_match = max(
-            fields_scores.items(), key=lambda x: x[1], default=(None, 0)
-        )
-        others_best_match = max(
-            others_scores.items(), key=lambda x: x[1], default=(None, 0)
-        )
+        fields_best_match = max(fields_scores.items(), key=lambda x: x[1], default=(None, 0))
+        others_best_match = max(others_scores.items(), key=lambda x: x[1], default=(None, 0))
         fields_best_key, fields_best_score = fields_best_match
         others_best_key, others_best_score = others_best_match
 
         threshold = 0.8
         max_key: str = ""
         if fields_best_score > threshold and others_best_score > threshold:
-            candidates = [
-                k for k in [fields_best_key, others_best_key] if k is not None
-            ]
+            candidates = [k for k in [fields_best_key, others_best_key] if k is not None]
             if candidates:
                 max_key = max(candidates, key=lambda x: len(x))
             else:

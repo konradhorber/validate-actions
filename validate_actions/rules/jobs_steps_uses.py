@@ -507,7 +507,9 @@ class JobsStepsUses(Rule):
                 f"Current latest version is {current_latest}. Consider using versioned tags.",
                 self.NAME,
             )
-            problem = self._fix_commit_sha_version(action, action_slug, commit_sha, current_latest, problem)
+            problem = self._fix_commit_sha_version(
+                action, action_slug, commit_sha, current_latest, problem
+            )
             yield problem
             return
 
@@ -530,7 +532,9 @@ class JobsStepsUses(Rule):
                 f"version outdated. Current latest is {current_latest}.",
                 self.NAME,
             )
-            problem = self._fix_outdated_commit_sha_version(action, action_slug, commit_sha, current_latest, problem)
+            problem = self._fix_outdated_commit_sha_version(
+                action, action_slug, commit_sha, current_latest, problem
+            )
             yield problem
 
     def _handle_semantic_version(
@@ -563,7 +567,9 @@ class JobsStepsUses(Rule):
                     f"Current latest is {current_latest}.",
                     self.NAME,
                 )
-                problem = self._fix_unresolvable_version(action, action_slug, version_spec, current_latest, problem)
+                problem = self._fix_unresolvable_version(
+                    action, action_slug, version_spec, current_latest, problem
+                )
                 yield problem
                 return
 
@@ -586,7 +592,9 @@ class JobsStepsUses(Rule):
                     f"version outdated. Current latest is {current_latest}.",
                     self.NAME,
                 )
-                problem = self._fix_outdated_partial_version(action, action_slug, version_spec, current_latest, problem)
+                problem = self._fix_outdated_partial_version(
+                    action, action_slug, version_spec, current_latest, problem
+                )
                 yield problem
         else:
             # Full version specification - validate it's complete
@@ -607,14 +615,18 @@ class JobsStepsUses(Rule):
                     f"{outdated_level} version outdated. Current latest is {current_latest}.",
                     self.NAME,
                 )
-                problem = self._fix_outdated_full_version(action, action_slug, version_spec, current_latest, problem)
+                problem = self._fix_outdated_full_version(
+                    action, action_slug, version_spec, current_latest, problem
+                )
                 yield problem
 
     # ====================
     # FIXING METHODS
     # ====================
 
-    def _fix_not_using_version_spec(self, action: ExecAction, slug: str, problem: Problem) -> Problem:
+    def _fix_not_using_version_spec(
+        self, action: ExecAction, slug: str, problem: Problem
+    ) -> Problem:
         """Fix missing version specification by adding latest version."""
         version = self._get_current_action_version(action)
         if version:
@@ -629,7 +641,14 @@ class JobsStepsUses(Rule):
             action.uses_.string = f"{slug}@{version}"
         return problem
 
-    def _fix_commit_sha_version(self, action: ExecAction, action_slug: str, commit_sha: str, current_latest: str, problem: Problem) -> Problem:
+    def _fix_commit_sha_version(
+        self,
+        action: ExecAction,
+        action_slug: str,
+        commit_sha: str,
+        current_latest: str,
+        problem: Problem,
+    ) -> Problem:
         """Fix commit SHA version by updating to latest version."""
         problem = self.fixer.edit_yaml_at_position(
             action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
@@ -641,7 +660,14 @@ class JobsStepsUses(Rule):
         action.uses_.string = f"{action_slug}@{current_latest}"
         return problem
 
-    def _fix_outdated_commit_sha_version(self, action: ExecAction, action_slug: str, commit_sha: str, current_latest: str, problem: Problem) -> Problem:
+    def _fix_outdated_commit_sha_version(
+        self,
+        action: ExecAction,
+        action_slug: str,
+        commit_sha: str,
+        current_latest: str,
+        problem: Problem,
+    ) -> Problem:
         """Fix outdated commit SHA version by updating to latest version."""
         problem = self.fixer.edit_yaml_at_position(
             action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
@@ -653,7 +679,14 @@ class JobsStepsUses(Rule):
         action.uses_.string = f"{action_slug}@{current_latest}"
         return problem
 
-    def _fix_unresolvable_version(self, action: ExecAction, action_slug: str, version_spec: str, current_latest: str, problem: Problem) -> Problem:
+    def _fix_unresolvable_version(
+        self,
+        action: ExecAction,
+        action_slug: str,
+        version_spec: str,
+        current_latest: str,
+        problem: Problem,
+    ) -> Problem:
         """Fix unresolvable version by updating to latest version."""
         problem = self.fixer.edit_yaml_at_position(
             action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
@@ -665,7 +698,14 @@ class JobsStepsUses(Rule):
         action.uses_.string = f"{action_slug}@{current_latest}"
         return problem
 
-    def _fix_outdated_partial_version(self, action: ExecAction, action_slug: str, version_spec: str, current_latest: str, problem: Problem) -> Problem:
+    def _fix_outdated_partial_version(
+        self,
+        action: ExecAction,
+        action_slug: str,
+        version_spec: str,
+        current_latest: str,
+        problem: Problem,
+    ) -> Problem:
         """Fix outdated partial version by updating to latest version."""
         problem = self.fixer.edit_yaml_at_position(
             action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
@@ -677,7 +717,14 @@ class JobsStepsUses(Rule):
         action.uses_.string = f"{action_slug}@{current_latest}"
         return problem
 
-    def _fix_outdated_full_version(self, action: ExecAction, action_slug: str, version_spec: str, current_latest: str, problem: Problem) -> Problem:
+    def _fix_outdated_full_version(
+        self,
+        action: ExecAction,
+        action_slug: str,
+        version_spec: str,
+        current_latest: str,
+        problem: Problem,
+    ) -> Problem:
         """Fix outdated full version by updating to latest version."""
         problem = self.fixer.edit_yaml_at_position(
             action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
