@@ -3,7 +3,7 @@
 import tempfile
 from pathlib import Path
 
-from validate_actions.domain_model.pos import Pos
+from validate_actions.domain_model.primitives import Pos
 from validate_actions.globals.fixer import BaseFixer
 from validate_actions.globals.problems import Problem, ProblemLevel
 

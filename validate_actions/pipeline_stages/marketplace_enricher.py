@@ -4,7 +4,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import yaml
 
 from validate_actions.domain_model import ast
-from validate_actions.domain_model.ast import ActionMetadata, ExecAction, String, Workflow
+from validate_actions.domain_model.ast import ActionMetadata, ExecAction, Workflow
+from validate_actions.domain_model.primitives import String
 from validate_actions.globals.problems import Problem, ProblemLevel, Problems
 from validate_actions.globals.process_stage import ProcessStage
 from validate_actions.globals.web_fetcher import IWebFetcher

@@ -1,5 +1,5 @@
 from tests.helper import parse_workflow_string
-from validate_actions.domain_model.pos import Pos
+from validate_actions.domain_model.primitives import Pos
 from validate_actions.domain_model import ast
 
 

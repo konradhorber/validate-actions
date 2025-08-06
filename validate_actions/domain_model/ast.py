@@ -3,10 +3,8 @@ from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Dict, List, Optional, Union
 
-from yaml import ScalarToken
-
 from validate_actions.domain_model.contexts import Contexts
-from validate_actions.domain_model.pos import Pos
+from validate_actions.domain_model.primitives import Expression, Pos, String
 
 
 @dataclass(frozen=True)
@@ -313,45 +311,49 @@ class ExecRun(Exec):
 
 
 # endregion Jobs
-@dataclass(frozen=True)
-class Expression:
-    pos: "Pos"
-    string: str
-    parts: List["String"]
 
-
-@dataclass
-class String:
-    """Represents a string value along with its positional metadata."""
-
-    string: str
-    """The string value extracted from the token."""
-    pos: "Pos"
-    """The position of the string in the source, including line and column."""
-
-    expr: List[Expression] = field(default_factory=list)
-
-    @classmethod
-    def from_token(cls, token: ScalarToken) -> "String":
-        """Creates a String instance from a PyYAML ScalarToken."""
-        return cls(token.value, Pos.from_token(token))
-
-    def __eq__(self, other):
-        """Compare only based on string content."""
-        if isinstance(other, String):
-            return self.string == other.string
-        elif isinstance(other, str):
-            return self.string == other
-        return NotImplemented
-
-    def __hash__(self):
-        """Hash only based on string content."""
-        return hash(self.string)
-
-    def __str__(self):
-        """Ergonomic helper for string representation."""
-        return self.string
-
-    def __repr__(self):
-        """String representation for debugging."""
-        return f"String({self.string!r})"
+# Re-export primitives for backward compatibility
+__all__ = [
+    # Primitives
+    "Expression",
+    "String",
+    "Pos",
+    # Enums
+    "Permission",
+    "Shell",
+    "WorkflowCallInputType",
+    "WorkflowDispatchInputType",
+    # Core classes
+    "Workflow",
+    "Event",
+    "Job",
+    "Step",
+    "Exec",
+    "ExecAction",
+    "ExecRun",
+    # Other classes
+    "Permissions",
+    "Defaults",
+    "Env",
+    "Concurrency",
+    "RunsOn",
+    "Strategy",
+    "Environment",
+    "Container",
+    "ContainerCredentials",
+    "Secrets",
+    "ActionMetadata",
+    # Event types
+    "BranchesFilterEvent",
+    "PathsBranchesFilterEvent",
+    "TagsPathsBranchesFilterEvent",
+    "ScheduleEvent",
+    "WorkflowCallEvent",
+    "WorkflowCallEventInput",
+    "WorkflowCallEventOutput",
+    "WorkflowCallEventSecret",
+    "WorkflowRunEvent",
+    "WorkflowDispatchEvent",
+    "WorkflowDispatchEventInput",
+    "WorkflowInput",
+]

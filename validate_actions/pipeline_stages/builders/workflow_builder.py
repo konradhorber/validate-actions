@@ -1,9 +1,8 @@
 from typing import Any, Dict, List, Optional
 
 import validate_actions.domain_model.ast as ast
-from validate_actions.domain_model.ast import String
 from validate_actions.domain_model.contexts import Contexts
-from validate_actions.domain_model.pos import Pos
+from validate_actions.domain_model.primitives import Pos, String
 from validate_actions.globals.problems import Problem, ProblemLevel, Problems
 from validate_actions.pipeline_stages.builders.events_builder import EventsBuilder
 from validate_actions.pipeline_stages.builders.interfaces import (

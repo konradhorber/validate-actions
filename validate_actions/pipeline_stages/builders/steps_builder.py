@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 
 from validate_actions.domain_model import ast
 from validate_actions.domain_model.contexts import Contexts
-from validate_actions.domain_model.pos import Pos
+from validate_actions.domain_model.primitives import Pos
 from validate_actions.globals.problems import Problem, ProblemLevel, Problems
 from validate_actions.pipeline_stages.builders.interfaces import (
     ISharedComponentsBuilder,

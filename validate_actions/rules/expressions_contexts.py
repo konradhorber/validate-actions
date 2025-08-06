@@ -4,8 +4,8 @@ from dataclasses import fields, is_dataclass
 from difflib import SequenceMatcher
 from typing import Generator, Optional
 
-from validate_actions.domain_model.ast import Expression, String
 from validate_actions.domain_model.contexts import Contexts
+from validate_actions.domain_model.primitives import Expression, String
 from validate_actions.globals.problems import Problem, ProblemLevel
 from validate_actions.rules.rule import Rule
 

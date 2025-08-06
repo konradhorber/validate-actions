@@ -7,8 +7,7 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 import yaml
 
-from validate_actions.domain_model.ast import Expression, String
-from validate_actions.domain_model.pos import Pos
+from validate_actions.domain_model.primitives import Expression, Pos, String
 from validate_actions.globals.problems import Problem, ProblemLevel, Problems
 from validate_actions.globals.process_stage import ProcessStage
 

@@ -17,7 +17,9 @@ def main(
     fix: bool = typer.Option(default=False, help="Automatically fix some problems"),
     quiet: bool = typer.Option(default=False, help="Suppress warning-level problems in output"),
 ):
-    config = CLIConfig(fix=fix, workflow_file=workflow_file, github_token=os.getenv("GH_TOKEN"), no_warnings=quiet)
+    config = CLIConfig(
+        fix=fix, workflow_file=workflow_file, github_token=os.getenv("GH_TOKEN"), no_warnings=quiet
+    )
 
     cli: CLI = StandardCLI(config)
     exit_code = cli.run()
