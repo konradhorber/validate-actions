@@ -36,6 +36,10 @@ class StandardValidationService(ValidationService):
         problems = pipeline.process(file)
         problems.sort()
 
+        # Filter out warnings if quiet mode is enabled
+        if config.no_warnings:
+            problems = self._filter_warnings(problems)
+
         return ValidationResult(
             file=file,
             problems=problems,
@@ -43,3 +47,14 @@ class StandardValidationService(ValidationService):
             error_count=problems.n_error,
             warning_count=problems.n_warning,
         )
+
+    def _filter_warnings(self, problems):
+        """Filter out warning-level problems and recalculate stats."""
+        from validate_actions.globals.problems import Problems, ProblemLevel
+        
+        filtered = Problems()
+        for problem in problems.problems:
+            if problem.level != ProblemLevel.WAR:
+                filtered.append(problem)
+        
+        return filtered

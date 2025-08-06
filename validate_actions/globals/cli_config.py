@@ -11,8 +11,10 @@ class CLIConfig:
         fix: Whether to automatically fix detected problems
         workflow_file: Path to specific workflow file, or None to validate all
         github_token: GitHub token for API access, or None for no authentication
+        no_warnings: Whether to suppress warning-level problems in output
     """
 
     fix: bool
     workflow_file: Optional[str] = None
     github_token: Optional[str] = None
+    no_warnings: bool = False
