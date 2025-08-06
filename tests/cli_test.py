@@ -2,7 +2,7 @@ import os
 import tempfile
 from pathlib import Path
 
-from validate_actions import ProblemLevel, validator
+from validate_actions import ProblemLevel
 
 
 def test_run():
@@ -30,9 +30,11 @@ jobs:
         temp_file_path = Path(temp_file.name)
 
     try:
-        from validate_actions.core.web_fetcher import WebFetcher
+        from validate_actions.globals.web_fetcher import WebFetcher
+        from validate_actions.pipeline import Pipeline
         web_fetcher = WebFetcher(github_token=os.getenv("GH_TOKEN"))
-        problems = validator.Validator.run(temp_file_path, web_fetcher, fix=False)
+        pipeline = Pipeline(web_fetcher, None)
+        problems = pipeline.process(temp_file_path)
     finally:
         temp_file_path.unlink(missing_ok=True)
 

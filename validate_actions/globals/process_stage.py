@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
-from validate_actions.core.problems import Problems
+from validate_actions.globals.problems import Problems
 
 # Generic type variables for input and output
 TInput = TypeVar("TInput")

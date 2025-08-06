@@ -2,10 +2,10 @@ import copy
 import dataclasses
 from typing import Any, Dict, Optional, Union
 
-from validate_actions.building.interfaces import ISharedComponentsBuilder
-from validate_actions.core.problems import Problem, ProblemLevel, Problems
 from validate_actions.domain_model import ast
 from validate_actions.domain_model.pos import Pos
+from validate_actions.globals.problems import Problem, ProblemLevel, Problems
+from validate_actions.pipeline_stages.builders.interfaces import ISharedComponentsBuilder
 
 
 class SharedComponentsBuilder(ISharedComponentsBuilder):

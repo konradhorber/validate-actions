@@ -3,19 +3,17 @@ from pathlib import Path
 from typing import Any, Optional, Tuple
 
 import validate_actions
-from validate_actions.building import (
+from validate_actions.domain_model import contexts
+from validate_actions.globals import problems
+from validate_actions.globals.web_fetcher import IWebFetcher
+from validate_actions.pipeline_stages import job_orderer, marketplace_enricher, parser
+from validate_actions.pipeline_stages.builders import (
     events_builder,
     jobs_builder,
-    marketplace_enricher,
     shared_components_builder,
     steps_builder,
     workflow_builder,
 )
-from validate_actions.core import problems
-from validate_actions.core.web_fetcher import IWebFetcher
-from validate_actions.domain_model import contexts
-from validate_actions.building import job_orderer
-from validate_actions.parsing import parser
 
 
 class TestWebFetcher(IWebFetcher):

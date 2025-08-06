@@ -15,7 +15,6 @@ Typical usage:
         data = response.json()
 """
 
-import os
 import time
 from abc import ABC, abstractmethod
 from typing import Dict, Optional

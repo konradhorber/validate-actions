@@ -17,9 +17,9 @@ from typing import Generator, List, Optional, Tuple
 
 import requests
 
-from validate_actions.analyzing.rule import Rule
-from validate_actions.core.problems import Problem, ProblemLevel
 from validate_actions.domain_model.ast import ExecAction
+from validate_actions.globals.problems import Problem, ProblemLevel
+from validate_actions.rules.rule import Rule
 
 
 class JobsStepsUses(Rule):

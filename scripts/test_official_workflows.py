@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import validate_actions  # noqa: E402
 from validate_actions import ProblemLevel  # noqa: E402
-from validate_actions.validator import Validator  # noqa: E402
+from validate_actions.pipeline_stages import Validator  # noqa: E402
 
 
 class WorkflowTestResult:

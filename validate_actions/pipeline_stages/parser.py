@@ -7,10 +7,10 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 import yaml
 
-from validate_actions.core.interfaces import ProcessStage
-from validate_actions.core.problems import Problem, ProblemLevel, Problems
 from validate_actions.domain_model.ast import Expression, String
 from validate_actions.domain_model.pos import Pos
+from validate_actions.globals.problems import Problem, ProblemLevel, Problems
+from validate_actions.globals.process_stage import ProcessStage
 
 
 class IYAMLParser(ProcessStage[Path, Dict[String, Any]]):

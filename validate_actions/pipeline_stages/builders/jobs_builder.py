@@ -2,9 +2,6 @@ import copy
 import itertools
 from typing import Any, Dict, List, Optional, Set
 
-from validate_actions.building.interfaces import IJobsBuilder, ISharedComponentsBuilder
-from validate_actions.building.steps_builder import StepsBuilder
-from validate_actions.core.problems import Problem, ProblemLevel, Problems
 from validate_actions.domain_model import ast, contexts
 from validate_actions.domain_model.contexts import (
     Contexts,
@@ -17,6 +14,12 @@ from validate_actions.domain_model.contexts import (
     StrategyContext,
 )
 from validate_actions.domain_model.pos import Pos
+from validate_actions.globals.problems import Problem, ProblemLevel, Problems
+from validate_actions.pipeline_stages.builders.interfaces import (
+    IJobsBuilder,
+    ISharedComponentsBuilder,
+)
+from validate_actions.pipeline_stages.builders.steps_builder import StepsBuilder
 
 
 class JobsBuilder(IJobsBuilder):

@@ -5,11 +5,10 @@ This module provides implementations for analyzing job dependencies,
 execution order, and conditions to determine the optimal execution plan for a workflow.
 """
 
+from abc import abstractmethod
 from typing import Dict, List, Optional, Set
 
 import validate_actions.domain_model.ast as ast
-from validate_actions.building.interfaces import IJobOrderer
-from validate_actions.core.problems import Problem, ProblemLevel, Problems
 from validate_actions.domain_model.ast import Job, Workflow
 from validate_actions.domain_model.contexts import (
     ContextType,
@@ -23,6 +22,24 @@ from validate_actions.domain_model.job_order_models import (
     JobExecutionPlan,
     JobStage,
 )
+from validate_actions.globals.problems import Problem, ProblemLevel, Problems
+from validate_actions.globals.process_stage import ProcessStage
+
+
+class IJobOrderer(ProcessStage[ast.Workflow, ast.Workflow]):
+    """Interface for job ordering and dependency analysis."""
+
+    @abstractmethod
+    def process(self, workflow: ast.Workflow) -> ast.Workflow:
+        """Process workflow with job dependency analysis and needs contexts.
+
+        Args:
+            workflow: The workflow to analyze and enrich with job ordering
+
+        Returns:
+            ast.Workflow: The workflow with job dependency analysis completed
+        """
+        pass
 
 
 class JobOrderer(IJobOrderer):

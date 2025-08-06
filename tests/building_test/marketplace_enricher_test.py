@@ -1,9 +1,9 @@
 """Tests for MarketPlaceEnricher component."""
 
 from tests.helper import TestWebFetcher, parse_workflow_string
-from validate_actions.building.marketplace_enricher import MarketPlaceEnricher
-from validate_actions.core.problems import ProblemLevel, Problems
 from validate_actions.domain_model.ast import ExecAction
+from validate_actions.globals.problems import ProblemLevel, Problems
+from validate_actions.pipeline_stages.marketplace_enricher import MarketPlaceEnricher
 
 
 def test_unknown_action_generates_warning():

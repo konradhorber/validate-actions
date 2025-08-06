@@ -1,13 +1,16 @@
 from typing import Any, Dict, List, Optional
 
 import validate_actions.domain_model.ast as ast
-from validate_actions.building.events_builder import EventsBuilder
-from validate_actions.building.interfaces import ISharedComponentsBuilder, IWorkflowBuilder
-from validate_actions.building.jobs_builder import JobsBuilder
-from validate_actions.core.problems import Problem, ProblemLevel, Problems
 from validate_actions.domain_model.ast import String
 from validate_actions.domain_model.contexts import Contexts
 from validate_actions.domain_model.pos import Pos
+from validate_actions.globals.problems import Problem, ProblemLevel, Problems
+from validate_actions.pipeline_stages.builders.events_builder import EventsBuilder
+from validate_actions.pipeline_stages.builders.interfaces import (
+    ISharedComponentsBuilder,
+    IWorkflowBuilder,
+)
+from validate_actions.pipeline_stages.builders.jobs_builder import JobsBuilder
 
 
 class WorkflowBuilder(IWorkflowBuilder):

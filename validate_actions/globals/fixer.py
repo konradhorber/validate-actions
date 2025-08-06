@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Dict, List
 
-from validate_actions.core.problems import Problem, ProblemLevel
+from validate_actions.globals.problems import Problem, ProblemLevel
 
 logger = logging.getLogger(__name__)
 

@@ -1,11 +1,33 @@
+from abc import abstractmethod
 from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
 
-from validate_actions.building.interfaces import IMarketPlaceEnricher
-from validate_actions.core.problems import Problem, ProblemLevel, Problems
-from validate_actions.core.web_fetcher import IWebFetcher
+from validate_actions.domain_model import ast
 from validate_actions.domain_model.ast import ActionMetadata, ExecAction, String, Workflow
+from validate_actions.globals.problems import Problem, ProblemLevel, Problems
+from validate_actions.globals.process_stage import ProcessStage
+from validate_actions.globals.web_fetcher import IWebFetcher
+
+
+class IMarketPlaceEnricher(ProcessStage[ast.Workflow, ast.Workflow]):
+    """Interface for enriching workflows with marketplace metadata.
+
+    Fetches action metadata from GitHub marketplace/repositories to enrich
+    workflow AST with action input/output information and version data.
+    """
+
+    @abstractmethod
+    def process(self, workflow: ast.Workflow) -> ast.Workflow:
+        """Enrich workflow with marketplace metadata.
+
+        Args:
+            workflow: The workflow to enrich with marketplace data
+
+        Returns:
+            ast.Workflow: The enriched workflow with metadata attached to actions
+        """
+        pass
 
 
 class MarketPlaceEnricher(IMarketPlaceEnricher):

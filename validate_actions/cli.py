@@ -7,9 +7,10 @@ from typing import Optional, Tuple
 import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from validate_actions.core.problems import Problem, ProblemLevel, Problems
-from validate_actions.core.web_fetcher import WebFetcher
-from validate_actions.validator import Validator
+from validate_actions.globals.fixer import BaseFixer
+from validate_actions.globals.problems import Problem, ProblemLevel, Problems
+from validate_actions.globals.web_fetcher import WebFetcher
+from validate_actions.pipeline import Pipeline
 
 
 class ICLI(ABC):
@@ -47,9 +48,7 @@ class CLI(ICLI):
         "neutral": "\033[2m",
     }
 
-    WEB_FETCHER = WebFetcher(
-        github_token=os.getenv("GH_TOKEN")
-    )
+    WEB_FETCHER = WebFetcher(github_token=os.getenv("GH_TOKEN"))
 
     def start(self, fix: bool, workflow_file: Optional[str] = None) -> None:
         if workflow_file:
@@ -163,7 +162,10 @@ class CLI(ICLI):
         sys.exit(return_code)
 
     def run(self, file: Path, fix: bool) -> Tuple[ProblemLevel, int, int]:
-        problems = Validator.run(file, self.WEB_FETCHER, fix)
+        fixer = BaseFixer(file) if fix else None
+        pipeline = Pipeline(self.WEB_FETCHER, fixer)
+
+        problems = pipeline.process(file)
 
         problems.sort()
 

@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Generator
+from typing import Generator, Optional
 
-from validate_actions.core.problems import Problem
 from validate_actions.domain_model.ast import Workflow
-from validate_actions.fixing.fixer import Fixer
+from validate_actions.globals.fixer import Fixer
+from validate_actions.globals.problems import Problem
 
 
 class Rule(ABC):
-    def __init__(self, workflow: Workflow, fix: bool, fixer: Fixer):
+    def __init__(self, workflow: Workflow, fix: bool, fixer: Optional[Fixer] = None) -> None:
         """
         Initialize the rule with a flag indicating whether to fix issues
         and an optional fixer instance.
