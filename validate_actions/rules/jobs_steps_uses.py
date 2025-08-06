@@ -39,6 +39,10 @@ class JobsStepsUses(Rule):
 
     NAME = "jobs-steps-uses"
 
+    # ====================
+    # MAIN VALIDATION METHODS
+    # ====================
+
     def check(self) -> Generator[Problem, None, None]:
         """Validates all actions in the workflow.
 
@@ -90,6 +94,10 @@ class JobsStepsUses(Rule):
                 yield from self._check_required_inputs(action, required_inputs)
                 yield from self._uses_non_defined_input(action, possible_inputs)
 
+    # ====================
+    # VERSION VALIDATION METHODS
+    # ====================
+
     def _not_using_version_spec(self, action: ExecAction) -> Generator[Problem, None, None]:
         """Checks if an action specifies a version using '@version'.
 
@@ -116,37 +124,8 @@ class JobsStepsUses(Rule):
                 f"Consider using {slug}{version_suggestion}",
                 self.NAME,
             )
-            if self.fix:
-                version = self._get_current_action_version(action)
-                if version:
-                    new_slug = f"{slug}@{version}"
-                    problem = self.fixer.edit_yaml_at_position(
-                        action.uses_.pos.idx,
-                        slug,
-                        new_slug,
-                        problem,
-                        f"Fixed '{slug}' to include version to '{new_slug}'",
-                    )
-                    action.uses_.string = f"{slug}@{version}"
+            problem = self._fix_not_using_version_spec(action, slug, problem)
             yield problem
-
-    def _get_current_action_version(self, action: ExecAction) -> Optional[str]:
-        """Retrieves the latest version tag for an action from its metadata.
-
-        Args:
-            action: The ExecAction containing metadata with version information.
-
-        Returns:
-            The name of the latest version tag, or None if no version data available.
-        """
-        if (
-            action.metadata is not None
-            and action.metadata.version_tags is not None
-            and isinstance(action.metadata.version_tags, list)
-            and len(action.metadata.version_tags) > 0
-        ):
-            return action.metadata.version_tags[0].get("name")
-        return None
 
     def _is_outdated_version(self, action: ExecAction) -> Generator[Problem, None, None]:
         """
@@ -203,6 +182,102 @@ class JobsStepsUses(Rule):
             # Graceful handling of expected errors during version checking
             # Network issues, parsing errors, or malformed version data
             return
+
+    # ====================
+    # INPUT VALIDATION METHODS
+    # ====================
+
+    def _misses_required_input(
+        self, action: ExecAction, required_inputs: List[str]
+    ) -> Generator[Problem, None, None]:
+        """Generates an error problem for missing required inputs.
+
+        This is a helper method that creates a formatted error message
+        listing all required inputs for an action.
+
+        Args:
+            action: The action missing required inputs.
+            required_inputs: List of all required input names.
+
+        Yields:
+            Problem: Error problem with formatted list of required inputs.
+        """
+        prettyprint_required_inputs = ", ".join(required_inputs)
+        yield Problem(
+            action.pos,
+            ProblemLevel.ERR,
+            (f"{action.uses_.string} requires inputs: " f"{prettyprint_required_inputs}"),
+            self.NAME,
+        )
+
+    def _check_required_inputs(
+        self, action: ExecAction, required_inputs: List[str]
+    ) -> Generator[Problem, None, None]:
+        """Validates that all required inputs for an action are provided.
+
+        Iterates through all required inputs and checks if they are present
+        in the action's 'with:' section. Generates problems for missing inputs.
+
+        Args:
+            action: The action to validate.
+            required_inputs: List of required input names for this action.
+
+        Yields:
+            Problem: Error problems for each missing required input.
+        """
+        if not required_inputs:
+            return
+
+        for required_input in required_inputs:
+            if required_input not in action.with_:
+                yield from self._misses_required_input(action, required_inputs)
+
+    def _uses_non_defined_input(
+        self, action: ExecAction, possible_inputs: List[str]
+    ) -> Generator[Problem, None, None]:
+        """
+        Checks if an action uses inputs that are not defined in its metadata.
+
+        Args:
+            action (ExecAction): The action to validate.
+            possible_inputs (List[str]): The list of possible inputs.
+
+        Yields:
+            Problem: Error if undefined inputs are used.
+        """
+        if not possible_inputs:
+            return
+
+        for action_input in action.with_:
+            if action_input not in possible_inputs:
+                yield Problem(
+                    action.pos,
+                    ProblemLevel.ERR,
+                    f"{action.uses_.string} uses unknown input: {action_input.string}",
+                    self.NAME,
+                )
+
+    # ====================
+    # UTILITY METHODS
+    # ====================
+
+    def _get_current_action_version(self, action: ExecAction) -> Optional[str]:
+        """Retrieves the latest version tag for an action from its metadata.
+
+        Args:
+            action: The ExecAction containing metadata with version information.
+
+        Returns:
+            The name of the latest version tag, or None if no version data available.
+        """
+        if (
+            action.metadata is not None
+            and action.metadata.version_tags is not None
+            and isinstance(action.metadata.version_tags, list)
+            and len(action.metadata.version_tags) > 0
+        ):
+            return action.metadata.version_tags[0].get("name")
+        return None
 
     def _parse_semantic_version(
         self, version_str: str
@@ -276,85 +351,6 @@ class JobsStepsUses(Rule):
         # Check if all characters are hexadecimal
         return re.match(r"^[a-f0-9]+$", version_str.lower()) is not None
 
-    def _handle_commit_sha_version(
-        self,
-        action: ExecAction,
-        action_slug: str,
-        commit_sha: str,
-        current_latest: str,
-        current_tuple: Tuple[int, int, int],
-    ) -> Generator[Problem, None, None]:
-        """Handle version checking for commit SHA specifications."""
-        # Get all tags to find which version this commit corresponds to
-        tags = action.metadata.version_tags if action.metadata else None
-        if not tags or len(tags) == 0:
-            return
-
-        # Find the tag that matches this commit SHA
-        commit_version = None
-        # Ensure minimum meaningful SHA length for matching
-        if len(commit_sha) < 7:
-            return
-
-        for tag in tags:
-            tag_commit = tag.get("commit", {}).get("sha", "")
-            # Only match if the tag's commit starts with our SHA (prefix match)
-            # Require at least 7 characters for confident matching
-            if tag_commit and tag_commit.startswith(commit_sha):
-                commit_version = tag.get("name")
-                break
-
-        if not commit_version:
-            # Unknown commit, generate warning with generic message
-            problem = Problem(
-                action.pos,
-                ProblemLevel.WAR,
-                f"Action {action_slug} uses commit SHA which may be outdated. "
-                f"Current latest version is {current_latest}. Consider using versioned tags.",
-                self.NAME,
-            )
-            if self.fix:
-                problem = self.fixer.edit_yaml_at_position(
-                    action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
-                    commit_sha,
-                    current_latest,
-                    problem,
-                    f"Updated commit SHA to latest version {current_latest}",
-                )
-                action.uses_.string = f"{action_slug}@{current_latest}"
-            yield problem
-            return
-
-        # Parse the commit's corresponding version
-        commit_parsed = self._parse_semantic_version(commit_version)
-        if not commit_parsed or None in commit_parsed:
-            return
-
-        # Convert to complete tuple for comparison
-        commit_tuple = self._ensure_complete_version_tuple(commit_parsed)
-
-        # Compare versions
-        outdated_level = self._compare_semantic_versions(current_tuple, commit_tuple)
-        if outdated_level:
-            problem = Problem(
-                action.pos,
-                ProblemLevel.WAR,
-                f"Action {action_slug} uses commit SHA "
-                f"(corresponds to {commit_version}) which is {outdated_level} "
-                f"version outdated. Current latest is {current_latest}.",
-                self.NAME,
-            )
-            if self.fix:
-                problem = self.fixer.edit_yaml_at_position(
-                    action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
-                    commit_sha,
-                    current_latest,
-                    problem,
-                    f"Updated outdated commit SHA to latest version {current_latest}",
-                )
-                action.uses_.string = f"{action_slug}@{current_latest}"
-            yield problem
-
     def _compare_semantic_versions(
         self, current: Tuple[int, int, int], used: Tuple[int, int, int]
     ) -> Optional[str]:
@@ -402,107 +398,6 @@ class JobsStepsUses(Rule):
             return "patch"
 
         return None
-
-    def _handle_semantic_version(
-        self,
-        action: ExecAction,
-        action_slug: str,
-        version_spec: str,
-        current_latest: str,
-        current_tuple: Tuple[int, int, int],
-    ) -> Generator[Problem, None, None]:
-        """Handle version checking for semantic version specifications."""
-        # Parse the used version spec
-        used_parsed = self._parse_semantic_version(version_spec)
-        if not used_parsed:
-            # Invalid version format, skip
-            return
-
-        # Check if this is a partial version that needs resolution
-        if None in used_parsed:
-            # Resolve partial version (e.g., v4 -> v4.2.2)
-            resolved_version = self._resolve_version_to_latest(action, version_spec)
-            if not resolved_version:
-                # Version spec cannot be resolved - this is a problem!
-                # E.g., actions/cache@v2 when only v3+ exists
-                problem = Problem(
-                    action.pos,
-                    ProblemLevel.WAR,
-                    f"Action {action_slug} uses outdated {version_spec} which "
-                    f"cannot be resolved to any available version. "
-                    f"Current latest is {current_latest}.",
-                    self.NAME,
-                )
-                if self.fix:
-                    problem = self.fixer.edit_yaml_at_position(
-                        action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
-                        version_spec,
-                        current_latest,
-                        problem,
-                        f"Fixed unresolvable version {version_spec} to latest {current_latest}",
-                    )
-                    action.uses_.string = f"{action_slug}@{current_latest}"
-                yield problem
-                return
-
-            # Parse the resolved version
-            resolved_parsed = self._parse_semantic_version(resolved_version)
-            if not resolved_parsed or None in resolved_parsed:
-                return
-
-            # Convert to complete tuple for comparison
-            resolved_tuple = self._ensure_complete_version_tuple(resolved_parsed)
-
-            # For partial versions, compare the resolved version
-            outdated_level = self._compare_semantic_versions(current_tuple, resolved_tuple)
-            if outdated_level:
-                problem = Problem(
-                    action.pos,
-                    ProblemLevel.WAR,
-                    f"Action {action_slug} uses {version_spec} "
-                    f"(resolves to {resolved_version}) which is {outdated_level} "
-                    f"version outdated. Current latest is {current_latest}.",
-                    self.NAME,
-                )
-                if self.fix:
-                    problem = self.fixer.edit_yaml_at_position(
-                        action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
-                        version_spec,
-                        current_latest,
-                        problem,
-                        f"Fixed outdated version {version_spec} to latest {current_latest}",
-                    )
-                    action.uses_.string = f"{action_slug}@{current_latest}"
-                yield problem
-        else:
-            # Full version specification - validate it's complete
-            if None in used_parsed:
-                # This shouldn't happen for full versions, but safety check
-                return
-
-            # Convert to complete tuple for comparison
-            full_tuple = self._ensure_complete_version_tuple(used_parsed)
-
-            # Compare versions
-            outdated_level = self._compare_semantic_versions(current_tuple, full_tuple)
-            if outdated_level:
-                problem = Problem(
-                    action.pos,
-                    ProblemLevel.WAR,
-                    f"Action {action_slug} uses {version_spec} which is "
-                    f"{outdated_level} version outdated. Current latest is {current_latest}.",
-                    self.NAME,
-                )
-                if self.fix:
-                    problem = self.fixer.edit_yaml_at_position(
-                        action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
-                        version_spec,
-                        current_latest,
-                        problem,
-                        f"Fixed outdated version {version_spec} to latest {current_latest}",
-                    )
-                    action.uses_.string = f"{action_slug}@{current_latest}"
-                yield problem
 
     def _resolve_version_to_latest(
         self, action: ExecAction, partial_version: str
@@ -571,72 +466,225 @@ class JobsStepsUses(Rule):
 
         return None
 
-    def _misses_required_input(
-        self, action: ExecAction, required_inputs: List[str]
+    # ====================
+    # VERSION HANDLING METHODS
+    # ====================
+
+    def _handle_commit_sha_version(
+        self,
+        action: ExecAction,
+        action_slug: str,
+        commit_sha: str,
+        current_latest: str,
+        current_tuple: Tuple[int, int, int],
     ) -> Generator[Problem, None, None]:
-        """Generates an error problem for missing required inputs.
-
-        This is a helper method that creates a formatted error message
-        listing all required inputs for an action.
-
-        Args:
-            action: The action missing required inputs.
-            required_inputs: List of all required input names.
-
-        Yields:
-            Problem: Error problem with formatted list of required inputs.
-        """
-        prettyprint_required_inputs = ", ".join(required_inputs)
-        yield Problem(
-            action.pos,
-            ProblemLevel.ERR,
-            (f"{action.uses_.string} requires inputs: " f"{prettyprint_required_inputs}"),
-            self.NAME,
-        )
-
-    def _check_required_inputs(
-        self, action: ExecAction, required_inputs: List[str]
-    ) -> Generator[Problem, None, None]:
-        """Validates that all required inputs for an action are provided.
-
-        Iterates through all required inputs and checks if they are present
-        in the action's 'with:' section. Generates problems for missing inputs.
-
-        Args:
-            action: The action to validate.
-            required_inputs: List of required input names for this action.
-
-        Yields:
-            Problem: Error problems for each missing required input.
-        """
-        if not required_inputs:
+        """Handle version checking for commit SHA specifications."""
+        # Get all tags to find which version this commit corresponds to
+        tags = action.metadata.version_tags if action.metadata else None
+        if not tags or len(tags) == 0:
             return
 
-        for required_input in required_inputs:
-            if required_input not in action.with_:
-                yield from self._misses_required_input(action, required_inputs)
-
-    def _uses_non_defined_input(
-        self, action: ExecAction, possible_inputs: List[str]
-    ) -> Generator[Problem, None, None]:
-        """
-        Checks if an action uses inputs that are not defined in its metadata.
-
-        Args:
-            action (ExecAction): The action to validate.
-            possible_inputs (List[str]): The list of possible inputs.
-
-        Yields:
-            Problem: Error if undefined inputs are used.
-        """
-        if not possible_inputs:
+        # Find the tag that matches this commit SHA
+        commit_version = None
+        # Ensure minimum meaningful SHA length for matching
+        if len(commit_sha) < 7:
             return
 
-        for action_input in action.with_:
-            if action_input not in possible_inputs:
-                yield Problem(
+        for tag in tags:
+            tag_commit = tag.get("commit", {}).get("sha", "")
+            # Only match if the tag's commit starts with our SHA (prefix match)
+            # Require at least 7 characters for confident matching
+            if tag_commit and tag_commit.startswith(commit_sha):
+                commit_version = tag.get("name")
+                break
+
+        if not commit_version:
+            # Unknown commit, generate warning with generic message
+            problem = Problem(
+                action.pos,
+                ProblemLevel.WAR,
+                f"Action {action_slug} uses commit SHA which may be outdated. "
+                f"Current latest version is {current_latest}. Consider using versioned tags.",
+                self.NAME,
+            )
+            problem = self._fix_commit_sha_version(action, action_slug, commit_sha, current_latest, problem)
+            yield problem
+            return
+
+        # Parse the commit's corresponding version
+        commit_parsed = self._parse_semantic_version(commit_version)
+        if not commit_parsed or None in commit_parsed:
+            return
+
+        # Convert to complete tuple for comparison
+        commit_tuple = self._ensure_complete_version_tuple(commit_parsed)
+
+        # Compare versions
+        outdated_level = self._compare_semantic_versions(current_tuple, commit_tuple)
+        if outdated_level:
+            problem = Problem(
+                action.pos,
+                ProblemLevel.WAR,
+                f"Action {action_slug} uses commit SHA "
+                f"(corresponds to {commit_version}) which is {outdated_level} "
+                f"version outdated. Current latest is {current_latest}.",
+                self.NAME,
+            )
+            problem = self._fix_outdated_commit_sha_version(action, action_slug, commit_sha, current_latest, problem)
+            yield problem
+
+    def _handle_semantic_version(
+        self,
+        action: ExecAction,
+        action_slug: str,
+        version_spec: str,
+        current_latest: str,
+        current_tuple: Tuple[int, int, int],
+    ) -> Generator[Problem, None, None]:
+        """Handle version checking for semantic version specifications."""
+        # Parse the used version spec
+        used_parsed = self._parse_semantic_version(version_spec)
+        if not used_parsed:
+            # Invalid version format, skip
+            return
+
+        # Check if this is a partial version that needs resolution
+        if None in used_parsed:
+            # Resolve partial version (e.g., v4 -> v4.2.2)
+            resolved_version = self._resolve_version_to_latest(action, version_spec)
+            if not resolved_version:
+                # Version spec cannot be resolved - this is a problem!
+                # E.g., actions/cache@v2 when only v3+ exists
+                problem = Problem(
                     action.pos,
-                    ProblemLevel.ERR,
-                    f"{action.uses_.string} uses unknown input: {action_input.string}",
+                    ProblemLevel.WAR,
+                    f"Action {action_slug} uses outdated {version_spec} which "
+                    f"cannot be resolved to any available version. "
+                    f"Current latest is {current_latest}.",
                     self.NAME,
                 )
+                problem = self._fix_unresolvable_version(action, action_slug, version_spec, current_latest, problem)
+                yield problem
+                return
+
+            # Parse the resolved version
+            resolved_parsed = self._parse_semantic_version(resolved_version)
+            if not resolved_parsed or None in resolved_parsed:
+                return
+
+            # Convert to complete tuple for comparison
+            resolved_tuple = self._ensure_complete_version_tuple(resolved_parsed)
+
+            # For partial versions, compare the resolved version
+            outdated_level = self._compare_semantic_versions(current_tuple, resolved_tuple)
+            if outdated_level:
+                problem = Problem(
+                    action.pos,
+                    ProblemLevel.WAR,
+                    f"Action {action_slug} uses {version_spec} "
+                    f"(resolves to {resolved_version}) which is {outdated_level} "
+                    f"version outdated. Current latest is {current_latest}.",
+                    self.NAME,
+                )
+                problem = self._fix_outdated_partial_version(action, action_slug, version_spec, current_latest, problem)
+                yield problem
+        else:
+            # Full version specification - validate it's complete
+            if None in used_parsed:
+                # This shouldn't happen for full versions, but safety check
+                return
+
+            # Convert to complete tuple for comparison
+            full_tuple = self._ensure_complete_version_tuple(used_parsed)
+
+            # Compare versions
+            outdated_level = self._compare_semantic_versions(current_tuple, full_tuple)
+            if outdated_level:
+                problem = Problem(
+                    action.pos,
+                    ProblemLevel.WAR,
+                    f"Action {action_slug} uses {version_spec} which is "
+                    f"{outdated_level} version outdated. Current latest is {current_latest}.",
+                    self.NAME,
+                )
+                problem = self._fix_outdated_full_version(action, action_slug, version_spec, current_latest, problem)
+                yield problem
+
+    # ====================
+    # FIXING METHODS
+    # ====================
+
+    def _fix_not_using_version_spec(self, action: ExecAction, slug: str, problem: Problem) -> Problem:
+        """Fix missing version specification by adding latest version."""
+        version = self._get_current_action_version(action)
+        if version:
+            new_slug = f"{slug}@{version}"
+            problem = self.fixer.edit_yaml_at_position(
+                action.uses_.pos.idx,
+                slug,
+                new_slug,
+                problem,
+                f"Fixed '{slug}' to include version to '{new_slug}'",
+            )
+            action.uses_.string = f"{slug}@{version}"
+        return problem
+
+    def _fix_commit_sha_version(self, action: ExecAction, action_slug: str, commit_sha: str, current_latest: str, problem: Problem) -> Problem:
+        """Fix commit SHA version by updating to latest version."""
+        problem = self.fixer.edit_yaml_at_position(
+            action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
+            commit_sha,
+            current_latest,
+            problem,
+            f"Updated commit SHA to latest version {current_latest}",
+        )
+        action.uses_.string = f"{action_slug}@{current_latest}"
+        return problem
+
+    def _fix_outdated_commit_sha_version(self, action: ExecAction, action_slug: str, commit_sha: str, current_latest: str, problem: Problem) -> Problem:
+        """Fix outdated commit SHA version by updating to latest version."""
+        problem = self.fixer.edit_yaml_at_position(
+            action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
+            commit_sha,
+            current_latest,
+            problem,
+            f"Updated outdated commit SHA to latest version {current_latest}",
+        )
+        action.uses_.string = f"{action_slug}@{current_latest}"
+        return problem
+
+    def _fix_unresolvable_version(self, action: ExecAction, action_slug: str, version_spec: str, current_latest: str, problem: Problem) -> Problem:
+        """Fix unresolvable version by updating to latest version."""
+        problem = self.fixer.edit_yaml_at_position(
+            action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
+            version_spec,
+            current_latest,
+            problem,
+            f"Fixed unresolvable version {version_spec} to latest {current_latest}",
+        )
+        action.uses_.string = f"{action_slug}@{current_latest}"
+        return problem
+
+    def _fix_outdated_partial_version(self, action: ExecAction, action_slug: str, version_spec: str, current_latest: str, problem: Problem) -> Problem:
+        """Fix outdated partial version by updating to latest version."""
+        problem = self.fixer.edit_yaml_at_position(
+            action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
+            version_spec,
+            current_latest,
+            problem,
+            f"Fixed outdated version {version_spec} to latest {current_latest}",
+        )
+        action.uses_.string = f"{action_slug}@{current_latest}"
+        return problem
+
+    def _fix_outdated_full_version(self, action: ExecAction, action_slug: str, version_spec: str, current_latest: str, problem: Problem) -> Problem:
+        """Fix outdated full version by updating to latest version."""
+        problem = self.fixer.edit_yaml_at_position(
+            action.uses_.pos.idx + len(action_slug) + 1,  # +1 for '@'
+            version_spec,
+            current_latest,
+            problem,
+            f"Fixed outdated version {version_spec} to latest {current_latest}",
+        )
+        action.uses_.string = f"{action_slug}@{current_latest}"
+        return problem

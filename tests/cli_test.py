@@ -32,8 +32,9 @@ jobs:
     try:
         from validate_actions.globals.web_fetcher import WebFetcher
         from validate_actions.pipeline import Pipeline
+        from validate_actions.globals.fixer import NoFixer
         web_fetcher = WebFetcher(github_token=os.getenv("GH_TOKEN"))
-        pipeline = Pipeline(web_fetcher, None)
+        pipeline = Pipeline(web_fetcher, NoFixer())
         problems = pipeline.process(temp_file_path)
     finally:
         temp_file_path.unlink(missing_ok=True)

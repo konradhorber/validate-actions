@@ -1,11 +1,8 @@
-import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Dict, List
 
 from validate_actions.globals.problems import Problem, ProblemLevel
-
-logger = logging.getLogger(__name__)
 
 
 class Fixer(ABC):
@@ -81,7 +78,20 @@ class BaseFixer(Fixer):
             # Clear pending edits after successful application
             self.pending_edits.clear()
 
-        except (OSError, UnicodeError) as e:
+        except (OSError, UnicodeError):
             # On error, leave pending_edits intact for potential retry
-            logger.warning(f"File operation error during fix flush: {e}")
             pass
+
+
+class NoFixer(Fixer):
+    """A fixer that does nothing. Used when no fixes are needed."""
+
+    def edit_yaml_at_position(
+        self, idx: int, old_text: str, new_text: str, problem: Problem, new_problem_desc: str
+    ) -> Problem:
+        # No-op, just return the problem as is
+        return problem
+
+    def flush(self) -> None:
+        # No-op, nothing to flush
+        pass

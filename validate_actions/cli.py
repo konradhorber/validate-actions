@@ -7,7 +7,7 @@ from typing import Optional, Tuple
 import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from validate_actions.globals.fixer import BaseFixer
+from validate_actions.globals.fixer import BaseFixer, NoFixer
 from validate_actions.globals.problems import Problem, ProblemLevel, Problems
 from validate_actions.globals.web_fetcher import WebFetcher
 from validate_actions.pipeline import Pipeline
@@ -162,7 +162,7 @@ class CLI(ICLI):
         sys.exit(return_code)
 
     def run(self, file: Path, fix: bool) -> Tuple[ProblemLevel, int, int]:
-        fixer = BaseFixer(file) if fix else None
+        fixer = BaseFixer(file) if fix else NoFixer()
         pipeline = Pipeline(self.WEB_FETCHER, fixer)
 
         problems = pipeline.process(file)

@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List, Optional
+from typing import List
 
 from validate_actions.domain_model import ast
 from validate_actions.globals.fixer import Fixer
@@ -26,7 +26,7 @@ class IValidator(ProcessStage[ast.Workflow, Problems]):
 
 
 class Validator(IValidator):
-    def __init__(self, problems: Problems, fixer: Optional[Fixer] = None) -> None:
+    def __init__(self, problems: Problems, fixer: Fixer) -> None:
         super().__init__(problems)
         self.fixer = fixer
 
@@ -39,13 +39,9 @@ class Validator(IValidator):
         Returns:
             A Problems object containing any issues found during validation.
         """
-        if self.fixer is None:
-            fix = False
-        else:
-            fix = True
-        jobs_steps_uses = JobsStepsUses(workflow=workflow, fix=fix, fixer=self.fixer)
-        steps_io_match = StepsIOMatch(workflow=workflow, fix=fix, fixer=self.fixer)
-        expressions_contexts = ExpressionsContexts(workflow=workflow, fix=fix, fixer=self.fixer)
+        jobs_steps_uses = JobsStepsUses(workflow=workflow, fixer=self.fixer)
+        steps_io_match = StepsIOMatch(workflow=workflow, fixer=self.fixer)
+        expressions_contexts = ExpressionsContexts(workflow=workflow, fixer=self.fixer)
 
         cur_rules: List[Rule] = [jobs_steps_uses, steps_io_match, expressions_contexts]
 
@@ -53,7 +49,6 @@ class Validator(IValidator):
             for problem in rule.check():
                 self.problems.append(problem)
 
-        # Apply all batched fixes if in fix mode
-        if fix and self.fixer is not None:
-            self.fixer.flush()
+        # Apply all batched fixes (NoFixer will do nothing if fixing is disabled)
+        self.fixer.flush()
         return self.problems

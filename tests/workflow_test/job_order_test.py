@@ -726,7 +726,8 @@ class TestJobOrderIntegrationWithExistingRules:
         # - test job should be valid (build is a dependency)
         # - invalid_test job should be invalid (build is not a dependency)
         from validate_actions.rules.expressions_contexts import ExpressionsContexts
-        rule = ExpressionsContexts(workflow, False, None)
+        from validate_actions.globals.fixer import NoFixer
+        rule = ExpressionsContexts(workflow, NoFixer())
         problems = list(rule.check())
 
         assert len(problems) == 1

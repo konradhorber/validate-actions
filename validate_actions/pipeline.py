@@ -17,7 +17,7 @@ class IPipeline(ProcessStage[Path, Problems]):
     to validate workflow files and return problems found.
     """
 
-    def __init__(self, web_fetcher: Optional[IWebFetcher] = None, fixer: Optional[Fixer] = None):
+    def __init__(self, web_fetcher: IWebFetcher, fixer: Fixer) -> None:
         self.problems: Problems = Problems()
         self.web_fetcher = web_fetcher
         self.fixer = fixer

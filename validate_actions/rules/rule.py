@@ -9,13 +9,13 @@ from validate_actions.globals.problems import Problem
 
 
 class Rule(ABC):
-    def __init__(self, workflow: Workflow, fix: bool, fixer: Optional[Fixer] = None) -> None:
+    def __init__(self, workflow: Workflow, fixer: Fixer) -> None:
         """
-        Initialize the rule with a flag indicating whether to fix issues
-        and an optional fixer instance.
+        Initialize the rule with a fixer instance.
+        The fixer can be a NoFixer implementation that does nothing
+        when validation-only mode is desired.
         """
         self.workflow = workflow
-        self.fix = fix
         self.fixer = fixer
 
     @abstractmethod
