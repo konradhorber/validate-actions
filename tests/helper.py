@@ -14,7 +14,7 @@ from validate_actions.building import (
 from validate_actions.core import problems
 from validate_actions.core.web_fetcher import IWebFetcher
 from validate_actions.domain_model import contexts
-from validate_actions.ordering import job_orderer
+from validate_actions.building import job_orderer
 from validate_actions.parsing import parser
 
 
@@ -204,7 +204,7 @@ def parse_workflow_string(
         workflow = marketplace_enricher_instance.process(workflow)
         
         # Prepare workflow with job dependency analysis and needs contexts
-        job_orderer_instance.prepare_workflow(workflow)
+        workflow = job_orderer_instance.process(workflow)
         
         return workflow, problems_instance
     finally:

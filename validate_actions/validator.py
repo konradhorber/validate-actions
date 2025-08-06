@@ -14,7 +14,7 @@ from validate_actions.core.problems import Problems
 from validate_actions.core.web_fetcher import IWebFetcher
 from validate_actions.domain_model.contexts import Contexts
 from validate_actions.fixing.fixer import BaseFixer
-from validate_actions.ordering.job_orderer import JobOrderer
+from validate_actions.building.job_orderer import JobOrderer
 from validate_actions.parsing.parser import PyYAMLParser
 
 
@@ -79,7 +79,7 @@ class Validator(IValidator):
 
         # Prepare workflow with job dependency analysis and needs contexts
         job_orderer = JobOrderer(problems)
-        job_orderer.prepare_workflow(workflow)
+        workflow = job_orderer.process(workflow)
 
         fixer = BaseFixer(file)
 

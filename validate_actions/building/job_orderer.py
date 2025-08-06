@@ -1,15 +1,14 @@
 """
 Job ordering module for GitHub Actions workflows.
 
-This module provides interfaces and implementations for analyzing job dependencies,
+This module provides implementations for analyzing job dependencies,
 execution order, and conditions to determine the optimal execution plan for a workflow.
 """
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set
 
 import validate_actions.domain_model.ast as ast
+from validate_actions.building.interfaces import IJobOrderer
 from validate_actions.core.problems import Problem, ProblemLevel, Problems
 from validate_actions.domain_model.ast import Job, Workflow
 from validate_actions.domain_model.contexts import (
@@ -18,48 +17,12 @@ from validate_actions.domain_model.contexts import (
     NeedOutputsContext,
     NeedsContext,
 )
-
-
-@dataclass
-class JobCondition:
-    """Represents conditional execution information for a job."""
-
-    expression: str
-    depends_on_success: List[str] = field(default_factory=list)
-    depends_on_failure: List[str] = field(default_factory=list)
-    always_run: bool = False
-
-
-@dataclass
-class JobStage:
-    """Represents a stage of parallel job execution."""
-
-    parallel_jobs: List[Job] = field(default_factory=list)
-
-
-@dataclass
-class JobExecutionPlan:
-    """Represents the complete execution plan for a workflow."""
-
-    stages: List[JobStage] = field(default_factory=list)
-    conditional_jobs: Dict[str, JobCondition] = field(default_factory=dict)
-    dependency_graph: Dict[str, List[str]] = field(default_factory=dict)
-
-
-@dataclass
-class CyclicDependency:
-    """Represents a circular dependency error."""
-
-    job_ids: List[str] = field(default_factory=list)
-
-
-class IJobOrderer(ABC):
-    """Interface for job ordering and dependency analysis."""
-
-    @abstractmethod
-    def prepare_workflow(self, workflow: ast.Workflow) -> None:
-        """Prepare workflow with job dependency analysis and needs contexts."""
-        pass
+from validate_actions.domain_model.job_order_models import (
+    CyclicDependency,
+    JobCondition,
+    JobExecutionPlan,
+    JobStage,
+)
 
 
 class JobOrderer(IJobOrderer):
@@ -68,10 +31,11 @@ class JobOrderer(IJobOrderer):
     def __init__(self, problems: Problems) -> None:
         self.problems = problems
 
-    def prepare_workflow(self, workflow: ast.Workflow) -> None:
-        """Prepare workflow with job dependency analysis and needs contexts."""
+    def process(self, workflow: ast.Workflow) -> Workflow:
+        """Process workflow with job dependency analysis and needs contexts."""
         execution_plan = self._analyze_workflow(workflow)
         self._populate_needs_contexts(workflow, execution_plan)
+        return workflow
 
     def _analyze_workflow(self, workflow: Workflow) -> JobExecutionPlan:
         """Analyze a workflow and return an execution plan."""

@@ -4,10 +4,10 @@ import pytest
 
 from tests.helper import parse_workflow_string
 from validate_actions.core.problems import ProblemLevel, Problems
-from validate_actions.ordering.job_orderer import (
+from validate_actions.building.job_orderer import JobOrderer
+from validate_actions.domain_model.job_order_models import (
     CyclicDependency,
     JobExecutionPlan,
-    JobOrderer,
     JobStage,
 )
 
@@ -673,7 +673,7 @@ class TestJobOrderNeedsContextPopulation:
         analyzer = JobOrderer(Problems())
         
         # Populate needs contexts
-        analyzer.prepare_workflow(workflow)
+        analyzer.process(workflow)
         
         # Jobs with no dependencies should have empty needs contexts
         for job in workflow.jobs_.values():
@@ -720,7 +720,7 @@ class TestJobOrderIntegrationWithExistingRules:
         assert len(execution_plan.stages) == 2
         
         # Populate needs contexts using the new interface
-        analyzer.prepare_workflow(workflow)
+        analyzer.process(workflow)
         
         # When integrated with ExpressionsContexts rule:
         # - test job should be valid (build is a dependency)

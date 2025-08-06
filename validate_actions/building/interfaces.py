@@ -117,3 +117,19 @@ class IMarketPlaceEnricher(ProcessStage[ast.Workflow, ast.Workflow]):
             ast.Workflow: The enriched workflow with metadata attached to actions
         """
         pass
+
+
+class IJobOrderer(ProcessStage[ast.Workflow, ast.Workflow]):
+    """Interface for job ordering and dependency analysis."""
+
+    @abstractmethod
+    def process(self, workflow: ast.Workflow) -> ast.Workflow:
+        """Process workflow with job dependency analysis and needs contexts.
+
+        Args:
+            workflow: The workflow to analyze and enrich with job ordering
+
+        Returns:
+            ast.Workflow: The workflow with job dependency analysis completed
+        """
+        pass
