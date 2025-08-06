@@ -10,26 +10,27 @@ from validate_actions.fixing import fixer
 
 
 # with
-def test_unknown_action_throws_warning():
+def test_action_without_version_spec_warning():
     workflow_string = """
 name: test
+on: push
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Notify Slack
-        uses: action/is-unknown@vtest
-        with:
-          unknown_input: 'test'
+      - name: Checkout
+        uses: actions/checkout
 """
     workflow, problems = parse_workflow_string(workflow_string)
     rule = analyzing.JobsStepsUses(workflow, False, None)
     gen = rule.check()
     result = list(gen)
-    assert len(result) == 1
-    assert isinstance(result[0], Problem)
-    assert result[0].rule == "jobs-steps-uses"
-    assert result[0].level == ProblemLevel.WAR
+    
+    # Should have a warning about missing version specification
+    version_warnings = [p for p in result if "Using specific version" in p.desc]
+    assert len(version_warnings) == 1
+    assert version_warnings[0].rule == "jobs-steps-uses"
+    assert version_warnings[0].level == ProblemLevel.WAR
 
 
 # region required inputs
@@ -522,3 +523,66 @@ def test_fix_outdated_version():
 
 
 # endregion outdated version tests
+
+
+class TestUtilityMethods:
+    """Test utility methods of JobsStepsUses class"""
+    
+    def setup_method(self):
+        """Setup a JobsStepsUses instance for testing utility methods"""
+        workflow_string = """
+        name: test
+        on: push
+        jobs:
+          build:
+            runs-on: ubuntu-latest
+            steps:
+              - uses: actions/checkout@v4
+        """
+        workflow, _ = parse_workflow_string(workflow_string)
+        self.rule = analyzing.JobsStepsUses(workflow, False, None)
+
+    def test_parse_semantic_version_full(self):
+        """Test parsing full semantic versions"""
+        assert self.rule._parse_semantic_version("v4.2.1") == (4, 2, 1)
+        assert self.rule._parse_semantic_version("4.2.1") == (4, 2, 1)
+        assert self.rule._parse_semantic_version("v1.10.5") == (1, 10, 5)
+
+    def test_parse_semantic_version_partial(self):
+        """Test parsing partial versions"""
+        assert self.rule._parse_semantic_version("v4.2") == (4, 2, None)
+        assert self.rule._parse_semantic_version("v4") == (4, None, None)
+        assert self.rule._parse_semantic_version("4") == (4, None, None)
+
+    def test_parse_semantic_version_invalid(self):
+        """Test parsing invalid version strings"""
+        assert self.rule._parse_semantic_version("release-2023") is None
+        assert self.rule._parse_semantic_version("latest") is None
+        assert self.rule._parse_semantic_version("main") is None
+        assert self.rule._parse_semantic_version("v4.2.1.0") is None
+        assert self.rule._parse_semantic_version("") is None
+        assert self.rule._parse_semantic_version("v") is None
+
+    def test_compare_semantic_versions_outdated(self):
+        """Test version comparison for outdated versions"""
+        assert self.rule._compare_semantic_versions((4, 2, 1), (3, 6, 0)) == "major"
+        assert self.rule._compare_semantic_versions((4, 2, 1), (4, 1, 0)) == "minor"
+        assert self.rule._compare_semantic_versions((4, 2, 2), (4, 2, 1)) == "patch"
+
+    def test_compare_semantic_versions_current(self):
+        """Test version comparison for current/future versions"""
+        assert self.rule._compare_semantic_versions((4, 2, 1), (4, 2, 1)) is None
+        assert self.rule._compare_semantic_versions((4, 2, 1), (5, 0, 0)) is None
+        assert self.rule._compare_semantic_versions((4, 2, 1), (4, 3, 0)) is None
+
+    def test_is_commit_sha(self):
+        """Test commit SHA detection"""
+        assert self.rule._is_commit_sha("11bd71901bbe5b1630ceea73d27597364c9af683") is True
+        assert self.rule._is_commit_sha("11bd719") is True  # Short SHA
+        assert self.rule._is_commit_sha("8e5e7e5ab8b370d6c329ec480221332ada57f0ab") is True
+        
+        assert self.rule._is_commit_sha("v4.2.1") is False
+        assert self.rule._is_commit_sha("main") is False
+        assert self.rule._is_commit_sha("release-2023") is False
+        assert self.rule._is_commit_sha("") is False
+        assert self.rule._is_commit_sha("123") is False  # Too short

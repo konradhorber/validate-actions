@@ -1,3 +1,4 @@
+import os
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -7,6 +8,7 @@ import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from validate_actions.core.problems import Problem, ProblemLevel, Problems
+from validate_actions.core.web_fetcher import WebFetcher
 from validate_actions.validator import Validator
 
 
@@ -44,6 +46,10 @@ class CLI(ICLI):
         "format_end": "\033[0m",
         "neutral": "\033[2m",
     }
+
+    WEB_FETCHER = WebFetcher(
+        github_token=os.getenv("GH_TOKEN")
+    )
 
     def start(self, fix: bool, workflow_file: Optional[str] = None) -> None:
         if workflow_file:
@@ -157,7 +163,7 @@ class CLI(ICLI):
         sys.exit(return_code)
 
     def run(self, file: Path, fix: bool) -> Tuple[ProblemLevel, int, int]:
-        problems = Validator.run(file, fix)
+        problems = Validator.run(file, self.WEB_FETCHER, fix)
 
         problems.sort()
 

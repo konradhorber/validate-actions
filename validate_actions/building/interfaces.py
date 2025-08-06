@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Union
 
 from validate_actions.core.interfaces import ProcessStage
-from validate_actions.core.problems import Problems
 from validate_actions.domain_model import ast
 from validate_actions.domain_model.contexts import Contexts
 
@@ -97,4 +96,24 @@ class IStepsBuilder(ABC):
     def build(
         self, steps_in: List[Dict[ast.String, Any]], local_contexts: Contexts
     ) -> List[ast.Step]:
+        pass
+
+
+class IMarketPlaceEnricher(ProcessStage[ast.Workflow, ast.Workflow]):
+    """Interface for enriching workflows with marketplace metadata.
+
+    Fetches action metadata from GitHub marketplace/repositories to enrich
+    workflow AST with action input/output information and version data.
+    """
+
+    @abstractmethod
+    def process(self, workflow: ast.Workflow) -> ast.Workflow:
+        """Enrich workflow with marketplace metadata.
+
+        Args:
+            workflow: The workflow to enrich with marketplace data
+
+        Returns:
+            ast.Workflow: The enriched workflow with metadata attached to actions
+        """
         pass

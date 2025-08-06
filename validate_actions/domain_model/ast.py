@@ -280,22 +280,31 @@ class Step:
     timeout_minutes_: Optional[int] = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class Exec(ABC):
     pass
 
 
-@dataclass(frozen=True)
+@dataclass
+class ActionMetadata:
+    required_inputs: List[str] = field(default_factory=list)
+    possible_inputs: List[str] = field(default_factory=list)
+    version_tags: List[Dict] = field(default_factory=list)
+    outputs: Dict[str, str] = field(default_factory=dict)
+
+
+@dataclass
 class ExecAction(Exec):
     pos: "Pos"
     uses_: "String"
     # empty dict if no inputs
     with_: Dict["String", "String"]
+    metadata: Optional[ActionMetadata] = None
     with_args_: Optional["String"] = None
     with_entrypoint_: Optional["String"] = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class ExecRun(Exec):
     pos: "Pos"
     run_: "String"

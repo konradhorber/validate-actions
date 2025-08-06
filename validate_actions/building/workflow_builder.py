@@ -82,9 +82,7 @@ class WorkflowBuilder(IWorkflowBuilder):
                 case "env":
                     env_ = self.shared_components_builder.build_env(workflow_dict[key])
                 case "defaults":
-                    defaults_ = self.shared_components_builder.build_defaults(
-                        workflow_dict[key]
-                    )
+                    defaults_ = self.shared_components_builder.build_defaults(workflow_dict[key])
                 case "concurrency":
                     concurrency_ = self.shared_components_builder.build_concurrency(
                         key, workflow_dict[key]

@@ -6,10 +6,12 @@ from validate_actions import analyzing
 from validate_actions.analyzing.rule import Rule
 from validate_actions.building.events_builder import EventsBuilder
 from validate_actions.building.jobs_builder import JobsBuilder
+from validate_actions.building.marketplace_enricher import MarketPlaceEnricher
 from validate_actions.building.shared_components_builder import SharedComponentsBuilder
 from validate_actions.building.steps_builder import StepsBuilder
 from validate_actions.building.workflow_builder import WorkflowBuilder
 from validate_actions.core.problems import Problems
+from validate_actions.core.web_fetcher import IWebFetcher
 from validate_actions.domain_model.contexts import Contexts
 from validate_actions.fixing.fixer import BaseFixer
 from validate_actions.ordering.job_orderer import JobOrderer
@@ -26,7 +28,7 @@ class IValidator(ABC):
 
     @staticmethod
     @abstractmethod
-    def run(file: Path, fix: bool) -> Problems:
+    def run(file: Path, web_fetcher: IWebFetcher, fix: bool) -> Problems:
         """
         Validate a workflow file and return problems found.
 
@@ -48,7 +50,7 @@ class Validator(IValidator):
     ]
 
     @staticmethod
-    def run(file: Path, fix: bool) -> Problems:
+    def run(file: Path, web_fetcher: IWebFetcher, fix: bool) -> Problems:
         problems: Problems = Problems()
         contexts = Contexts()
         shared_components_builder = SharedComponentsBuilder(problems)
@@ -70,6 +72,10 @@ class Validator(IValidator):
         )
 
         workflow = director.process(workflow_dict)
+
+        # Add web marketplace metadata to actions
+        marketplace_enricher = MarketPlaceEnricher(web_fetcher, problems)
+        workflow = marketplace_enricher.process(workflow)
 
         # Prepare workflow with job dependency analysis and needs contexts
         job_orderer = JobOrderer(problems)

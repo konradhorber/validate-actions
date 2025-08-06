@@ -1,3 +1,4 @@
+import os
 import tempfile
 from pathlib import Path
 
@@ -29,7 +30,9 @@ jobs:
         temp_file_path = Path(temp_file.name)
 
     try:
-        problems = validator.Validator.run(temp_file_path, fix=False)
+        from validate_actions.core.web_fetcher import WebFetcher
+        web_fetcher = WebFetcher(github_token=os.getenv("GH_TOKEN"))
+        problems = validator.Validator.run(temp_file_path, web_fetcher, fix=False)
     finally:
         temp_file_path.unlink(missing_ok=True)
 
