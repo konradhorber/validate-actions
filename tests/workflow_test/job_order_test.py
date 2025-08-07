@@ -226,6 +226,42 @@ class TestJobOrderConditionalExecution:
         assert "job2" in execution_plan.conditional_jobs
         assert execution_plan.conditional_jobs["job2"].always_run == True
 
+    def test_condition_false_warning(self):
+        """Job with condition 'false' should generate a warning."""
+        workflow_string = """
+        name: 'Test Condition False Warning'
+        on: push
+        jobs:
+          never_runs:
+            if: false
+            runs-on: ubuntu-latest
+            steps:
+              - run: echo "this never runs"
+          always_runs:
+            runs-on: ubuntu-latest
+            steps:
+              - run: echo "this always runs"
+        """
+        workflow, problems = parse_workflow_string(workflow_string)
+        analyzer_problems = Problems()
+        analyzer = JobOrderer(analyzer_problems)
+        
+        # Analyze workflow should generate warning for condition 'false'
+        execution_plan = analyzer._analyze_workflow(workflow)
+        
+        # Should have warning about job never running
+        assert len(analyzer_problems.problems) == 1
+        problem = analyzer_problems.problems[0]
+        assert problem.level == ProblemLevel.WAR
+        assert problem.rule == "job-order"
+        assert "never_runs" in problem.desc
+        assert "never runs due to condition 'false'" in problem.desc
+        
+        # Job should still be tracked in conditional_jobs
+        assert "never_runs" in execution_plan.conditional_jobs
+        assert execution_plan.conditional_jobs["never_runs"].expression == "false"
+        assert execution_plan.conditional_jobs["never_runs"].always_run == False
+
     def test_context_based_conditions(self):
         """Jobs with context-based conditions should be analyzed correctly."""
         workflow_string = """
@@ -525,7 +561,7 @@ class TestJobOrderErrorConditions:
         circular_problems = [p for p in analyzer_problems.problems if "circular" in p.desc.lower()]
         assert len(circular_problems) > 0
         assert all(p.level == ProblemLevel.ERR for p in circular_problems)
-        assert all(p.rule == "job-order-circular-dependency" for p in circular_problems)
+        assert all(p.rule == "job-order" for p in circular_problems)
 
     def test_self_dependency_detection(self):
         """Self-dependencies should be detected and reported."""
@@ -549,7 +585,7 @@ class TestJobOrderErrorConditions:
         self_dep_problems = [p for p in analyzer_problems.problems if "itself" in p.desc.lower()]
         assert len(self_dep_problems) > 0
         assert all(p.level == ProblemLevel.ERR for p in self_dep_problems)
-        assert all(p.rule == "job-order-self-dependency" for p in self_dep_problems)
+        assert all(p.rule == "job-order" for p in self_dep_problems)
 
     def test_nonexistent_job_reference(self):
         """References to non-existent jobs should be detected."""
@@ -573,7 +609,7 @@ class TestJobOrderErrorConditions:
         invalid_ref_problems = [p for p in analyzer_problems.problems if "nonexistent_job" in p.desc]
         assert len(invalid_ref_problems) > 0
         assert all(p.level == ProblemLevel.ERR for p in invalid_ref_problems)
-        assert all(p.rule == "job-order-invalid-reference" for p in invalid_ref_problems)
+        assert all(p.rule == "job-order" for p in invalid_ref_problems)
 
     def test_complex_circular_dependency(self):
         """Complex circular dependencies should be detected."""
@@ -612,7 +648,7 @@ class TestJobOrderErrorConditions:
         circular_problems = [p for p in analyzer_problems.problems if "circular" in p.desc.lower()]
         assert len(circular_problems) > 0
         assert all(p.level == ProblemLevel.ERR for p in circular_problems)
-        assert all(p.rule == "job-order-circular-dependency" for p in circular_problems)
+        assert all(p.rule == "job-order" for p in circular_problems)
 
 
 class TestJobOrderNeedsContextPopulation:

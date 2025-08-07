@@ -47,6 +47,7 @@ class JobOrderer(IJobOrderer):
 
     def __init__(self, problems: Problems) -> None:
         self.problems = problems
+        self.RULE_NAME = "job-order"
 
     def process(self, workflow: ast.Workflow) -> Workflow:
         """Process workflow with job dependency analysis and needs contexts."""
@@ -102,7 +103,7 @@ class JobOrderer(IJobOrderer):
                                 pos=need.pos,
                                 desc=f"Job '{job.job_id_}' cannot depend on itself",
                                 level=ProblemLevel.ERR,
-                                rule="job-order-self-dependency",
+                                rule=self.RULE_NAME,
                             )
                         )
                     elif dep_id not in job_ids:
@@ -111,7 +112,7 @@ class JobOrderer(IJobOrderer):
                                 pos=need.pos,
                                 desc=f"Job '{job.job_id_}' depends on non-existent job '{dep_id}'",
                                 level=ProblemLevel.ERR,
-                                rule="job-order-invalid-reference",
+                                rule=self.RULE_NAME,
                             )
                         )
 
@@ -122,6 +123,15 @@ class JobOrderer(IJobOrderer):
             if job.if_ is not None:
                 condition_expr = job.if_.string
                 always_run = "always()" in condition_expr
+                if condition_expr == "false":
+                    self.problems.append(
+                        Problem(
+                            pos=job.if_.pos,
+                            desc=f"Job '{job.job_id_}' never runs due to condition 'false'",
+                            level=ProblemLevel.WAR,
+                            rule=self.RULE_NAME
+                        )
+                    )
                 conditional_jobs[job.job_id_] = JobCondition(
                     expression=condition_expr, always_run=always_run
                 )
@@ -151,7 +161,7 @@ class JobOrderer(IJobOrderer):
                             f"{' -> '.join(cycle.job_ids)} -> {cycle.job_ids[0]}"
                         ),
                         level=ProblemLevel.ERR,
-                        rule="job-order-circular-dependency",
+                        rule=self.RULE_NAME,
                     )
                 )
                 return
