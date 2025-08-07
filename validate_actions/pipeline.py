@@ -16,9 +16,8 @@ class IPipeline(ProcessStage[Path, Problems]):
     to validate workflow files and return problems found.
     """
 
-    def __init__(self, web_fetcher: IWebFetcher, fixer: Fixer) -> None:
+    def __init__(self, fixer: Fixer) -> None:
         self.problems: Problems = Problems()
-        self.web_fetcher = web_fetcher
         self.fixer = fixer
 
     @abstractmethod
@@ -38,7 +37,8 @@ class IPipeline(ProcessStage[Path, Problems]):
 
 class Pipeline(IPipeline):
     def __init__(self, web_fetcher: IWebFetcher, fixer: Fixer):
-        super().__init__(web_fetcher, fixer)
+        super().__init__(fixer)
+        self.web_fetcher = web_fetcher
 
         self.parser = pipeline_stages.PyYAMLParser(self.problems)
         self.builder = pipeline_stages.Builder(self.problems)
