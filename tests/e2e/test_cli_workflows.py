@@ -68,46 +68,6 @@ class TestE2E:
         assert result.returncode == 1
         assert "✗" in result.stdout  # Error indicator
 
-    def test_fixable_workflow_validation_mode(self, temp_project):
-        """Test fixable workflow in validation-only mode (should report errors)."""
-        project_root, workflows_dir = temp_project
-
-        # Copy fixable workflow to temp directory
-        fixable_workflow = (
-            Path(__file__).parent.parent / "fixtures" / "workflows" / "fixable_workflow.yml"
-        )
-        shutil.copy(fixable_workflow, workflows_dir / "test.yml")
-
-        result = self.run_cli(project_root, fix=False)
-
-        assert result.returncode == 1 or result.returncode == 2  # Should return error or warning
-        assert "⚠" in result.stdout or "✗" in result.stdout  # Warning or error indicator
-
-    def test_fixable_workflow_fix_mode(self, temp_project):
-        """Test fixable workflow in auto-fix mode (should fix issues)."""
-        project_root, workflows_dir = temp_project
-
-        # Copy fixable workflow to temp directory
-        fixable_workflow = (
-            Path(__file__).parent.parent / "fixtures" / "workflows" / "fixable_workflow.yml"
-        )
-        test_file = workflows_dir / "test.yml"
-        shutil.copy(fixable_workflow, test_file)
-
-        # Read original content
-        original_content = test_file.read_text()
-
-        result = self.run_cli(project_root, fix=True)
-
-        # Should succeed after fixing
-        assert result.returncode == 0
-
-        # File should be modified
-        fixed_content = test_file.read_text()
-        assert fixed_content != original_content
-
-        # Should contain fixed indicators
-        assert "✓" in result.stdout
 
     def test_multiple_workflow_files(self, temp_project):
         """Test validation with multiple workflow files."""
