@@ -118,31 +118,27 @@ class WebFetcher(IWebFetcher):
         print()
 
     def fetch(self, url: str) -> Optional[requests.Response]:
-        """Fetch a URL with caching, retries, and exponential backoff.
+        """Fetch a URL with caching and intelligent retry logic.
 
         This method implements a robust HTTP fetching strategy:
 
         1. **Cache Check**: First checks if the URL has been fetched before
            and returns the cached response if available.
         2. **HTTP Request**: Makes an HTTP GET request with the configured timeout.
-        3. **Status Validation**: Raises an exception for HTTP error status codes
-           (4xx, 5xx), which triggers the retry logic.
-        4. **Retry Logic**: On failure, retries up to `max_retries` times with
-           exponential backoff delays between attempts.
-        5. **Cache Storage**: Successful responses are cached. Failed requests
-           (after all retries) are cached as None to avoid repeated attempts.
+        3. **Intelligent Retry Logic**: Only retries on errors that might be transient:
+           - Network errors (timeouts, connection failures)
+           - Server errors (5xx status codes)
+           - Rate limiting (429 status code)
+        4. **No Retry on Permanent Errors**: Client errors (4xx except 429) indicate
+           permanent issues and are not retried.
+        5. **Cache Storage**: Both successful and permanently failed requests are cached.
 
         Args:
             url: The URL to fetch. Must be a valid HTTP or HTTPS URL.
 
         Returns:
             The HTTP response object if the request succeeded (status 2xx),
-            or None if the request failed after all retries.
-
-        Note:
-            - Successful responses remain in cache until clear_cache() is called
-            - Failed requests are also cached (as None) to avoid retry loops
-            - The exponential backoff helps avoid overwhelming failing servers
+            or None if the request failed permanently or after all retries.
         """
 
         if url in self.cache:
@@ -151,17 +147,56 @@ class WebFetcher(IWebFetcher):
         for attempt in range(self.max_retries + 1):
             try:
                 response = self.session.get(url, timeout=self.request_timeout)
+
+                # Check for permanent client errors that shouldn't be retried
+                if self._is_permanent_client_error(response.status_code):
+                    self.cache[url] = None
+                    return None
+
                 response.raise_for_status()
                 self.cache[url] = response
                 return response
-            except (requests.RequestException, requests.Timeout):
+
+            except (requests.ConnectionError, requests.Timeout):
+                # Network errors are retryable
                 if attempt < self.max_retries:
-                    sleep_time = self.retry_backoff_factor
-                    time.sleep(sleep_time)
+                    time.sleep(self.retry_backoff_factor)
+            except requests.HTTPError:
+                # HTTP errors (4xx, 5xx) are handled above via status code check
+                if attempt < self.max_retries:
+                    time.sleep(self.retry_backoff_factor)
+            except requests.RequestException:
+                # Other request exceptions are not retried
+                break
 
         # Cache the failure to avoid repeated attempts
         self.cache[url] = None
         return None
+
+    def _is_permanent_client_error(self, status_code: int) -> bool:
+        """Check if an HTTP status code represents a permanent client error.
+
+        Permanent client errors should not be retried because they indicate
+        problems with the request itself (wrong URL, missing auth, etc.) rather
+        than transient network or server issues.
+
+        Args:
+            status_code: HTTP status code from the response
+
+        Returns:
+            True if this is a permanent client error that should not be retried
+        """
+        permanent_errors = {
+            400,  # Bad Request - malformed request
+            401,  # Unauthorized - missing/invalid auth
+            403,  # Forbidden - insufficient permissions
+            404,  # Not Found - resource doesn't exist
+            405,  # Method Not Allowed - wrong HTTP method
+            409,  # Conflict - state conflict
+            410,  # Gone - resource permanently removed
+            422,  # Unprocessable Entity - invalid request data
+        }
+        return status_code in permanent_errors
 
     def clear_cache(self) -> None:
         """Clear all cached HTTP responses."""
