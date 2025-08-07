@@ -2,8 +2,8 @@ from abc import abstractmethod
 from typing import Any, Dict
 
 from validate_actions.domain_model.ast import Workflow
-from validate_actions.domain_model.primitives import String
 from validate_actions.domain_model.contexts import Contexts
+from validate_actions.domain_model.primitives import String
 from validate_actions.globals.problems import Problems
 from validate_actions.globals.process_stage import ProcessStage
 from validate_actions.pipeline_stages.builders.events_builder import EventsBuilder

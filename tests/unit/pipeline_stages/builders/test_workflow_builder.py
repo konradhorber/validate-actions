@@ -25,7 +25,6 @@ class TestWorkflowBuilder:
         assert env_.get("FIRST_NAME").string == "Mona"
         assert env_.get("LAST_NAME").string == "Octocat"
 
-
     def test_workflow_permissions(self):
         workflow_string = """
     name: "My workflow"
@@ -49,7 +48,6 @@ class TestWorkflowBuilder:
         assert permissions_.id_token_ == ast.Permission.read
         assert permissions_.contents_ == ast.Permission.read
 
-
     # Integration tests for defaults using parse_workflow_string
     def test_workflow_defaults_shell(self):
         workflow_string = """
@@ -71,7 +69,6 @@ class TestWorkflowBuilder:
         assert defaults.shell_.value == "bash"
         assert defaults.working_directory_ is None
 
-
     def test_workflow_defaults_working_directory(self):
         workflow_string = """
     on: push
@@ -91,7 +88,6 @@ class TestWorkflowBuilder:
         assert defaults is not None
         assert defaults.shell_ is None
         assert defaults.working_directory_.string == "/tmp"
-
 
     def test_workflow_defaults_shell_and_working_directory(self):
         workflow_string = """
@@ -114,7 +110,6 @@ class TestWorkflowBuilder:
         assert defaults.shell_.value == "bash"
         assert defaults.working_directory_.string == "/tmp"
 
-
     def test_workflow_defaults_invalid_structure(self):
         workflow_string = """
     on: push
@@ -129,7 +124,6 @@ class TestWorkflowBuilder:
         workflow_out, problems = parse_workflow_string(workflow_string)
         assert workflow_out.defaults_ is None
         assert any(p.desc.startswith("Invalid 'defaults:'") for p in problems.problems)
-
 
     def test_workflow_defaults_invalid_shell(self):
         workflow_string = """
@@ -149,7 +143,6 @@ class TestWorkflowBuilder:
         assert workflow_out.defaults_ is None
         assert any(p.desc == "Invalid shell: fish" for p in problems.problems)
 
-
     def test_workflow_concurrency_minimal_group(self):
         workflow_string = """
     on: push
@@ -167,7 +160,6 @@ class TestWorkflowBuilder:
         assert workflow_out.concurrency_ is not None
         assert workflow_out.concurrency_.group_.string == "my-group"
         assert workflow_out.concurrency_.cancel_in_progress_ is None
-
 
     def test_workflow_concurrency_with_cancel_true(self):
         workflow_string = """
@@ -187,7 +179,6 @@ class TestWorkflowBuilder:
         assert workflow_out.concurrency_ is not None
         assert workflow_out.concurrency_.group_.string == "grp-cancel"
         assert workflow_out.concurrency_.cancel_in_progress_ is True
-
 
     def test_workflow_concurrency_missing_group(self):
         workflow_string = """

@@ -68,7 +68,6 @@ class TestE2E:
         assert result.returncode == 1
         assert "✗" in result.stdout  # Error indicator
 
-
     def test_multiple_workflow_files(self, temp_project):
         """Test validation with multiple workflow files."""
         project_root, workflows_dir = temp_project

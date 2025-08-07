@@ -48,7 +48,7 @@ __all__ = [
     # AST nodes
     "BranchesFilterEvent",
     "Concurrency",
-    "Container", 
+    "Container",
     "ContainerCredentials",
     "Defaults",
     "Environment",
@@ -80,9 +80,9 @@ __all__ = [
     "WorkflowRunEvent",
     # Contexts
     "Contexts",
-    # Job ordering  
+    # Job ordering
     "CyclicDependency",
-    "JobCondition", 
+    "JobCondition",
     "JobExecutionPlan",
     "JobStage",
     # Primitives

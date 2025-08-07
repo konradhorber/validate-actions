@@ -11,7 +11,7 @@ from .validation_service import StandardValidationService, ValidationService
 
 __all__ = [
     "ColoredFormatter",
-    "OutputFormatter", 
+    "OutputFormatter",
     "ResultAggregator",
     "StandardResultAggregator",
     "StandardValidationService",

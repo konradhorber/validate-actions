@@ -33,7 +33,6 @@ jobs:
         assert len(unknown_action_problems) >= 1
         assert unknown_action_problems[0].level == ProblemLevel.WAR
 
-
     def test_known_action_gets_metadata(self):
         """Test that known actions get enriched with metadata."""
         workflow_string = """
@@ -65,7 +64,6 @@ jobs:
         assert len(metadata.possible_inputs) > 0  # Should have inputs like 'repository', 'token'
         assert len(metadata.outputs) > 0  # Should have outputs like 'ref'
         assert len(metadata.version_tags) > 0  # Should have version tags
-
 
     def test_marketplace_enricher_direct_usage(self):
         """Test MarketPlaceEnricher directly with a test web fetcher."""
@@ -108,7 +106,6 @@ jobs:
         assert "token" in metadata.possible_inputs
         assert "ref" in metadata.outputs
         assert len(metadata.version_tags) == 3  # Our test data has 3 tags
-
 
     def test_marketplace_enricher_handles_missing_action(self):
         """Test MarketPlaceEnricher handles missing actions gracefully."""

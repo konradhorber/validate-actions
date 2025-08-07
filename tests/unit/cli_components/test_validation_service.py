@@ -110,8 +110,12 @@ jobs:
         assert normal_result.max_level == ProblemLevel.ERR
 
         # Should have problems of different levels
-        warning_problems = [p for p in normal_result.problems.problems if p.level == ProblemLevel.WAR]
-        error_problems = [p for p in normal_result.problems.problems if p.level == ProblemLevel.ERR]
+        warning_problems = [
+            p for p in normal_result.problems.problems if p.level == ProblemLevel.WAR
+        ]
+        error_problems = [
+            p for p in normal_result.problems.problems if p.level == ProblemLevel.ERR
+        ]
         assert len(warning_problems) > 0
         assert len(error_problems) > 0
 

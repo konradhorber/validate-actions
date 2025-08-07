@@ -26,9 +26,7 @@ class TestJobsBuilder:
         assert env_.get("FIRST_NAME").string == "Mona"
         assert env_.get("LAST_NAME").string == "Octocat"
 
-
     # Integration tests for job-level defaults using parse_workflow_string
-
 
     def test_job_defaults_shell(self):
         workflow_string = """
@@ -50,7 +48,6 @@ class TestJobsBuilder:
         assert defaults.shell_.value == "pwsh"
         assert defaults.working_directory_ is None
 
-
     def test_job_defaults_working_directory(self):
         workflow_string = """
     on: push
@@ -70,7 +67,6 @@ class TestJobsBuilder:
         assert defaults is not None
         assert defaults.shell_ is None
         assert defaults.working_directory_.string == "/home/user"
-
 
     def test_job_defaults_shell_and_working_directory(self):
         workflow_string = """
@@ -93,7 +89,6 @@ class TestJobsBuilder:
         assert defaults.shell_.value == "sh"
         assert defaults.working_directory_.string == "/tmp"
 
-
     def test_job_defaults_invalid_structure(self):
         workflow_string = """
     on: push
@@ -108,7 +103,6 @@ class TestJobsBuilder:
         workflow_out, problems = parse_workflow_string(workflow_string)
         assert workflow_out.jobs_["build"].defaults_ is None
         assert any(p.desc.startswith("Invalid 'defaults:'") for p in problems.problems)
-
 
     def test_job_defaults_invalid_shell(self):
         workflow_string = """
@@ -126,7 +120,6 @@ class TestJobsBuilder:
         workflow_out, problems = parse_workflow_string(workflow_string)
         assert workflow_out.jobs_["build"].defaults_ is None
         assert any(p.desc == "Invalid shell: fish" for p in problems.problems)
-
 
     def test_job_permissions_single(self):
         workflow_string = """
@@ -151,7 +144,6 @@ class TestJobsBuilder:
         assert permissions_.id_token_ == ast.Permission.none
         assert permissions_.contents_ == ast.Permission.write
 
-
     def test_job_permissions_bulk(self):
         workflow_string = """
     on: push
@@ -170,7 +162,6 @@ class TestJobsBuilder:
         assert permissions_.issues_ == ast.Permission.read
         assert permissions_.pull_requests_ == ast.Permission.read
 
-
     def test_job_permissions_none(self):
         workflow_string = """
     on: push
@@ -188,7 +179,6 @@ class TestJobsBuilder:
         assert problems.problems == []
         assert permissions_.issues_ == ast.Permission.none
         assert permissions_.pull_requests_ == ast.Permission.none
-
 
     def test_jobs_context_builds(self):
         workflow_string = """
@@ -216,7 +206,6 @@ class TestJobsBuilder:
         assert stale_output is not None
         assert isinstance(stale_output, contexts.ContextType)
 
-
     def test_job_context_builds(self):
         workflow_string = """
         on: push
@@ -243,7 +232,6 @@ class TestJobsBuilder:
         workflow_out, problems = parse_workflow_string(workflow_string)
         job_context = workflow_out.jobs_["job"].contexts.job
         assert isinstance(job_context, contexts.JobContext)
-
 
     def test_strategy(self):
         workflow_string = """
@@ -314,7 +302,6 @@ class TestJobsBuilder:
         assert matrix_context.children_["node"] == contexts.ContextType.string
         assert matrix_context.children_["npm"] == contexts.ContextType.string
 
-
     def test_job_runs_on_mapping_scalar_items(self):
         workflow_string = """
     on: push
@@ -333,7 +320,6 @@ class TestJobsBuilder:
         assert [l.string for l in runs_on.labels] == ["ubuntu-latest"]
         assert [g.string for g in runs_on.group] == ["my-group"]
 
-
     def test_job_runs_on_single(self):
         workflow_string = """
     on: push
@@ -349,7 +335,6 @@ class TestJobsBuilder:
         assert problems.problems == []
         assert [l.string for l in runs_on.labels] == ["ubuntu-latest"]
 
-
     def test_job_runs_on_list(self):
         workflow_string = """
     on: push
@@ -364,7 +349,6 @@ class TestJobsBuilder:
         runs_on = workflow_out.jobs_["build"].runs_on_
         assert problems.problems == []
         assert [l.string for l in runs_on.labels] == ["ubuntu-latest", "windows-latest"]
-
 
     def test_job_runs_on_unknown_key(self):
         workflow_string = """
@@ -384,7 +368,6 @@ class TestJobsBuilder:
         assert any(p.desc == "Unknown key in 'runs-on': foo" for p in problems.problems)
         assert runs_on.labels == []
         assert runs_on.group == []
-
 
     def test_job_runs_on_mapping_list_with_invalid_items(self):
         workflow_string = """
@@ -406,7 +389,6 @@ class TestJobsBuilder:
         assert "Invalid item in 'runs-on' 'labels': 123" in descs
         assert "Invalid item in 'runs-on' 'group': True" in descs
 
-
     def test_job_environment_string(self):
         workflow_string = """
     on: push
@@ -424,7 +406,6 @@ class TestJobsBuilder:
         assert environment is not None
         assert environment.name_.string == "production"
         assert environment.url_ is None
-
 
     def test_job_environment_mapping(self):
         workflow_string = """
@@ -446,7 +427,6 @@ class TestJobsBuilder:
         assert environment.name_.string == "staging"
         assert environment.url_.string == "https://example.com"
 
-
     def test_job_environment_invalid_scalar(self):
         workflow_string = """
     on: push
@@ -463,7 +443,6 @@ class TestJobsBuilder:
         assert len(problems.problems) == 1
         descs = [p.desc for p in problems.problems]
         assert "Invalid 'environment' value: '123'" in descs
-
 
     def test_job_environment_invalid_name_mapping(self):
         workflow_string = """
@@ -483,7 +462,6 @@ class TestJobsBuilder:
         descs = [p.desc for p in problems.problems]
         assert "Invalid 'environment' 'name': '123'" in descs
 
-
     def test_job_environment_invalid_url_mapping(self):
         workflow_string = """
     on: push
@@ -501,7 +479,6 @@ class TestJobsBuilder:
         assert workflow_out.jobs_["deploy"].environment_ is None
         descs = [p.desc for p in problems.problems]
         assert "Invalid 'environment' 'url': '456'" in descs
-
 
     def test_job_concurrency_minimal_group(self):
         workflow_string = """
@@ -521,7 +498,6 @@ class TestJobsBuilder:
         assert job.concurrency_ is not None
         assert job.concurrency_.group_.string == "job-group"
         assert job.concurrency_.cancel_in_progress_ is None
-
 
     def test_job_concurrency_with_cancel_true(self):
         workflow_string = """
@@ -543,7 +519,6 @@ class TestJobsBuilder:
         assert job.concurrency_.group_.string == "job2-group"
         assert job.concurrency_.cancel_in_progress_ is True
 
-
     def test_job_concurrency_missing_group(self):
         workflow_string = """
     on: push
@@ -561,7 +536,6 @@ class TestJobsBuilder:
         assert job.concurrency_ is None
         assert any(p.desc == "Concurrency must define 'group'" for p in problems.problems)
 
-
     def test_job_container_simple(self):
         workflow_string = """
     on: push
@@ -578,7 +552,6 @@ class TestJobsBuilder:
         assert problems.problems == []
         assert container is not None
         assert str(container.image_) == "node:16-bullseye"
-
 
     def test_job_container_full(self):
         workflow_string = """
@@ -618,7 +591,6 @@ class TestJobsBuilder:
         assert [v.string for v in container.volumes_] == ["my_docker_volume:/volume_mount"]
         assert container.options_.string == "--cpus 1"
 
-
     def test_job_container_invalid_structure(self):
         workflow_string = """
     on: push
@@ -635,7 +607,6 @@ class TestJobsBuilder:
         assert container is None
         assert len(problems.problems) == 1
         assert problems.problems[0].desc == "Container must be a string or a mapping."
-
 
     def test_job_container_missing_image(self):
         workflow_string = """
@@ -657,7 +628,6 @@ class TestJobsBuilder:
         assert len(problems.problems) == 1
         assert problems.problems[0].desc == "Container must have an 'image' property."
 
-
     def test_job_container_invalid_credentials(self):
         workflow_string = """
     on: push
@@ -678,9 +648,9 @@ class TestJobsBuilder:
         assert container.credentials_ is None
         assert len(problems.problems) == 1
         assert (
-            problems.problems[0].desc == "Container credentials must have 'username' and 'password'."
+            problems.problems[0].desc
+            == "Container credentials must have 'username' and 'password'."
         )
-
 
     def test_job_container_invalid_ports(self):
         workflow_string = """
@@ -705,7 +675,6 @@ class TestJobsBuilder:
         assert len(problems.problems) == 1
         assert "Container ports must be a list of strings." in problems.problems[0].desc
 
-
     def test_job_container_invalid_volumes(self):
         workflow_string = """
     on: push
@@ -728,7 +697,6 @@ class TestJobsBuilder:
         assert len(problems.problems) == 1
         assert "Container volumes must be a list of strings." in problems.problems[0].desc
 
-
     def test_job_container_invalid_options(self):
         workflow_string = """
     on: push
@@ -749,7 +717,6 @@ class TestJobsBuilder:
         assert len(problems.problems) == 1
         assert problems.problems[0].desc == "Container options must be a string."
 
-
     def test_job_container_unknown_key(self):
         workflow_string = """
     on: push
@@ -768,7 +735,6 @@ class TestJobsBuilder:
         assert container is not None
         assert len(problems.problems) == 1
         assert problems.problems[0].desc == "Unknown container key: foo"
-
 
     def test_job_container_multiple_options_in_string(self):
         workflow_string = """
@@ -789,7 +755,6 @@ class TestJobsBuilder:
         assert container is not None
         assert container.options_.string == "--cpus 1 --memory 1024m"
 
-
     def test_job_with_uses_and_with(self):
         workflow_string = """
     on: push
@@ -805,7 +770,6 @@ class TestJobsBuilder:
         assert job.uses_.string == "./.github/workflows/reusable-workflow.yml"
         assert job.with_["username"].string == "mona"
 
-
     def test_job_with_invalid_uses(self):
         workflow_string = """
     on: push
@@ -816,7 +780,6 @@ class TestJobsBuilder:
         workflow_out, problems = parse_workflow_string(workflow_string)
         assert len(problems.problems) == 1
         assert "Invalid 'uses' value, it must be a string." in problems.problems[0].desc
-
 
     def test_job_with_invalid_with(self):
         workflow_string = """
@@ -829,7 +792,6 @@ class TestJobsBuilder:
         workflow_out, problems = parse_workflow_string(workflow_string)
         assert len(problems.problems) == 1
         assert "Invalid 'with' value: must be a mapping." in problems.problems[0].desc
-
 
     def test_job_secrets_map(self):
         workflow_string = """
@@ -852,7 +814,6 @@ class TestJobsBuilder:
         assert secrets_.secrets["my_secret"].string == "${{ secrets.REPO_SECRET }}"
         assert secrets_.secrets["gh_token"].string == "${{ secrets.GITHUB_TOKEN }}"
 
-
     def test_job_secrets_inherit(self):
         workflow_string = """
     on: push
@@ -871,7 +832,6 @@ class TestJobsBuilder:
         assert secrets_.inherit is True
         assert secrets_.secrets == {}
 
-
     def test_job_secrets_invalid_value(self):
         workflow_string = """
     on: push
@@ -886,8 +846,9 @@ class TestJobsBuilder:
         workflow_out, problems = parse_workflow_string(workflow_string)
         assert workflow_out.jobs_["build"].secrets_ is None
         assert len(problems.problems) == 1
-        assert "Invalid 'secrets' value: must be a mapping or 'inherit'." in problems.problems[0].desc
-
+        assert (
+            "Invalid 'secrets' value: must be a mapping or 'inherit'." in problems.problems[0].desc
+        )
 
     def test_job_secrets_invalid_mapping_value(self):
         workflow_string = """
@@ -906,7 +867,6 @@ class TestJobsBuilder:
         assert secrets_ is not None
         assert len(problems.problems) == 1
         assert "Each secret value must be a string." in problems.problems[0].desc
-
 
     def test_jobs_output_accessible_at_workflow_level(self):
         """Test that jobs.<jobid>.outputs.<output_name> is accessible at workflow level."""
@@ -951,7 +911,6 @@ class TestJobsBuilder:
         assert "output2" in job_context.outputs.children_
         assert job_context.outputs.children_["output1"] == contexts.ContextType.string
         assert job_context.outputs.children_["output2"] == contexts.ContextType.string
-
 
     def test_jobs_output_not_accessible_within_job(self):
         """Test that jobs.<jobid>.outputs.<output_name> is NOT accessible within any job."""

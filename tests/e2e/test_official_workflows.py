@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import validate_actions  # noqa: E402
 from validate_actions import ProblemLevel  # noqa: E402
-from validate_actions.globals.fixer import NoFixer
+from validate_actions.globals.fixer import NoFixer  # noqa: E402
 from validate_actions.globals.web_fetcher import WebFetcher  # noqa: E402
 from validate_actions.pipeline import Pipeline  # noqa: E402
 

@@ -27,7 +27,6 @@ class TestStepsBuilder:
         assert env_.get("FIRST_NAME").string == "Mona"
         assert env_.get("LAST_NAME").string == "Octocat"
 
-
     def test_step_timeout_minutes(self):
         workflow_string = """
     on: push
@@ -44,7 +43,6 @@ class TestStepsBuilder:
         timeout_minutes_ = workflow_out.jobs_["build"].steps_[0].timeout_minutes_
         assert problems.problems == []
         assert timeout_minutes_ == 10
-
 
     def test_step_continue_on_error(self):
         workflow_string = """

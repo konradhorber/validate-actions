@@ -129,7 +129,7 @@ class JobOrderer(IJobOrderer):
                             pos=job.if_.pos,
                             desc=f"Job '{job.job_id_}' never runs due to condition 'false'",
                             level=ProblemLevel.WAR,
-                            rule=self.RULE_NAME
+                            rule=self.RULE_NAME,
                         )
                     )
                 conditional_jobs[job.job_id_] = JobCondition(

@@ -1,14 +1,11 @@
 """Unit tests for AST building coordination."""
 
 from unittest.mock import Mock, patch
-from typing import Dict, Any
 
-import pytest
-
-from validate_actions.pipeline_stages.builder import Builder, IBuilder
-from validate_actions.globals.problems import Problems
 from validate_actions.domain_model.ast import Workflow
-from validate_actions.domain_model.primitives import String, Pos
+from validate_actions.domain_model.primitives import Pos, String
+from validate_actions.globals.problems import Problems
+from validate_actions.pipeline_stages.builder import Builder, IBuilder
 
 
 class TestBuilder:
@@ -18,56 +15,52 @@ class TestBuilder:
         """Test that Builder properly implements IBuilder interface."""
         problems = Problems()
         builder = Builder(problems)
-        
+
         assert isinstance(builder, IBuilder)
-        assert hasattr(builder, 'process')
+        assert hasattr(builder, "process")
 
     def test_builder_initialization_creates_sub_builders(self):
         """Test that Builder properly initializes all sub-builder components."""
         problems = Problems()
         builder = Builder(problems)
-        
-        assert hasattr(builder, 'shared_components_builder')
-        assert hasattr(builder, 'events_builder')
-        assert hasattr(builder, 'steps_builder')
-        assert hasattr(builder, 'jobs_builder')
-        assert hasattr(builder, 'workflow_builder')
+
+        assert hasattr(builder, "shared_components_builder")
+        assert hasattr(builder, "events_builder")
+        assert hasattr(builder, "steps_builder")
+        assert hasattr(builder, "jobs_builder")
+        assert hasattr(builder, "workflow_builder")
         assert builder.problems is problems
 
-    @patch('validate_actions.pipeline_stages.builder.WorkflowBuilder')
+    @patch("validate_actions.pipeline_stages.builder.WorkflowBuilder")
     def test_process_delegates_to_workflow_builder(self, mock_workflow_builder_class):
         """Test that process method delegates to workflow builder."""
         problems = Problems()
         mock_workflow_builder = Mock()
         mock_workflow_builder_class.return_value = mock_workflow_builder
-        
+
         expected_workflow = Mock(spec=Workflow)
         mock_workflow_builder.process.return_value = expected_workflow
-        
+
         builder = Builder(problems)
-        workflow_dict = {
-            String("name", Pos(1, 1, 0)): String("test-workflow", Pos(1, 7, 6))
-        }
-        
+        workflow_dict = {String("name", Pos(1, 1, 0)): String("test-workflow", Pos(1, 7, 6))}
+
         result = builder.process(workflow_dict)
-        
+
         mock_workflow_builder.process.assert_called_once_with(workflow_dict)
         assert result is expected_workflow
 
     def test_builder_passes_problems_to_all_components(self):
         """Test that Problems instance is passed to all builder components."""
         problems = Problems()
-        
+
         with patch.multiple(
-            'validate_actions.pipeline_stages.builder',
+            "validate_actions.pipeline_stages.builder",
             SharedComponentsBuilder=Mock(),
             EventsBuilder=Mock(),
             StepsBuilder=Mock(),
             JobsBuilder=Mock(),
-            WorkflowBuilder=Mock()
+            WorkflowBuilder=Mock(),
         ) as mocks:
-            builder = Builder(problems)
-            
             # Verify all builders were instantiated with problems
             for mock_class in mocks.values():
                 mock_class.assert_called_once()

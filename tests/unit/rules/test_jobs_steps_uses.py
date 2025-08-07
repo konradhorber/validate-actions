@@ -62,7 +62,6 @@ class TestJobsStepsUses:
     """
         self.throws_no_error(workflow)
 
-
     def test_required_input_but_wrong_with_ending_directly(self):
         workflow = """
     name: test
@@ -76,7 +75,6 @@ class TestJobsStepsUses:
               fields: 'test'
     """
         self.throws_single_error(workflow)
-
 
     def test_required_input_but_wrong_with_block_continues(self):
         workflow = """

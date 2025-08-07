@@ -56,7 +56,9 @@ class TestEventsBuilder:
     """
         workflow, problems = parse_workflow_string(workflow_string)
         push_event = workflow.on_[0]
-        assert isinstance(push_event, validate_actions.domain_model.ast.TagsPathsBranchesFilterEvent)
+        assert isinstance(
+            push_event, validate_actions.domain_model.ast.TagsPathsBranchesFilterEvent
+        )
         assert push_event.branches_[0].string == "main"
         assert len(push_event.tags_) == 2
         assert push_event.tags_[0].string == "v2"

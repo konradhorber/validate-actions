@@ -70,24 +70,24 @@ class StandardCLI(CLI):
 
         Orchestrates the complete validation process, including file discovery,
         validation execution, result collection, and output formatting.
-        
-        Validates either a single workflow file (if specified in config) or 
-        discovers and validates all workflow files in the .github/workflows/ 
+
+        Validates either a single workflow file (if specified in config) or
+        discovers and validates all workflow files in the .github/workflows/
         directory.
 
         Returns:
             int: Exit code indicating validation results:
-                - 0: Success (no errors)  
+                - 0: Success (no errors)
                 - 1: Errors found
                 - 2: Warnings only (when not suppressed)
-                
+
         Examples:
             Single file validation:
                 cli = StandardCLI(config_with_file)
                 exit_code = cli.run()
-                
+
             Directory validation:
-                cli = StandardCLI(config_without_file) 
+                cli = StandardCLI(config_without_file)
                 exit_code = cli.run()
         """
         if self.config.workflow_file:

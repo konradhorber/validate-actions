@@ -9,7 +9,7 @@ from .web_fetcher import IWebFetcher, WebFetcher
 
 __all__ = [
     "CLIConfig",
-    "Fixer", 
+    "Fixer",
     "Problem",
     "ProblemLevel",
     "Problems",

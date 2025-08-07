@@ -133,7 +133,7 @@ class TestFixMode:
         fixable_workflow = (
             Path(__file__).parent.parent / "fixtures" / "workflows" / "fixable_workflow.yml"
         )
-        
+
         # Create multiple copies
         test_file1 = workflows_dir / "workflow1.yml"
         test_file2 = workflows_dir / "workflow2.yml"

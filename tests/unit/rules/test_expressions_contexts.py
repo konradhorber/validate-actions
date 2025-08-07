@@ -117,7 +117,6 @@ jobs:
         result = list(gen)
         assert result == []
 
-
     def test_job_context_incorrect(self):
         workflow_string = """
         on: push
@@ -147,7 +146,6 @@ jobs:
         result = list(gen)
         assert len(result) == 1
 
-
     def test_runner_context_correct(self):
         workflow_string = """
         name: Build
@@ -176,7 +174,6 @@ jobs:
         result = list(gen)
         assert len(result) == 0
 
-
     def test_runner_context_wrong(self):
         workflow_string = """
         name: Build
@@ -204,7 +201,6 @@ jobs:
         gen = rule.check()
         result = list(gen)
         assert len(result) == 1
-
 
     def test_web_context(self):
         workflow_string = """
@@ -243,7 +239,6 @@ jobs:
         gen = rule.check()
         result = list(gen)
         assert result == []
-
 
     def test_fix_expression_context_typo(self):
         workflow_string_with_typo = """
