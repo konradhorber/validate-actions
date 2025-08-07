@@ -1,6 +1,6 @@
 # flake8: noqa: E501
 
-from tests.helper import parse_workflow_string
+from tests.conftest import parse_workflow_string
 from validate_actions.domain_model import ast, contexts
 
 
@@ -937,12 +937,12 @@ jobs:
 """
     workflow_out, problems = parse_workflow_string(workflow_string)
     assert problems.problems == []
-    
+
     # Verify jobs context is available at workflow level
     jobs_context = workflow_out.contexts.jobs
     assert jobs_context is not None
     assert isinstance(jobs_context, contexts.JobsContext)
-    
+
     # Verify example_job has the outputs in the context
     job_context = jobs_context.children_["example_job"]
     assert isinstance(job_context, contexts.JobVarContext)
@@ -972,10 +972,10 @@ jobs:
 """
     workflow_out, problems = parse_workflow_string(workflow_string)
     assert problems.problems == []
-    
+
     # Verify jobs context is NOT available within individual jobs
     job1 = workflow_out.jobs_["job1"]
     assert job1.contexts.jobs is None
-    
+
     job2 = workflow_out.jobs_["job2"]
     assert job2.contexts.jobs is None

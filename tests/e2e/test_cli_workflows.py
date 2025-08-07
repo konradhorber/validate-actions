@@ -23,7 +23,7 @@ class TestE2E:
 
     def run_cli(self, cwd: Path, fix: bool = False) -> subprocess.CompletedProcess:
         """Run the validate-actions CLI command."""
-        project_root = Path(__file__).parent.parent
+        project_root = Path(__file__).parent.parent.parent
 
         cmd = ["validate-actions"]
         if fix:
@@ -43,7 +43,9 @@ class TestE2E:
         project_root, workflows_dir = temp_project
 
         # Copy valid workflow to temp directory
-        valid_workflow = Path(__file__).parent / "resources" / "valid_workflow.yml"
+        valid_workflow = (
+            Path(__file__).parent.parent / "fixtures" / "workflows" / "valid_workflow.yml"
+        )
         shutil.copy(valid_workflow, workflows_dir / "test.yml")
 
         result = self.run_cli(project_root)
@@ -56,7 +58,9 @@ class TestE2E:
         project_root, workflows_dir = temp_project
 
         # Copy invalid workflow to temp directory
-        invalid_workflow = Path(__file__).parent / "resources" / "invalid_workflow.yml"
+        invalid_workflow = (
+            Path(__file__).parent.parent / "fixtures" / "workflows" / "invalid_workflow.yml"
+        )
         shutil.copy(invalid_workflow, workflows_dir / "test.yml")
 
         result = self.run_cli(project_root)
@@ -69,7 +73,9 @@ class TestE2E:
         project_root, workflows_dir = temp_project
 
         # Copy fixable workflow to temp directory
-        fixable_workflow = Path(__file__).parent / "resources" / "fixable_workflow.yml"
+        fixable_workflow = (
+            Path(__file__).parent.parent / "fixtures" / "workflows" / "fixable_workflow.yml"
+        )
         shutil.copy(fixable_workflow, workflows_dir / "test.yml")
 
         result = self.run_cli(project_root, fix=False)
@@ -82,7 +88,9 @@ class TestE2E:
         project_root, workflows_dir = temp_project
 
         # Copy fixable workflow to temp directory
-        fixable_workflow = Path(__file__).parent / "resources" / "fixable_workflow.yml"
+        fixable_workflow = (
+            Path(__file__).parent.parent / "fixtures" / "workflows" / "fixable_workflow.yml"
+        )
         test_file = workflows_dir / "test.yml"
         shutil.copy(fixable_workflow, test_file)
 
@@ -106,8 +114,12 @@ class TestE2E:
         project_root, workflows_dir = temp_project
 
         # Copy multiple workflow files
-        valid_workflow = Path(__file__).parent / "resources" / "valid_workflow.yml"
-        invalid_workflow = Path(__file__).parent / "resources" / "invalid_workflow.yml"
+        valid_workflow = (
+            Path(__file__).parent.parent / "fixtures" / "workflows" / "valid_workflow.yml"
+        )
+        invalid_workflow = (
+            Path(__file__).parent.parent / "fixtures" / "workflows" / "invalid_workflow.yml"
+        )
 
         shutil.copy(valid_workflow, workflows_dir / "valid.yml")
         shutil.copy(invalid_workflow, workflows_dir / "invalid.yml")
@@ -139,7 +151,9 @@ class TestE2E:
         """Test that both .yml and .yaml extensions are processed."""
         project_root, workflows_dir = temp_project
 
-        valid_workflow = Path(__file__).parent / "resources" / "valid_workflow.yml"
+        valid_workflow = (
+            Path(__file__).parent.parent / "fixtures" / "workflows" / "valid_workflow.yml"
+        )
 
         # Create files with both extensions
         shutil.copy(valid_workflow, workflows_dir / "test1.yml")
@@ -153,11 +167,13 @@ class TestE2E:
 
     def test_cli_help_option(self):
         """Test that CLI help option works."""
+        project_root = Path(__file__).parent.parent.parent
         result = subprocess.run(
-            ["poetry", "run", "validate-actions", "--help"],
+            ["validate-actions", "--help"],
             capture_output=True,
             text=True,
             timeout=10,
+            env={**os.environ, "PYTHONPATH": str(project_root)},
         )
 
         assert result.returncode == 0
@@ -169,21 +185,27 @@ class TestE2E:
         project_root, workflows_dir = temp_project
 
         # Test success case (exit code 0)
-        valid_workflow = Path(__file__).parent / "resources" / "valid_workflow.yml"
+        valid_workflow = (
+            Path(__file__).parent.parent / "fixtures" / "workflows" / "valid_workflow.yml"
+        )
         shutil.copy(valid_workflow, workflows_dir / "valid.yml")
 
         result = self.run_cli(project_root)
         assert result.returncode == 0
 
         # Test failure case (exit code 1)
-        invalid_workflow = Path(__file__).parent / "resources" / "invalid_workflow.yml"
+        invalid_workflow = (
+            Path(__file__).parent.parent / "fixtures" / "workflows" / "invalid_workflow.yml"
+        )
         shutil.copy(invalid_workflow, workflows_dir / "invalid.yml")
 
         result = self.run_cli(project_root)
         assert result.returncode == 1
 
         # Test warning case (exit code 2)
-        warning_workflow = Path(__file__).parent / "resources" / "warning_workflow.yml"
+        warning_workflow = (
+            Path(__file__).parent.parent / "fixtures" / "workflows" / "warning_workflow.yml"
+        )
         shutil.copy(warning_workflow, workflows_dir / "warning.yml")
 
         # Remove other files to test only warnings
@@ -200,7 +222,12 @@ class TestE2E:
         project_root, workflows_dir = temp_project
 
         # Copy the needs validation demo workflow
-        demo_workflow = Path(__file__).parent / "resources" / "needs_validation_workflow.yml"
+        demo_workflow = (
+            Path(__file__).parent.parent
+            / "fixtures"
+            / "workflows"
+            / "needs_validation_workflow.yml"
+        )
         shutil.copy(demo_workflow, workflows_dir / "needs-validation.yml")
 
         result = self.run_cli(project_root)
@@ -209,20 +236,27 @@ class TestE2E:
         assert result.returncode == 1
         assert "needs-validation.yml" in result.stdout
         assert "✗" in result.stdout  # Error indicator
-        
+
         # Should detect missing job reference
         assert "missing-job" in result.stdout or "does not exist" in result.stdout.lower()
-        
+
         # Should detect invalid needs context
         output_lower = result.stdout.lower()
-        assert "needs" in output_lower and ("context" in output_lower or "reference" in output_lower)
+        assert "needs" in output_lower and (
+            "context" in output_lower or "reference" in output_lower
+        )
 
     def test_demo_circular_dependencies_workflow(self, temp_project):
         """Test demo workflow with circular job dependencies."""
         project_root, workflows_dir = temp_project
 
         # Copy the circular dependencies demo workflow
-        demo_workflow = Path(__file__).parent / "resources" / "circular_dependencies_workflow.yml"
+        demo_workflow = (
+            Path(__file__).parent.parent
+            / "fixtures"
+            / "workflows"
+            / "circular_dependencies_workflow.yml"
+        )
         shutil.copy(demo_workflow, workflows_dir / "circular-deps.yml")
 
         result = self.run_cli(project_root)
@@ -231,17 +265,24 @@ class TestE2E:
         assert result.returncode == 1
         assert "circular-deps.yml" in result.stdout
         assert "✗" in result.stdout  # Error indicator
-        
+
         # Should detect circular dependency
         output_lower = result.stdout.lower()
-        assert "circular" in output_lower or "cycle" in output_lower or "dependency" in output_lower
+        assert (
+            "circular" in output_lower or "cycle" in output_lower or "dependency" in output_lower
+        )
 
     def test_demo_outdated_actions_workflow(self, temp_project):
         """Test demo workflow with outdated action versions."""
         project_root, workflows_dir = temp_project
 
         # Copy the outdated actions demo workflow
-        demo_workflow = Path(__file__).parent / "resources" / "outdated_actions_workflow.yml"
+        demo_workflow = (
+            Path(__file__).parent.parent
+            / "fixtures"
+            / "workflows"
+            / "outdated_actions_workflow.yml"
+        )
         shutil.copy(demo_workflow, workflows_dir / "outdated-actions.yml")
 
         result = self.run_cli(project_root)
@@ -249,9 +290,14 @@ class TestE2E:
         # Should fail or warn due to outdated actions
         assert result.returncode in [1, 2]  # Error or warning
         assert "outdated-actions.yml" in result.stdout
-        assert ("✗" in result.stdout or "⚠" in result.stdout)  # Error or warning indicator
-        
+        assert "✗" in result.stdout or "⚠" in result.stdout  # Error or warning indicator
+
         # Should detect outdated versions
         output_lower = result.stdout.lower()
-        assert ("outdated" in output_lower or "v3" in result.stdout or "v4" in result.stdout or 
-                "sha" in output_lower or "version" in output_lower)
+        assert (
+            "outdated" in output_lower
+            or "v3" in result.stdout
+            or "v4" in result.stdout
+            or "sha" in output_lower
+            or "version" in output_lower
+        )

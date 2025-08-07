@@ -115,7 +115,6 @@ class WebFetcher(IWebFetcher):
         self.retry_backoff_factor = retry_backoff_factor
         if github_token:
             self.session.headers.update({"Authorization": f"token {github_token}"})
-        print()
 
     def fetch(self, url: str) -> Optional[requests.Response]:
         """Fetch a URL with caching and intelligent retry logic.

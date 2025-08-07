@@ -1,6 +1,6 @@
 # flake8: noqa: E501
 
-from tests.helper import parse_workflow_string
+from tests.conftest import parse_workflow_string
 from validate_actions.domain_model import ast, contexts
 
 

@@ -2,7 +2,7 @@
 
 import pytest
 
-from tests.helper import parse_workflow_string
+from tests.conftest import parse_workflow_string
 from validate_actions.domain_model.job_order_models import (
     CyclicDependency,
     JobExecutionPlan,
@@ -37,7 +37,7 @@ class TestJobOrderBasicDependencies:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # All jobs should be in the first stage (parallel execution)
         assert len(execution_plan.stages) == 1
         assert len(execution_plan.stages[0].parallel_jobs) == 3
@@ -63,7 +63,7 @@ class TestJobOrderBasicDependencies:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # Should have 2 stages: build first, then test
         assert len(execution_plan.stages) == 2
         assert len(execution_plan.stages[0].parallel_jobs) == 1
@@ -94,7 +94,7 @@ class TestJobOrderBasicDependencies:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # Should have 2 stages: build+lint parallel, then test
         assert len(execution_plan.stages) == 2
         assert len(execution_plan.stages[0].parallel_jobs) == 2
@@ -127,7 +127,7 @@ class TestJobOrderBasicDependencies:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # Should have 3 stages: build -> test -> deploy
         assert len(execution_plan.stages) == 3
         assert execution_plan.stages[0].parallel_jobs[0].job_id_ == "build"
@@ -157,12 +157,12 @@ class TestJobOrderConditionalExecution:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # Only job2 should be in execution plan
         assert len(execution_plan.stages) == 1
         assert len(execution_plan.stages[0].parallel_jobs) == 1
         assert execution_plan.stages[0].parallel_jobs[0].job_id_ == "job2"
-        
+
         # job1 should be marked as conditionally skipped
         assert "job1" in execution_plan.conditional_jobs
         assert execution_plan.conditional_jobs["job1"].always_run == False
@@ -187,10 +187,10 @@ class TestJobOrderConditionalExecution:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # No jobs should execute
         assert len(execution_plan.stages) == 0
-        
+
         # Both jobs should be marked as skipped
         assert "job1" in execution_plan.conditional_jobs
         assert "job2" in execution_plan.conditional_jobs
@@ -216,12 +216,12 @@ class TestJobOrderConditionalExecution:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # job2 should still execute despite job1 being skipped
         assert len(execution_plan.stages) == 1
         assert len(execution_plan.stages[0].parallel_jobs) == 1
         assert execution_plan.stages[0].parallel_jobs[0].job_id_ == "job2"
-        
+
         # job2 should be marked as always run
         assert "job2" in execution_plan.conditional_jobs
         assert execution_plan.conditional_jobs["job2"].always_run == True
@@ -245,10 +245,10 @@ class TestJobOrderConditionalExecution:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer_problems = Problems()
         analyzer = JobOrderer(analyzer_problems)
-        
+
         # Analyze workflow should generate warning for condition 'false'
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # Should have warning about job never running
         assert len(analyzer_problems.problems) == 1
         problem = analyzer_problems.problems[0]
@@ -256,7 +256,7 @@ class TestJobOrderConditionalExecution:
         assert problem.rule == "job-order"
         assert "never_runs" in problem.desc
         assert "never runs due to condition 'false'" in problem.desc
-        
+
         # Job should still be tracked in conditional_jobs
         assert "never_runs" in execution_plan.conditional_jobs
         assert execution_plan.conditional_jobs["never_runs"].expression == "false"
@@ -282,12 +282,15 @@ class TestJobOrderConditionalExecution:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # Both jobs should be tracked as conditional
         assert "job1" in execution_plan.conditional_jobs
         assert "job2" in execution_plan.conditional_jobs
         assert execution_plan.conditional_jobs["job1"].expression == "github.event_name == 'push'"
-        assert execution_plan.conditional_jobs["job2"].expression == "contains(github.event.head_commit.message, '[deploy]')"
+        assert (
+            execution_plan.conditional_jobs["job2"].expression
+            == "contains(github.event.head_commit.message, '[deploy]')"
+        )
 
 
 class TestJobOrderComplexPatterns:
@@ -322,7 +325,7 @@ class TestJobOrderComplexPatterns:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # Should have 2 stages: build first, then all tests in parallel
         assert len(execution_plan.stages) == 2
         assert len(execution_plan.stages[0].parallel_jobs) == 1
@@ -354,7 +357,7 @@ class TestJobOrderComplexPatterns:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # Should have 2 stages: tests in parallel, then deploy
         assert len(execution_plan.stages) == 2
         assert len(execution_plan.stages[0].parallel_jobs) == 2
@@ -392,14 +395,14 @@ class TestJobOrderComplexPatterns:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # Should have 3 stages: build -> [test, lint] -> deploy
         assert len(execution_plan.stages) == 3
         assert execution_plan.stages[0].parallel_jobs[0].job_id_ == "build"
-        
+
         stage2_jobs = {job.job_id_ for job in execution_plan.stages[1].parallel_jobs}
         assert stage2_jobs == {"test", "lint"}
-        
+
         assert execution_plan.stages[2].parallel_jobs[0].job_id_ == "deploy"
 
     def test_complex_mixed_dependencies(self):
@@ -441,18 +444,18 @@ class TestJobOrderComplexPatterns:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
-        # Should properly organize complex dependencies  
+
+        # Should properly organize complex dependencies
         assert len(execution_plan.stages) == 3
-        
+
         # Stage 1: build and security (parallel)
         stage1_jobs = {job.job_id_ for job in execution_plan.stages[0].parallel_jobs}
         assert stage1_jobs == {"build", "security"}
-        
+
         # Stage 2: test, lint, notify (all depend on stage 1 jobs)
         stage2_jobs = {job.job_id_ for job in execution_plan.stages[1].parallel_jobs}
         assert stage2_jobs == {"test", "lint", "notify"}
-        
+
         # Stage 3: deploy (depends on test, lint, security)
         assert execution_plan.stages[2].parallel_jobs[0].job_id_ == "deploy"
 
@@ -482,7 +485,7 @@ class TestJobOrderMatrixStrategy:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # Should have 2 stages: test matrix, then deploy
         assert len(execution_plan.stages) == 2
         # Matrix job should be treated as single logical job
@@ -514,12 +517,12 @@ class TestJobOrderMatrixStrategy:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # Should still have proper ordering
         assert len(execution_plan.stages) == 2
         assert execution_plan.stages[0].parallel_jobs[0].job_id_ == "test"
         assert execution_plan.stages[1].parallel_jobs[0].job_id_ == "deploy"
-        
+
         # Deploy should be marked as always run
         assert "deploy" in execution_plan.conditional_jobs
         assert execution_plan.conditional_jobs["deploy"].always_run == True
@@ -548,13 +551,16 @@ class TestJobOrderErrorConditions:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer_problems = Problems()
         analyzer = JobOrderer(analyzer_problems)
-        
+
         # Should detect circular dependency
-        cycles = analyzer._detect_cycles(list(workflow.jobs_.values()), analyzer._build_dependency_graph(list(workflow.jobs_.values())))
+        cycles = analyzer._detect_cycles(
+            list(workflow.jobs_.values()),
+            analyzer._build_dependency_graph(list(workflow.jobs_.values())),
+        )
         assert len(cycles) == 1
         assert isinstance(cycles[0], CyclicDependency)
         assert set(cycles[0].job_ids) == {"job1", "job2"}
-        
+
         # Analyze workflow should collect problems in the Problems instance
         execution_plan = analyzer._analyze_workflow(workflow)
         assert len(analyzer_problems.problems) > 0
@@ -578,7 +584,7 @@ class TestJobOrderErrorConditions:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer_problems = Problems()
         analyzer = JobOrderer(analyzer_problems)
-        
+
         # Analyze workflow should collect problems in the Problems instance
         execution_plan = analyzer._analyze_workflow(workflow)
         assert len(analyzer_problems.problems) > 0
@@ -602,11 +608,13 @@ class TestJobOrderErrorConditions:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer_problems = Problems()
         analyzer = JobOrderer(analyzer_problems)
-        
-        # Analyze workflow should collect problems in the Problems instance  
+
+        # Analyze workflow should collect problems in the Problems instance
         execution_plan = analyzer._analyze_workflow(workflow)
         assert len(analyzer_problems.problems) > 0
-        invalid_ref_problems = [p for p in analyzer_problems.problems if "nonexistent_job" in p.desc]
+        invalid_ref_problems = [
+            p for p in analyzer_problems.problems if "nonexistent_job" in p.desc
+        ]
         assert len(invalid_ref_problems) > 0
         assert all(p.level == ProblemLevel.ERR for p in invalid_ref_problems)
         assert all(p.rule == "job-order" for p in invalid_ref_problems)
@@ -634,14 +642,17 @@ class TestJobOrderErrorConditions:
               - run: echo "job3"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        analyzer_problems = Problems() 
+        analyzer_problems = Problems()
         analyzer = JobOrderer(analyzer_problems)
-        
+
         # Should detect circular dependency
-        cycles = analyzer._detect_cycles(list(workflow.jobs_.values()), analyzer._build_dependency_graph(list(workflow.jobs_.values())))
+        cycles = analyzer._detect_cycles(
+            list(workflow.jobs_.values()),
+            analyzer._build_dependency_graph(list(workflow.jobs_.values())),
+        )
         assert len(cycles) == 1
         assert set(cycles[0].job_ids) == {"job1", "job2", "job3"}
-        
+
         # Analyze workflow should collect problems in the Problems instance
         execution_plan = analyzer._analyze_workflow(workflow)
         assert len(analyzer_problems.problems) > 0
@@ -673,18 +684,19 @@ class TestJobOrderNeedsContextPopulation:
               - run: echo "testing"
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        
+
         # The needs context is already populated by parse_workflow_string
         test_job = workflow.jobs_["test"]
-        
+
         # After population, test job should have build in needs context
         assert test_job.contexts.needs is not None
         assert "build" in test_job.contexts.needs.children_
         build_context = test_job.contexts.needs.children_["build"]
         from validate_actions.domain_model.contexts import ContextType
+
         assert build_context.type_ == ContextType.object
         assert build_context.result == ContextType.string
-        
+
         # Steps should also have the same needs context
         for step in test_job.steps_:
             assert step.contexts.needs is not None
@@ -707,10 +719,10 @@ class TestJobOrderNeedsContextPopulation:
         """
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
-        
+
         # Populate needs contexts
         analyzer.process(workflow)
-        
+
         # Jobs with no dependencies should have empty needs contexts
         for job in workflow.jobs_.values():
             assert job.contexts.needs is not None
@@ -751,18 +763,19 @@ class TestJobOrderIntegrationWithExistingRules:
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
         execution_plan = analyzer._analyze_workflow(workflow)
-        
+
         # Job order should be: build -> test (parallel with invalid_test)
         assert len(execution_plan.stages) == 2
-        
+
         # Populate needs contexts using the new interface
         analyzer.process(workflow)
-        
+
         # When integrated with ExpressionsContexts rule:
         # - test job should be valid (build is a dependency)
         # - invalid_test job should be invalid (build is not a dependency)
-        from validate_actions.rules.expressions_contexts import ExpressionsContexts
         from validate_actions.globals.fixer import NoFixer
+        from validate_actions.rules.expressions_contexts import ExpressionsContexts
+
         rule = ExpressionsContexts(workflow, NoFixer())
         problems = list(rule.check())
 
@@ -785,42 +798,47 @@ class TestJobOrderPerformance:
         jobs_yaml = []
         for i in range(100):
             if i == 0:
-                jobs_yaml.append(f"""
+                jobs_yaml.append(
+                    f"""
           job_{i}:
             runs-on: ubuntu-latest
             steps:
               - run: echo "job {i}"
-                """)
+                """
+                )
             else:
-                jobs_yaml.append(f"""
+                jobs_yaml.append(
+                    f"""
           job_{i}:
             needs: job_{i-1}
             runs-on: ubuntu-latest
             steps:
               - run: echo "job {i}"
-                """)
-        
+                """
+                )
+
         workflow_string = f"""
         name: 'Test Large Workflow'
         on: push
         jobs:{''.join(jobs_yaml)}
         """
-        
+
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
-        
+
         # This should complete reasonably quickly
         import time
+
         start_time = time.time()
         execution_plan = analyzer._analyze_workflow(workflow)
         end_time = time.time()
-        
+
         # Should complete in reasonable time (< 1 second)
         assert end_time - start_time < 1.0
-        
+
         # Should have 100 stages (linear execution)
         assert len(execution_plan.stages) == 100
-        
+
         # Each stage should have exactly one job
         for i, stage in enumerate(execution_plan.stages):
             assert len(stage.parallel_jobs) == 1
@@ -831,41 +849,46 @@ class TestJobOrderPerformance:
         # Generate a workflow with many parallel jobs
         jobs_yaml = []
         for i in range(50):
-            jobs_yaml.append(f"""
+            jobs_yaml.append(
+                f"""
           job_{i}:
             runs-on: ubuntu-latest
             steps:
               - run: echo "job {i}"
-            """)
-        
+            """
+            )
+
         # Add a final job that depends on all others
         dependency_list = ", ".join([f"job_{i}" for i in range(50)])
-        jobs_yaml.append(f"""
+        jobs_yaml.append(
+            f"""
           final_job:
             needs: [{dependency_list}]
             runs-on: ubuntu-latest
             steps:
               - run: echo "final job"
-        """)
-        
+        """
+        )
+
         workflow_string = f"""
         name: 'Test Wide Workflow'
         on: push
         jobs:{''.join(jobs_yaml)}
         """
-        
+
         workflow, problems = parse_workflow_string(workflow_string)
         analyzer = JobOrderer(Problems())
-        
+
         # This should complete reasonably quickly
         import time
+
         start_time = time.time()
         execution_plan = analyzer._analyze_workflow(workflow)
         end_time = time.time()
-        
+
         # Should complete in reasonable time (< 1 second)
         assert end_time - start_time < 1.0
-        
+
         # Should have 2 stages: 50 parallel jobs, then 1 final job
         assert len(execution_plan.stages) == 2
         assert len(execution_plan.stages[0].parallel_jobs) == 50

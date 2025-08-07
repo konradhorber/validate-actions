@@ -4,11 +4,11 @@ from pathlib import Path
 
 import requests
 
-from tests.helper import parse_workflow_string
+from tests.conftest import parse_workflow_string
 from validate_actions import Problem, ProblemLevel
-from validate_actions.rules.jobs_steps_uses import JobsStepsUses
 from validate_actions.globals import fixer
 from validate_actions.globals.fixer import NoFixer
+from validate_actions.rules.jobs_steps_uses import JobsStepsUses
 
 
 # with
@@ -27,7 +27,7 @@ jobs:
     rule = JobsStepsUses(workflow, NoFixer())
     gen = rule.check()
     result = list(gen)
-    
+
     # Should have a warning about missing version specification
     version_warnings = [p for p in result if "Using specific version" in p.desc]
     assert len(version_warnings) == 1
@@ -448,7 +448,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup Node  
+      - name: Setup Node
         uses: actions/setup-node@v3
       - name: Cache
         uses: actions/cache@v2
@@ -478,7 +478,7 @@ jobs:
     workflow, problems = parse_workflow_string(workflow_string)
     rule = JobsStepsUses(workflow, NoFixer())
     gen = rule.check()
-    result = list(gen)
+    list(gen)  # Consume generator
 
     # Should handle gracefully and not crash
     # May produce warning about unable to fetch metadata but shouldn't crash
@@ -529,7 +529,7 @@ def test_fix_outdated_version():
 
 class TestUtilityMethods:
     """Test utility methods of JobsStepsUses class"""
-    
+
     def setup_method(self):
         """Setup a JobsStepsUses instance for testing utility methods"""
         workflow_string = """
@@ -582,7 +582,7 @@ class TestUtilityMethods:
         assert self.rule._is_commit_sha("11bd71901bbe5b1630ceea73d27597364c9af683") is True
         assert self.rule._is_commit_sha("11bd719") is True  # Short SHA
         assert self.rule._is_commit_sha("8e5e7e5ab8b370d6c329ec480221332ada57f0ab") is True
-        
+
         assert self.rule._is_commit_sha("v4.2.1") is False
         assert self.rule._is_commit_sha("main") is False
         assert self.rule._is_commit_sha("release-2023") is False

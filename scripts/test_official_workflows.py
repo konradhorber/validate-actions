@@ -2,7 +2,7 @@
 """
 Test script for official GitHub workflows.
 
-This script processes the official workflows in tests/resources/official_workflows/
+This script processes the official workflows in tests/fixtures/workflows/official_workflows/
 and provides detailed analysis and debugging capabilities without interfering
 with the main test suite.
 """
@@ -21,7 +21,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import validate_actions  # noqa: E402
 from validate_actions import ProblemLevel  # noqa: E402
-from validate_actions.pipeline_stages import ExtensibleValidator  # noqa: E402
+from validate_actions.globals.fixer import NoFixer
+from validate_actions.globals.web_fetcher import WebFetcher  # noqa: E402
+from validate_actions.pipeline import Pipeline  # noqa: E402
 
 
 class WorkflowTestResult:
@@ -106,8 +108,12 @@ class OfficialWorkflowTester:
         try:
             self.logger.debug(f"Processing {file_path.relative_to(file_path.parents[3])}")
 
-            # Use the main validator to process the workflow
-            problems = Validator.run(file_path, fix=False)
+            # Use the pipeline to process the workflow
+            web_fetcher = WebFetcher()
+            fixer = NoFixer()
+            pipe = Pipeline(web_fetcher, fixer)
+
+            problems = pipe.process(file_path)
 
             result.problems = problems.problems
             result.success = result.error_count == 0
@@ -276,7 +282,7 @@ Examples:
 
     # Find the workflows directory
     script_dir = Path(__file__).parent
-    workflows_dir = script_dir.parent / "tests" / "resources" / "official_workflows"
+    workflows_dir = script_dir.parent / "tests" / "fixtures" / "workflows" / "official_workflows"
 
     if not workflows_dir.exists():
         print(f"Error: Official workflows directory not found at {workflows_dir}")

@@ -1,5 +1,5 @@
 import validate_actions
-from tests.helper import parse_workflow_string
+from tests.conftest import parse_workflow_string
 
 
 def test_build_event_schedule_single():
@@ -38,7 +38,9 @@ on:
 """
     workflow, problems = parse_workflow_string(workflow_string)
     pull_request_event = workflow.on_[0]
-    assert isinstance(pull_request_event, validate_actions.domain_model.ast.PathsBranchesFilterEvent)
+    assert isinstance(
+        pull_request_event, validate_actions.domain_model.ast.PathsBranchesFilterEvent
+    )
     assert pull_request_event.branches_[0].string == "main"
     assert pull_request_event.branches_[1].string == "dev"
     assert pull_request_event.paths_[0].string == "src/**"
@@ -172,7 +174,9 @@ on:
 """
     workflow, problems = parse_workflow_string(workflow_string)
     workflow_dispatch_event = workflow.on_[0]
-    assert isinstance(workflow_dispatch_event, validate_actions.domain_model.ast.WorkflowDispatchEvent)
+    assert isinstance(
+        workflow_dispatch_event, validate_actions.domain_model.ast.WorkflowDispatchEvent
+    )
     assert workflow_dispatch_event.id.string == "workflow_dispatch"
     inputs = workflow_dispatch_event.inputs_
     assert len(inputs) == 4

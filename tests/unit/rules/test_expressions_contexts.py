@@ -3,10 +3,10 @@
 import tempfile
 from pathlib import Path
 
-from tests.helper import parse_workflow_string
-from validate_actions.rules.expressions_contexts import ExpressionsContexts
+from tests.conftest import parse_workflow_string
 from validate_actions.globals.fixer import BaseFixer, NoFixer
 from validate_actions.globals.problems import Problem, ProblemLevel
+from validate_actions.rules.expressions_contexts import ExpressionsContexts
 
 
 def test_job_outputs_input_match():

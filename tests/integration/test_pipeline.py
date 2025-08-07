@@ -56,9 +56,7 @@ jobs:
 """
 
         # Write workflow to temporary file
-        with tempfile.NamedTemporaryFile(
-            suffix=".yml", mode="w+", delete=False
-        ) as temp_file:
+        with tempfile.NamedTemporaryFile(suffix=".yml", mode="w+", delete=False) as temp_file:
             temp_file.write(workflow_content)
             temp_file_path = Path(temp_file.name)
 
@@ -97,9 +95,7 @@ jobs:
           BRANCH: ${{ github.ref_name }}
 """
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".yml", mode="w+", delete=False
-        ) as temp_file:
+        with tempfile.NamedTemporaryFile(suffix=".yml", mode="w+", delete=False) as temp_file:
             temp_file.write(workflow_content)
             temp_file_path = Path(temp_file.name)
 
