@@ -66,13 +66,29 @@ class StandardCLI(CLI):
         )
 
     def run(self) -> int:
-        """
-        Main entry point - orchestrate the validation process.
+        """Main CLI execution method.
 
-        Validates either a single file or all workflows in .github/workflows directory.
+        Orchestrates the complete validation process, including file discovery,
+        validation execution, result collection, and output formatting.
+        
+        Validates either a single workflow file (if specified in config) or 
+        discovers and validates all workflow files in the .github/workflows/ 
+        directory.
 
         Returns:
-            int: Exit code based on validation results
+            int: Exit code indicating validation results:
+                - 0: Success (no errors)  
+                - 1: Errors found
+                - 2: Warnings only (when not suppressed)
+                
+        Examples:
+            Single file validation:
+                cli = StandardCLI(config_with_file)
+                exit_code = cli.run()
+                
+            Directory validation:
+                cli = StandardCLI(config_without_file) 
+                exit_code = cli.run()
         """
         if self.config.workflow_file:
             return self._run_single_file(Path(self.config.workflow_file))

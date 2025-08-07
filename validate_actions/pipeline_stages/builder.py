@@ -1,7 +1,8 @@
 from abc import abstractmethod
 from typing import Any, Dict
 
-import validate_actions.domain_model.ast as ast
+from validate_actions.domain_model.ast import Workflow
+from validate_actions.domain_model.primitives import String
 from validate_actions.domain_model.contexts import Contexts
 from validate_actions.globals.problems import Problems
 from validate_actions.globals.process_stage import ProcessStage
@@ -14,9 +15,9 @@ from validate_actions.pipeline_stages.builders.steps_builder import StepsBuilder
 from validate_actions.pipeline_stages.builders.workflow_builder import WorkflowBuilder
 
 
-class IBuilder(ProcessStage[Dict[ast.String, Any], ast.Workflow]):
+class IBuilder(ProcessStage[Dict[String, Any], Workflow]):
     @abstractmethod
-    def process(self, workflow_dict: Dict[ast.String, Any]) -> ast.Workflow:
+    def process(self, workflow_dict: Dict[String, Any]) -> Workflow:
         pass
 
 
@@ -40,5 +41,5 @@ class Builder(IBuilder):
             shared_components_builder=self.shared_components_builder,
         )
 
-    def process(self, workflow_dict: Dict[ast.String, Any]) -> ast.Workflow:
+    def process(self, workflow_dict: Dict[String, Any]) -> Workflow:
         return self.workflow_builder.process(workflow_dict)

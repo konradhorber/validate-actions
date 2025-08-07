@@ -1,3 +1,39 @@
+# Rules Configuration for validate-actions
+#
+# This file defines the validation rules applied to GitHub Actions workflows.
+# Rules are loaded dynamically using the module:class format.
+#
+# Format: rule-name: module.path:ClassName
+#
+# Built-in Rules:
+# - expressions-contexts: Validates GitHub Actions context references
+# - jobs-steps-uses: Validates action usage, versions, and inputs  
+# - steps-io-match: Validates step input/output references
+#
+# To create custom rules:
+# 1. Create a class that inherits from validate_actions.rules.rule.Rule
+# 2. Implement the check() method to yield Problem instances
+# 3. Add your rule to this configuration file
+#
+# Example custom rule:
+#   custom-security: my_package.rules.security:SecurityRule
+#
+# Example custom rule class:
+#   from typing import Generator
+#   from validate_actions.rules.rule import Rule
+#   from validate_actions.globals.problems import Problem, ProblemLevel
+#   
+#   class SecurityRule(Rule):
+#       def check(self) -> Generator[Problem, None, None]:
+#           for job in self.workflow.jobs:
+#               if self._has_security_issue(job):
+#                   yield Problem(
+#                       pos=job.pos,
+#                       level=ProblemLevel.ERR,
+#                       desc="Security issue detected",
+#                       rule="custom-security"
+#                   )
+
 rules:
   expressions-contexts: validate_actions.rules.expressions_contexts:ExpressionsContexts
   jobs-steps-uses: validate_actions.rules.jobs_steps_uses:JobsStepsUses
