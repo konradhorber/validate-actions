@@ -44,7 +44,7 @@ class Pipeline(IPipeline):
         self.builder = pipeline_stages.Builder(self.problems)
         self.marketplace_enricher = pipeline_stages.MarketPlaceEnricher(web_fetcher, self.problems)
         self.job_orderer = pipeline_stages.JobOrderer(self.problems)
-        self.validator = pipeline_stages.Validator(self.problems, self.fixer)
+        self.validator = pipeline_stages.ExtensibleValidator(self.problems, self.fixer)
 
     def process(self, path: Path) -> Problems:
         dict = self.parser.process(path)

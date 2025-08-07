@@ -1,0 +1,4 @@
+rules:
+  expressions-contexts: validate_actions.rules.expressions_contexts:ExpressionsContexts
+  jobs-steps-uses: validate_actions.rules.jobs_steps_uses:JobsStepsUses
+  steps-io-match: validate_actions.rules.steps_io_match:StepsIOMatch

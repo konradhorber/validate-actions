@@ -8,7 +8,7 @@ from .builder import Builder, IBuilder
 from .job_orderer import IJobOrderer, JobOrderer
 from .marketplace_enricher import IMarketPlaceEnricher, MarketPlaceEnricher
 from .parser import IYAMLParser, PyYAMLParser
-from .validator import IValidator, Validator
+from .validator import IValidator, ExtensibleValidator
 
 __all__ = [
     "IBuilder",
@@ -20,5 +20,5 @@ __all__ = [
     "IYAMLParser",
     "PyYAMLParser",
     "IValidator",
-    "Validator",
+    "ExtensibleValidator",
 ]
