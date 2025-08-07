@@ -3,8 +3,9 @@ from validate_actions.domain_model import ast
 from validate_actions.domain_model.primitives import Pos
 
 
-def test_parse_str_to_ref():
-    workflow_string = """
+class TestParser:
+    def test_parse_str_to_ref(self):
+        workflow_string = """
 on: push
 jobs:
   test-job:
@@ -20,23 +21,23 @@ jobs:
         with:
           name: ${{ steps.step1.outputs.ref }}
 """
-    workflow, problems = parse_workflow_string(workflow_string)
-    ref = workflow.jobs_["test-job"].steps_[1].exec.with_["name"]
-    parts = [
-        "steps",
-        "step1",
-        "outputs",
-        "ref",
-    ]
-    should_be = ast.String(
-        pos=Pos(line=14, col=16),
-        string="${{ steps.step1.outputs.ref }}",
-        expr=[
-            ast.Expression(
-                pos=Pos(line=14, col=16),
-                string="${{ steps.step1.outputs.ref }}",
-                parts=parts,
-            )
-        ],
-    )
-    assert ref == should_be
+        workflow, problems = parse_workflow_string(workflow_string)
+        ref = workflow.jobs_["test-job"].steps_[1].exec.with_["name"]
+        parts = [
+            "steps",
+            "step1",
+            "outputs",
+            "ref",
+        ]
+        should_be = ast.String(
+            pos=Pos(line=14, col=16),
+            string="${{ steps.step1.outputs.ref }}",
+            expr=[
+                ast.Expression(
+                    pos=Pos(line=14, col=16),
+                    string="${{ steps.step1.outputs.ref }}",
+                    parts=parts,
+                )
+            ],
+        )
+        assert ref == should_be

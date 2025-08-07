@@ -5,8 +5,9 @@ from pathlib import Path
 from validate_actions import ProblemLevel
 
 
-def test_run():
-    workflow_string = """name: test
+class TestCLI:
+    def test_run(self):
+        workflow_string = """name: test
 on:
   push:
     branches: [ $default-branch ]
@@ -25,29 +26,29 @@ jobs:
         with:
           status: 'test'
 """
-    with tempfile.NamedTemporaryFile(suffix=".yml", mode="w+", delete=False) as temp_file:
-        temp_file.write(workflow_string)
-        temp_file_path = Path(temp_file.name)
+        with tempfile.NamedTemporaryFile(suffix=".yml", mode="w+", delete=False) as temp_file:
+            temp_file.write(workflow_string)
+            temp_file_path = Path(temp_file.name)
 
-    try:
-        from validate_actions.globals.fixer import NoFixer
-        from validate_actions.globals.web_fetcher import WebFetcher
-        from validate_actions.pipeline import Pipeline
+        try:
+            from validate_actions.globals.fixer import NoFixer
+            from validate_actions.globals.web_fetcher import WebFetcher
+            from validate_actions.pipeline import Pipeline
 
-        web_fetcher = WebFetcher(github_token=os.getenv("GH_TOKEN"))
-        pipeline = Pipeline(web_fetcher, NoFixer())
-        problems = pipeline.process(temp_file_path)
-    finally:
-        temp_file_path.unlink(missing_ok=True)
+            web_fetcher = WebFetcher(github_token=os.getenv("GH_TOKEN"))
+            pipeline = Pipeline(web_fetcher, NoFixer())
+            problems = pipeline.process(temp_file_path)
+        finally:
+            temp_file_path.unlink(missing_ok=True)
 
-    problems.sort()
-    problems_list = problems.problems
+        problems.sort()
+        problems_list = problems.problems
 
-    assert len(problems_list) == 4
-    rule_event = "events-syntax-error"
-    rule_input = "jobs-steps-uses"
-    assert problems_list[0].rule == rule_event
-    assert problems_list[1].rule == rule_input
-    assert problems_list[1].level == ProblemLevel.WAR
-    assert problems_list[2].rule == rule_input
-    assert problems_list[3].rule == rule_input
+        assert len(problems_list) == 4
+        rule_event = "events-syntax-error"
+        rule_input = "jobs-steps-uses"
+        assert problems_list[0].rule == rule_event
+        assert problems_list[1].rule == rule_input
+        assert problems_list[1].level == ProblemLevel.WAR
+        assert problems_list[2].rule == rule_input
+        assert problems_list[3].rule == rule_input
