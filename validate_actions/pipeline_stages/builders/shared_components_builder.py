@@ -11,7 +11,7 @@ from validate_actions.pipeline_stages.builders.interfaces import SharedComponent
 class DefaultSharedComponentsBuilder(SharedComponentsBuilder):
     def __init__(self, problems: Problems) -> None:
         self.problems = problems
-        self.RULE_NAME = "shared-components-builder-syntax-error"
+        self.RULE_NAME = "syntax-error"
 
     def build_env(self, env_vars: Dict[ast.String, Any]) -> Optional[ast.Env]:
         env_vars_out: Dict[ast.String, ast.String] = {}

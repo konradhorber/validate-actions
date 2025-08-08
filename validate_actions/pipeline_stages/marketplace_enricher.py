@@ -48,7 +48,7 @@ class DefaultMarketPlaceEnricher(MarketPlaceEnricher):
         """
         self._web_fetcher = web_fetcher
         self._problems = problems
-        self._RULE_NAME = "marketplace-enricher"
+        self._RULE_NAME = "marketplace"
 
     def process(self, workflow: Workflow) -> Workflow:
         """Enrich workflow with marketplace metadata.
