@@ -1,5 +1,6 @@
 import copy
 import dataclasses
+from numbers import Number
 from typing import Any, Dict, Optional, Union
 
 from validate_actions.domain_model import ast
@@ -24,7 +25,7 @@ class DefaultSharedComponentsBuilder(SharedComponentsBuilder):
                     # Convert boolean to string
                     string_value = ast.String(str(value).lower(), key.pos)
                     env_vars_out[key] = string_value
-                elif isinstance(value, int):
+                elif isinstance(value, Number):
                     # Convert integer to string
                     string_value = ast.String(str(value), key.pos)
                     env_vars_out[key] = string_value
