@@ -19,7 +19,9 @@ from validate_actions.pipeline_stages.builders.interfaces import (
     JobsBuilder,
     SharedComponentsBuilder,
 )
-from validate_actions.pipeline_stages.builders.steps_builder import DefaultStepsBuilder as StepsBuilder
+from validate_actions.pipeline_stages.builders.steps_builder import (
+    DefaultStepsBuilder as StepsBuilder,
+)
 
 
 class DefaultJobsBuilder(JobsBuilder):
@@ -932,16 +934,17 @@ class DefaultJobsBuilder(JobsBuilder):
                 )
                 return None
 
-            if not isinstance(url, ast.String):
-                problems.append(
-                    Problem(
-                        pos=key.pos,
-                        desc=f"Invalid 'environment' 'url': '{url}'",
-                        level=ProblemLevel.ERR,
-                        rule=rule_name,
+            if url is not None:
+                if not isinstance(url, ast.String):
+                    problems.append(
+                        Problem(
+                            pos=key.pos,
+                            desc=f"Invalid 'environment' 'url': '{url}'",
+                            level=ProblemLevel.ERR,
+                            rule=rule_name,
+                        )
                     )
-                )
-                return None
+                    return None
 
             return ast.Environment(pos=key.pos, name_=name, url_=url)
 
