@@ -4,15 +4,15 @@ import validate_actions.domain_model.ast as ast
 from validate_actions.domain_model.contexts import Contexts
 from validate_actions.domain_model.primitives import Pos, String
 from validate_actions.globals.problems import Problem, ProblemLevel, Problems
-from validate_actions.pipeline_stages.builders.events_builder import EventsBuilder
+from validate_actions.pipeline_stages.builders.events_builder import DefaultEventsBuilder as EventsBuilder
 from validate_actions.pipeline_stages.builders.interfaces import (
-    ISharedComponentsBuilder,
-    IWorkflowBuilder,
+    SharedComponentsBuilder,
+    WorkflowBuilder,
 )
-from validate_actions.pipeline_stages.builders.jobs_builder import JobsBuilder
+from validate_actions.pipeline_stages.builders.jobs_builder import DefaultJobsBuilder as JobsBuilder
 
 
-class WorkflowBuilder(IWorkflowBuilder):
+class DefaultWorkflowBuilder(WorkflowBuilder):
     """
     Constructs a structured representation of a GitHub Actions workflow file.
 
@@ -28,7 +28,7 @@ class WorkflowBuilder(IWorkflowBuilder):
         events_builder: EventsBuilder,
         jobs_builder: JobsBuilder,
         contexts: Contexts,
-        shared_components_builder: ISharedComponentsBuilder,
+        shared_components_builder: SharedComponentsBuilder,
     ) -> None:
         """Initialize a WorkflowBuilder instance.
 

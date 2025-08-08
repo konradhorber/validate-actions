@@ -5,7 +5,7 @@ from pathlib import Path
 from validate_actions.cli_components.validation_service import StandardValidationService
 from validate_actions.globals.cli_config import CLIConfig
 from validate_actions.globals.problems import ProblemLevel
-from validate_actions.globals.web_fetcher import WebFetcher
+from validate_actions.globals.web_fetcher import DefaultWebFetcher
 
 
 class TestValidationService:
@@ -33,7 +33,7 @@ jobs:
             temp_file_path = Path(temp_file.name)
 
         try:
-            web_fetcher = WebFetcher(github_token=os.getenv("GH_TOKEN"))
+            web_fetcher = DefaultWebFetcher(github_token=os.getenv("GH_TOKEN"))
             validation_service = StandardValidationService(web_fetcher)
 
             # Test normal mode (warnings should be included)
@@ -90,7 +90,7 @@ jobs:
             temp_file_path = Path(temp_file.name)
 
         try:
-            web_fetcher = WebFetcher(github_token=os.getenv("GH_TOKEN"))
+            web_fetcher = DefaultWebFetcher(github_token=os.getenv("GH_TOKEN"))
             validation_service = StandardValidationService(web_fetcher)
 
             # Test normal mode (both errors and warnings should be included)
@@ -153,7 +153,7 @@ jobs:
             temp_file_path = Path(temp_file.name)
 
         try:
-            web_fetcher = WebFetcher(github_token=os.getenv("GH_TOKEN"))
+            web_fetcher = DefaultWebFetcher(github_token=os.getenv("GH_TOKEN"))
             validation_service = StandardValidationService(web_fetcher)
 
             # Test both modes

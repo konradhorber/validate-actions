@@ -15,7 +15,7 @@ from validate_actions.cli_components.validation_service import (
 )
 from validate_actions.globals.cli_config import CLIConfig
 from validate_actions.globals.validation_result import ValidationResult
-from validate_actions.globals.web_fetcher import WebFetcher
+from validate_actions.globals.web_fetcher import DefaultWebFetcher
 
 
 class CLI(ABC):
@@ -62,7 +62,7 @@ class StandardCLI(CLI):
         self.formatter = formatter or ColoredFormatter()
         self.aggregator = aggregator or StandardResultAggregator()
         self.validation_service = validation_service or StandardValidationService(
-            WebFetcher(github_token=config.github_token)
+            DefaultWebFetcher(github_token=config.github_token)
         )
 
     def run(self) -> int:

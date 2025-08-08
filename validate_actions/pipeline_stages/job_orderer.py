@@ -26,7 +26,7 @@ from validate_actions.globals.problems import Problem, ProblemLevel, Problems
 from validate_actions.globals.process_stage import ProcessStage
 
 
-class IJobOrderer(ProcessStage[ast.Workflow, ast.Workflow]):
+class JobOrderer(ProcessStage[ast.Workflow, ast.Workflow]):
     """Interface for job ordering and dependency analysis."""
 
     @abstractmethod
@@ -42,7 +42,7 @@ class IJobOrderer(ProcessStage[ast.Workflow, ast.Workflow]):
         pass
 
 
-class JobOrderer(IJobOrderer):
+class DefaultJobOrderer(JobOrderer):
     """Analyzes and prepares workflows with proper job dependency analysis and needs contexts."""
 
     def __init__(self, problems: Problems) -> None:

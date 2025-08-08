@@ -6,34 +6,34 @@ from validate_actions.domain_model.contexts import Contexts
 from validate_actions.domain_model.primitives import String
 from validate_actions.globals.problems import Problems
 from validate_actions.globals.process_stage import ProcessStage
-from validate_actions.pipeline_stages.builders.events_builder import EventsBuilder
-from validate_actions.pipeline_stages.builders.jobs_builder import JobsBuilder
+from validate_actions.pipeline_stages.builders.events_builder import DefaultEventsBuilder
+from validate_actions.pipeline_stages.builders.jobs_builder import DefaultJobsBuilder
 from validate_actions.pipeline_stages.builders.shared_components_builder import (
-    SharedComponentsBuilder,
+    DefaultSharedComponentsBuilder,
 )
-from validate_actions.pipeline_stages.builders.steps_builder import StepsBuilder
-from validate_actions.pipeline_stages.builders.workflow_builder import WorkflowBuilder
+from validate_actions.pipeline_stages.builders.steps_builder import DefaultStepsBuilder
+from validate_actions.pipeline_stages.builders.workflow_builder import DefaultWorkflowBuilder
 
 
-class IBuilder(ProcessStage[Dict[String, Any], Workflow]):
+class Builder(ProcessStage[Dict[String, Any], Workflow]):
     @abstractmethod
     def process(self, workflow_dict: Dict[String, Any]) -> Workflow:
         pass
 
 
-class Builder(IBuilder):
+class DefaultBuilder(Builder):
     def __init__(self, problems: Problems) -> None:
         super().__init__(problems)
 
         contexts = Contexts()
-        self.shared_components_builder = SharedComponentsBuilder(problems)
-        self.events_builder = EventsBuilder(problems)
-        self.steps_builder = StepsBuilder(problems, contexts, self.shared_components_builder)
-        self.jobs_builder = JobsBuilder(
+        self.shared_components_builder = DefaultSharedComponentsBuilder(problems)
+        self.events_builder = DefaultEventsBuilder(problems)
+        self.steps_builder = DefaultStepsBuilder(problems, contexts, self.shared_components_builder)
+        self.jobs_builder = DefaultJobsBuilder(
             problems, self.steps_builder, contexts, self.shared_components_builder
         )
 
-        self.workflow_builder = WorkflowBuilder(
+        self.workflow_builder = DefaultWorkflowBuilder(
             problems=problems,
             events_builder=self.events_builder,
             jobs_builder=self.jobs_builder,

@@ -4,7 +4,7 @@ from tests.conftest import parse_workflow_string
 from tests.unit.globals.test_web_fetcher import TestWebFetcher
 from validate_actions.domain_model.ast import ExecAction
 from validate_actions.globals.problems import ProblemLevel, Problems
-from validate_actions.pipeline_stages.marketplace_enricher import MarketPlaceEnricher
+from validate_actions.pipeline_stages.marketplace_enricher import DefaultMarketPlaceEnricher
 
 
 class TestMarketplaceEnricher:
@@ -69,7 +69,7 @@ jobs:
         """Test MarketPlaceEnricher directly with a test web fetcher."""
         problems = Problems()
         test_web_fetcher = TestWebFetcher()
-        enricher = MarketPlaceEnricher(test_web_fetcher, problems)
+        enricher = DefaultMarketPlaceEnricher(test_web_fetcher, problems)
 
         # Create a simple workflow with an action
         workflow_string = """
@@ -111,7 +111,7 @@ jobs:
         """Test MarketPlaceEnricher handles missing actions gracefully."""
         problems = Problems()
         test_web_fetcher = TestWebFetcher()
-        enricher = MarketPlaceEnricher(test_web_fetcher, problems)
+        enricher = DefaultMarketPlaceEnricher(test_web_fetcher, problems)
 
         # Create workflow with unknown action
         workflow_string = """

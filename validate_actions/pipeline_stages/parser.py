@@ -12,7 +12,7 @@ from validate_actions.globals.problems import Problem, ProblemLevel, Problems
 from validate_actions.globals.process_stage import ProcessStage
 
 
-class IYAMLParser(ProcessStage[Path, Dict[String, Any]]):
+class YAMLParser(ProcessStage[Path, Dict[String, Any]]):
     """Abstract base class for YAML parser implementations."""
 
     @abstractmethod
@@ -28,7 +28,7 @@ class IYAMLParser(ProcessStage[Path, Dict[String, Any]]):
         pass
 
 
-class PyYAMLParser(IYAMLParser):
+class PyYAMLParser(YAMLParser):
     """YAML parser implementation using PyYAML."""
 
     def __init__(self, problems: Problems) -> None:

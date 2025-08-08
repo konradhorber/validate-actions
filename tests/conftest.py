@@ -122,26 +122,26 @@ def parse_workflow_string(
         problems_instance = problems.Problems()
         yaml_parser = parser.PyYAMLParser(problems_instance)
         contexts_instance = contexts.Contexts()
-        shared_components_builder_instance = shared_components_builder.SharedComponentsBuilder(
+        shared_components_builder_instance = shared_components_builder.DefaultSharedComponentsBuilder(
             problems_instance
         )
-        events_builder_instance = events_builder.EventsBuilder(problems_instance)
-        steps_builder_instance = steps_builder.StepsBuilder(
+        events_builder_instance = events_builder.DefaultEventsBuilder(problems_instance)
+        steps_builder_instance = steps_builder.DefaultStepsBuilder(
             problems_instance, contexts_instance, shared_components_builder_instance
         )
-        jobs_builder_instance = jobs_builder.JobsBuilder(
+        jobs_builder_instance = jobs_builder.DefaultJobsBuilder(
             problems_instance,
             steps_builder_instance,
             contexts_instance,
             shared_components_builder_instance,
         )
-        job_orderer_instance = job_orderer.JobOrderer(problems_instance)
+        job_orderer_instance = job_orderer.DefaultJobOrderer(problems_instance)
 
         # Parse the workflow file first
         workflow_dict = yaml_parser.process(temp_file_path)
 
         # Build workflow from parsed dict
-        director = workflow_builder.WorkflowBuilder(
+        director = workflow_builder.DefaultWorkflowBuilder(
             problems_instance,
             events_builder_instance,
             jobs_builder_instance,
@@ -154,7 +154,7 @@ def parse_workflow_string(
         from tests.unit.globals.test_web_fetcher import TestWebFetcher
 
         test_web_fetcher = TestWebFetcher()
-        marketplace_enricher_instance = marketplace_enricher.MarketPlaceEnricher(
+        marketplace_enricher_instance = marketplace_enricher.DefaultMarketPlaceEnricher(
             test_web_fetcher, problems_instance
         )
         workflow = marketplace_enricher_instance.process(workflow)

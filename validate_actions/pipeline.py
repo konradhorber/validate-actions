@@ -5,10 +5,10 @@ from validate_actions import pipeline_stages
 from validate_actions.globals.fixer import Fixer
 from validate_actions.globals.problems import Problems
 from validate_actions.globals.process_stage import ProcessStage
-from validate_actions.globals.web_fetcher import IWebFetcher
+from validate_actions.globals.web_fetcher import WebFetcher
 
 
-class IPipeline(ProcessStage[Path, Problems]):
+class Pipeline(ProcessStage[Path, Problems]):
     """
     Interface for Validator classes.
 
@@ -35,15 +35,15 @@ class IPipeline(ProcessStage[Path, Problems]):
         pass
 
 
-class Pipeline(IPipeline):
-    def __init__(self, web_fetcher: IWebFetcher, fixer: Fixer):
+class DefaultPipeline(Pipeline):
+    def __init__(self, web_fetcher: WebFetcher, fixer: Fixer):
         super().__init__(fixer)
         self.web_fetcher = web_fetcher
 
         self.parser = pipeline_stages.PyYAMLParser(self.problems)
-        self.builder = pipeline_stages.Builder(self.problems)
-        self.marketplace_enricher = pipeline_stages.MarketPlaceEnricher(web_fetcher, self.problems)
-        self.job_orderer = pipeline_stages.JobOrderer(self.problems)
+        self.builder = pipeline_stages.DefaultBuilder(self.problems)
+        self.marketplace_enricher = pipeline_stages.DefaultMarketPlaceEnricher(web_fetcher, self.problems)
+        self.job_orderer = pipeline_stages.DefaultJobOrderer(self.problems)
         self.validator = pipeline_stages.ExtensibleValidator(self.problems, self.fixer)
 
     def process(self, path: Path) -> Problems:

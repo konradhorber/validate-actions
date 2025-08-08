@@ -8,10 +8,10 @@ from validate_actions.domain_model.ast import ActionMetadata, ExecAction, Workfl
 from validate_actions.domain_model.primitives import String
 from validate_actions.globals.problems import Problem, ProblemLevel, Problems
 from validate_actions.globals.process_stage import ProcessStage
-from validate_actions.globals.web_fetcher import IWebFetcher
+from validate_actions.globals.web_fetcher import WebFetcher
 
 
-class IMarketPlaceEnricher(ProcessStage[ast.Workflow, ast.Workflow]):
+class MarketPlaceEnricher(ProcessStage[ast.Workflow, ast.Workflow]):
     """Interface for enriching workflows with marketplace metadata.
 
     Fetches action metadata from GitHub marketplace/repositories to enrich
@@ -31,7 +31,7 @@ class IMarketPlaceEnricher(ProcessStage[ast.Workflow, ast.Workflow]):
         pass
 
 
-class MarketPlaceEnricher(IMarketPlaceEnricher):
+class DefaultMarketPlaceEnricher(MarketPlaceEnricher):
     """Enriches workflows with marketplace metadata for GitHub Actions.
 
     Fetches action metadata from GitHub repositories to provide input validation
@@ -39,7 +39,7 @@ class MarketPlaceEnricher(IMarketPlaceEnricher):
     tool component that validates action usage against their actual definitions.
     """
 
-    def __init__(self, web_fetcher: IWebFetcher, problems: Problems) -> None:
+    def __init__(self, web_fetcher: WebFetcher, problems: Problems) -> None:
         """Initialize the marketplace enricher.
 
         Args:

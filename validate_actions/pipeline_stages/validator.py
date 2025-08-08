@@ -12,7 +12,7 @@ from validate_actions.globals.process_stage import ProcessStage
 from validate_actions.rules.rule import Rule
 
 
-class IValidator(ProcessStage[ast.Workflow, Problems]):
+class Validator(ProcessStage[ast.Workflow, Problems]):
     @abstractmethod
     def process(self, workflow: ast.Workflow) -> Problems:
         """Validate the given workflow and return any problems found.
@@ -26,7 +26,7 @@ class IValidator(ProcessStage[ast.Workflow, Problems]):
         pass
 
 
-class ExtensibleValidator(IValidator):
+class ExtensibleValidator(Validator):
     """
     Validates GitHub Actions workflows by applying a configurable set of rules.
 

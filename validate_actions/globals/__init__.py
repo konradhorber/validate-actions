@@ -5,7 +5,7 @@ from .fixer import Fixer
 from .problems import Problem, ProblemLevel, Problems
 from .process_stage import ProcessStage
 from .validation_result import ValidationResult
-from .web_fetcher import IWebFetcher, WebFetcher
+from .web_fetcher import WebFetcher, DefaultWebFetcher
 
 __all__ = [
     "CLIConfig",
@@ -15,6 +15,6 @@ __all__ = [
     "Problems",
     "ProcessStage",
     "ValidationResult",
-    "IWebFetcher",
     "WebFetcher",
+    "DefaultWebFetcher",
 ]

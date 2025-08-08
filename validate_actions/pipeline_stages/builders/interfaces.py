@@ -6,7 +6,7 @@ from validate_actions.domain_model.contexts import Contexts
 from validate_actions.globals.process_stage import ProcessStage
 
 
-class ISharedComponentsBuilder(ABC):
+class SharedComponentsBuilder(ABC):
     @abstractmethod
     def build_env(self, env_vars: Dict[ast.String, Any]) -> Optional[ast.Env]:
         """Build environment variables from dictionary."""
@@ -36,7 +36,7 @@ class ISharedComponentsBuilder(ABC):
         pass
 
 
-class IEventsBuilder(ABC):
+class EventsBuilder(ABC):
     """Builder interface for events (after on keyword in workflow file). Builds
     from parsed workflow data. Doens't parse the file.
 
@@ -62,7 +62,7 @@ class IEventsBuilder(ABC):
         pass
 
 
-class IStepsBuilder(ABC):
+class StepsBuilder(ABC):
     """
     Builder for steps in a GitHub Actions workflow.
     Converts a list of step definitions into a list of Step objects.
@@ -75,7 +75,7 @@ class IStepsBuilder(ABC):
         pass
 
 
-class IJobsBuilder(ABC):
+class JobsBuilder(ABC):
     @abstractmethod
     def build(self, jobs_dict: Dict[ast.String, Any]) -> Dict[ast.String, ast.Job]:
         """
@@ -84,7 +84,7 @@ class IJobsBuilder(ABC):
         pass
 
 
-class IWorkflowBuilder(ProcessStage[Dict[ast.String, Any], ast.Workflow]):
+class WorkflowBuilder(ProcessStage[Dict[ast.String, Any], ast.Workflow]):
     @abstractmethod
     def process(self, workflow_dict: Dict[ast.String, Any]) -> ast.Workflow:
         """

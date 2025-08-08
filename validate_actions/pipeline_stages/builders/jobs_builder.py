@@ -16,19 +16,19 @@ from validate_actions.domain_model.contexts import (
 from validate_actions.domain_model.primitives import Pos
 from validate_actions.globals.problems import Problem, ProblemLevel, Problems
 from validate_actions.pipeline_stages.builders.interfaces import (
-    IJobsBuilder,
-    ISharedComponentsBuilder,
+    JobsBuilder,
+    SharedComponentsBuilder,
 )
-from validate_actions.pipeline_stages.builders.steps_builder import StepsBuilder
+from validate_actions.pipeline_stages.builders.steps_builder import DefaultStepsBuilder as StepsBuilder
 
 
-class JobsBuilder(IJobsBuilder):
+class DefaultJobsBuilder(JobsBuilder):
     def __init__(
         self,
         problems: Problems,
         steps_builder: StepsBuilder,
         contexts: Contexts,
-        shared_components_builder: ISharedComponentsBuilder,
+        shared_components_builder: SharedComponentsBuilder,
     ) -> None:
         self.problems = problems
         self.RULE_NAME = "jobs-syntax-error"

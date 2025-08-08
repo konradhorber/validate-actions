@@ -4,21 +4,21 @@ This module provides the core pipeline components for parsing, building,
 validating, and enriching GitHub Actions workflows.
 """
 
-from .builder import Builder, IBuilder
-from .job_orderer import IJobOrderer, JobOrderer
-from .marketplace_enricher import IMarketPlaceEnricher, MarketPlaceEnricher
-from .parser import IYAMLParser, PyYAMLParser
-from .validator import ExtensibleValidator, IValidator
+from .builder import Builder, DefaultBuilder
+from .job_orderer import JobOrderer, DefaultJobOrderer
+from .marketplace_enricher import MarketPlaceEnricher, DefaultMarketPlaceEnricher
+from .parser import YAMLParser, PyYAMLParser
+from .validator import Validator, ExtensibleValidator
 
 __all__ = [
-    "IBuilder",
     "Builder",
-    "IJobOrderer",
+    "DefaultBuilder",
     "JobOrderer",
-    "IMarketPlaceEnricher",
+    "DefaultJobOrderer",
     "MarketPlaceEnricher",
-    "IYAMLParser",
+    "DefaultMarketPlaceEnricher",
+    "YAMLParser",
     "PyYAMLParser",
-    "IValidator",
+    "Validator",
     "ExtensibleValidator",
 ]

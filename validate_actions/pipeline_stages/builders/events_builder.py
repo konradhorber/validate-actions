@@ -2,10 +2,10 @@ from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 from validate_actions.domain_model import ast
 from validate_actions.globals.problems import Problem, ProblemLevel, Problems
-from validate_actions.pipeline_stages.builders.interfaces import IEventsBuilder
+from validate_actions.pipeline_stages.builders.interfaces import EventsBuilder
 
 
-class EventsBuilder(IEventsBuilder):
+class DefaultEventsBuilder(EventsBuilder):
     def __init__(
         self,
         problems: Problems,

@@ -6,7 +6,7 @@ for fetching GitHub Actions metadata and other web resources. It includes:
 - Response caching to avoid redundant requests
 - Configurable retry logic with exponential backoff
 - Timeout handling for network operations
-- Clean abstraction through the IWebFetcher interface
+- Clean abstraction through the WebFetcher interface
 
 Typical usage:
     fetcher = WebFetcher(max_retries=3, request_timeout=10)
@@ -22,7 +22,7 @@ from typing import Dict, Optional
 import requests
 
 
-class IWebFetcher(ABC):
+class WebFetcher(ABC):
     """Abstract interface for web fetching with caching capabilities.
 
     This interface defines the contract for HTTP clients used throughout
@@ -65,8 +65,8 @@ class IWebFetcher(ABC):
         pass
 
 
-class WebFetcher(IWebFetcher):
-    """Implementation of IWebFetcher with caching and retry logic.
+class DefaultWebFetcher(WebFetcher):
+    """Implementation of WebFetcher with caching and retry logic.
 
     This implementation provides robust HTTP fetching with the following features:
 

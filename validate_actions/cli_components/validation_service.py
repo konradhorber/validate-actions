@@ -5,7 +5,7 @@ from validate_actions.globals.cli_config import CLIConfig
 from validate_actions.globals.fixer import BaseFixer, NoFixer
 from validate_actions.globals.validation_result import ValidationResult
 from validate_actions.globals.web_fetcher import WebFetcher
-from validate_actions.pipeline import Pipeline
+from validate_actions.pipeline import DefaultPipeline
 
 
 class ValidationService(ABC):
@@ -31,7 +31,7 @@ class StandardValidationService(ValidationService):
     def validate_file(self, file: Path, config: CLIConfig) -> ValidationResult:
         """Validate a single workflow file and return results."""
         fixer = BaseFixer(file) if config.fix else NoFixer()
-        pipeline = Pipeline(self.web_fetcher, fixer)
+        pipeline = DefaultPipeline(self.web_fetcher, fixer)
 
         problems = pipeline.process(file)
         problems.sort()

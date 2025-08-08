@@ -2,10 +2,10 @@
 
 from typing import Any, Optional
 
-from validate_actions.globals.web_fetcher import IWebFetcher
+from validate_actions.globals.web_fetcher import WebFetcher
 
 
-class TestWebFetcher(IWebFetcher):
+class TestWebFetcher(WebFetcher):
     """Test web fetcher that returns predictable test data instead of making real HTTP requests."""
 
     def fetch(self, url: str) -> Optional[Any]:

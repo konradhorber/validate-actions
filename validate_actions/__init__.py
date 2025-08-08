@@ -19,7 +19,7 @@ Example:
 
 from .cli import CLI, StandardCLI
 from .globals import Problem, ProblemLevel, Problems, ValidationResult
-from .pipeline import IPipeline, Pipeline
+from .pipeline import Pipeline, DefaultPipeline
 
 
 # High-level validation function for library usage
@@ -36,11 +36,11 @@ def validate_workflow(filepath: str, fix: bool = False) -> Problems:
     from pathlib import Path
 
     from .globals.fixer import BaseFixer, NoFixer
-    from .globals.web_fetcher import WebFetcher
+    from .globals.web_fetcher import DefaultWebFetcher
 
-    web_fetcher = WebFetcher()
+    web_fetcher = DefaultWebFetcher()
     fixer = BaseFixer(Path(filepath)) if fix else NoFixer()
-    pipeline = Pipeline(web_fetcher, fixer)
+    pipeline = DefaultPipeline(web_fetcher, fixer)
 
     return pipeline.process(Path(filepath))
 
@@ -57,6 +57,6 @@ __all__ = [
     "CLI",
     "StandardCLI",
     # Pipeline
-    "IPipeline",
     "Pipeline",
+    "DefaultPipeline",
 ]

@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 from validate_actions.domain_model.ast import Workflow
 from validate_actions.domain_model.primitives import Pos, String
 from validate_actions.globals.problems import Problems
-from validate_actions.pipeline_stages.builder import Builder, IBuilder
+from validate_actions.pipeline_stages.builder import Builder, DefaultBuilder
 
 
 class TestBuilder:
@@ -14,15 +14,15 @@ class TestBuilder:
     def test_builder_implements_interface(self):
         """Test that Builder properly implements IBuilder interface."""
         problems = Problems()
-        builder = Builder(problems)
+        builder = DefaultBuilder(problems)
 
-        assert isinstance(builder, IBuilder)
+        assert isinstance(builder, Builder)
         assert hasattr(builder, "process")
 
     def test_builder_initialization_creates_sub_builders(self):
         """Test that Builder properly initializes all sub-builder components."""
         problems = Problems()
-        builder = Builder(problems)
+        builder = DefaultBuilder(problems)
 
         assert hasattr(builder, "shared_components_builder")
         assert hasattr(builder, "events_builder")
@@ -31,7 +31,7 @@ class TestBuilder:
         assert hasattr(builder, "workflow_builder")
         assert builder.problems is problems
 
-    @patch("validate_actions.pipeline_stages.builder.WorkflowBuilder")
+    @patch("validate_actions.pipeline_stages.builder.DefaultWorkflowBuilder")
     def test_process_delegates_to_workflow_builder(self, mock_workflow_builder_class):
         """Test that process method delegates to workflow builder."""
         problems = Problems()
@@ -41,7 +41,7 @@ class TestBuilder:
         expected_workflow = Mock(spec=Workflow)
         mock_workflow_builder.process.return_value = expected_workflow
 
-        builder = Builder(problems)
+        builder = DefaultBuilder(problems)
         workflow_dict = {String("name", Pos(1, 1, 0)): String("test-workflow", Pos(1, 7, 6))}
 
         result = builder.process(workflow_dict)
@@ -55,11 +55,11 @@ class TestBuilder:
 
         with patch.multiple(
             "validate_actions.pipeline_stages.builder",
-            SharedComponentsBuilder=Mock(),
-            EventsBuilder=Mock(),
-            StepsBuilder=Mock(),
-            JobsBuilder=Mock(),
-            WorkflowBuilder=Mock(),
+            DefaultSharedComponentsBuilder=Mock(),
+            DefaultEventsBuilder=Mock(),
+            DefaultStepsBuilder=Mock(),
+            DefaultJobsBuilder=Mock(),
+            DefaultWorkflowBuilder=Mock(),
         ) as mocks:
             # Verify all builders were instantiated with problems
             for mock_class in mocks.values():

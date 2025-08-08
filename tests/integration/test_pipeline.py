@@ -6,10 +6,10 @@ from pathlib import Path
 from validate_actions import pipeline_stages
 from validate_actions.globals.fixer import NoFixer
 from validate_actions.globals.problems import Problems
-from validate_actions.pipeline import IPipeline
+from validate_actions.pipeline import Pipeline
 
 
-class SimplePipeline(IPipeline):
+class SimplePipeline(Pipeline):
     """Pipeline with only parser, builder, and validator stages."""
 
     def __init__(self):
@@ -17,7 +17,7 @@ class SimplePipeline(IPipeline):
         super().__init__(fixer)
 
         self.parser = pipeline_stages.PyYAMLParser(self.problems)
-        self.builder = pipeline_stages.Builder(self.problems)
+        self.builder = pipeline_stages.DefaultBuilder(self.problems)
         self.validator = pipeline_stages.ExtensibleValidator(self.problems, self.fixer)
 
     def process(self, path: Path) -> Problems:

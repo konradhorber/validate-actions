@@ -6,17 +6,17 @@ from validate_actions.domain_model.contexts import Contexts
 from validate_actions.domain_model.primitives import Pos
 from validate_actions.globals.problems import Problem, ProblemLevel, Problems
 from validate_actions.pipeline_stages.builders.interfaces import (
-    ISharedComponentsBuilder,
-    IStepsBuilder,
+    SharedComponentsBuilder,
+    StepsBuilder,
 )
 
 
-class StepsBuilder(IStepsBuilder):
+class DefaultStepsBuilder(StepsBuilder):
     def __init__(
         self,
         problems: Problems,
         contexts: Contexts,
-        shared_components_builder: ISharedComponentsBuilder,
+        shared_components_builder: SharedComponentsBuilder,
     ) -> None:
         self.problems = problems
         self.RULE_NAME = "steps-syntax-error"
