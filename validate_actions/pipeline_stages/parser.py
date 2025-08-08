@@ -34,7 +34,7 @@ class PyYAMLParser(YAMLParser):
     def __init__(self, problems: Problems) -> None:
         """Initialize the PyYAMLParser."""
         super().__init__(problems)
-        self.RULE = "actions_syntax-error"
+        self.RULE = "yaml-syntax"
 
     def process(self, file: Path) -> Dict[String, Any]:
         """Parse a YAML file into a structured representation using PyYAML.
