@@ -11,11 +11,15 @@ with the main test suite.
 import argparse
 import json
 import logging
+import os
 import sys
 import time
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Optional
+
+from dotenv import load_dotenv
+from rich.progress import BarColumn, Progress, TextColumn
 
 # Add the project root to sys.path so we can import validate_actions
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -23,8 +27,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import validate_actions  # noqa: E402
 from validate_actions import ProblemLevel  # noqa: E402
 from validate_actions.globals.fixer import NoFixer  # noqa: E402
-from validate_actions.globals.web_fetcher import WebFetcher  # noqa: E402
-from validate_actions.pipeline import Pipeline  # noqa: E402
+from validate_actions.globals.web_fetcher import DefaultWebFetcher  # noqa: E402
+from validate_actions.pipeline import DefaultPipeline  # noqa: E402
+
+load_dotenv()  # Load environment variables from .env file if present
 
 
 class WorkflowTestResult:
@@ -110,9 +116,9 @@ class OfficialWorkflowTester:
             self.logger.debug(f"Processing {file_path.relative_to(file_path.parents[4])}")
 
             # Use the pipeline to process the workflow
-            web_fetcher = WebFetcher()
+            web_fetcher = DefaultWebFetcher(github_token=os.getenv("GH_TOKEN"))
             fixer = NoFixer()
-            pipe = Pipeline(web_fetcher, fixer)
+            pipe = DefaultPipeline(web_fetcher, fixer)
 
             problems = pipe.process(file_path)
 
@@ -156,12 +162,22 @@ class OfficialWorkflowTester:
             self.logger.error("No workflow files found to test")
             return []
 
-        self.logger.info(f"Testing {len(workflow_files)} workflows...")
+        total_files = len(workflow_files)
+        self.logger.info(f"Testing {total_files} workflows...")
 
         self.results = []
-        for file_path in workflow_files:
-            result = self.test_single_workflow(file_path)
-            self.results.append(result)
+
+        with Progress(
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            "[progress.percentage]{task.percentage:>3.0f}%",
+        ) as progress:
+            task = progress.add_task("Processing", total=total_files)
+
+            for file_path in workflow_files:
+                result = self.test_single_workflow(file_path)
+                self.results.append(result)
+                progress.advance(task)
 
         return self.results
 

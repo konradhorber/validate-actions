@@ -2,10 +2,12 @@ import os
 import sys
 
 import typer
+from dotenv import load_dotenv
 
 from validate_actions.cli import CLI, StandardCLI
 from validate_actions.globals.cli_config import CLIConfig
 
+load_dotenv()
 app = typer.Typer()
 
 
