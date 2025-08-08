@@ -18,6 +18,12 @@ def main(
     ),
     fix: bool = typer.Option(default=False, help="Automatically fix some problems"),
     quiet: bool = typer.Option(default=False, help="Suppress warning-level problems in output"),
+    max_warnings: int = typer.Option(
+        default=sys.maxsize,
+        help="Maximum number of warnings before exiting with error",
+        min=0,
+        show_default=False,
+    ),
 ):
     """Main CLI entry point for validate-actions.
 
@@ -30,6 +36,7 @@ def main(
         fix: Whether to automatically fix detected problems where possible.
         quiet: Whether to suppress warning-level problems from output, showing
             only errors.
+        max_warnings: Maximum number of warnings before exiting with error code 1.
 
     Environment Variables:
         GH_TOKEN: GitHub token for API access (optional for rate limits, esp. in testing)
@@ -46,9 +53,16 @@ def main(
 
         Quiet mode (errors only):
             $ validate-actions --quiet
+
+        Limit warnings (strict mode):
+            $ validate-actions --max-warnings 5
     """
     config = CLIConfig(
-        fix=fix, workflow_file=workflow_file, github_token=os.getenv("GH_TOKEN"), no_warnings=quiet
+        fix=fix,
+        max_warnings=max_warnings,
+        workflow_file=workflow_file,
+        github_token=os.getenv("GH_TOKEN"),
+        no_warnings=quiet
     )
 
     cli: CLI = StandardCLI(config)

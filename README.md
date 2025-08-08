@@ -36,6 +36,9 @@ validate-actions --fix
 
 # Suppress warnings, show only errors
 validate-actions --quiet
+
+# Limit maximum warnings before exit code 1
+validate-actions --max-warnings 10
 ```
 
 ### Library Usage
@@ -130,23 +133,27 @@ See [validate_actions/rules/rules.yml](validate_actions/rules/rules.yml) for con
 
 ## 🚦 Exit Codes
 
-- **0**: Success (no errors found)
-- **1**: Errors found (workflow issues that should be fixed)  
-- **2**: Warnings only (suggestions, not blocking)
+- **0**: Success (no errors, warnings under limit)
+- **1**: Errors found OR warnings exceed `--max-warnings` limit
+
+By default, warnings don't cause exit code 1 (non-blocking):
+```bash
+validate-actions              # Exit 0 even with warnings
+validate-actions --quiet      # Exit 0, suppress warning output  
+```
+
+Use `--max-warnings` to fail builds when warnings exceed a threshold:
+```bash
+validate-actions --max-warnings 0    # Exit 1 on any warnings (strict)
+validate-actions --max-warnings 5    # Exit 1 if more than 5 warnings
+```
 
 Perfect for CI/CD integration:
 ```yaml
 # .github/workflows/validate.yml
-- name: Validate Workflows
+- name: Validate Workflows (Allow Warnings)
   run: validate-actions
-  # Will fail the build if errors or warnings
-```
-Also, use without warnings possible:
-```yaml
-# .github/workflows/validate.yml
-- name: Validate Workflows
-  run: validate-actions --quiet
-  # Will not fail on warnings
+  # Will only fail on errors, not warnings
 ```
 
 ---
@@ -208,11 +215,12 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install validate-actions
-      - run: validate-actions --quiet
+      - name: Validate with warning limit
+        run: validate-actions
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
-*Note: Use --quiet option to ensure no failure on warnings.*
+*Note: Use `--max-warnings N` to set warning limits, or `--quiet` to suppress warning output entirely.*
 
 ---
 

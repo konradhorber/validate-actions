@@ -1,3 +1,4 @@
+import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Optional
@@ -6,6 +7,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from validate_actions.cli_components.output_formatter import ColoredFormatter, OutputFormatter
 from validate_actions.cli_components.result_aggregator import (
+    MaxWarningsResultAggregator,
     ResultAggregator,
     StandardResultAggregator,
 )
@@ -60,7 +62,9 @@ class StandardCLI(CLI):
         """
         self.config = config
         self.formatter = formatter or ColoredFormatter()
-        self.aggregator = aggregator or StandardResultAggregator()
+        if config.max_warnings < sys.maxsize:
+            aggregator = MaxWarningsResultAggregator(config)
+        self.aggregator = aggregator or StandardResultAggregator(config)
         self.validation_service = validation_service or StandardValidationService(
             DefaultWebFetcher(github_token=config.github_token)
         )

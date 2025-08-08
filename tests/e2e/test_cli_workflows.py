@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+from typing import List
 
 import pytest
 
@@ -21,13 +22,15 @@ class TestE2E:
             workflows_dir.mkdir(parents=True)
             yield temp_project_root, workflows_dir
 
-    def run_cli(self, cwd: Path, fix: bool = False) -> subprocess.CompletedProcess:
+    def run_cli(self, cwd: Path, fix: bool = False, extra_args: List[str] = None) -> subprocess.CompletedProcess:
         """Run the validate-actions CLI command."""
         project_root = Path(__file__).parent.parent.parent
 
         cmd = ["validate-actions"]
         if fix:
             cmd.append("--fix")
+        if extra_args:
+            cmd.extend(extra_args)
 
         return subprocess.run(
             cmd,
@@ -161,7 +164,7 @@ class TestE2E:
         result = self.run_cli(project_root)
         assert result.returncode == 1
 
-        # Test warning case (exit code 2)
+        # Test warning case (exit code 0)
         warning_workflow = (
             Path(__file__).parent.parent / "fixtures" / "workflows" / "warning_workflow.yml"
         )
@@ -173,7 +176,7 @@ class TestE2E:
                 f.unlink()
 
         result = self.run_cli(project_root)
-        assert result.returncode == 2
+        assert result.returncode == 0
         assert "⚠" in result.stdout  # Should show warning indicator
 
     def test_demo_needs_validation_workflow(self, temp_project):
@@ -247,7 +250,7 @@ class TestE2E:
         result = self.run_cli(project_root)
 
         # Should fail or warn due to outdated actions
-        assert result.returncode in [1, 2]  # Error or warning
+        assert result.returncode == 0  # warning
         assert "outdated-actions.yml" in result.stdout
         assert "✗" in result.stdout or "⚠" in result.stdout  # Error or warning indicator
 
@@ -260,3 +263,62 @@ class TestE2E:
             or "sha" in output_lower
             or "version" in output_lower
         )
+
+    def test_max_warnings_option(self, temp_project):
+        """Test --max-warnings CLI option behavior."""
+        project_root, workflows_dir = temp_project
+
+        # Create a workflow file that generates warnings for missing action versions
+        warning_workflow_content = """
+name: Warning Test
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout without version
+        uses: actions/checkout
+      - name: Setup Node without version
+        uses: actions/setup-node
+        with:
+          node-version: '18'
+      - name: Cache without version
+        uses: actions/cache
+        with:
+          path: node_modules
+          key: cache-key
+"""
+        
+        warning_workflow_path = workflows_dir / "warnings.yml"
+        warning_workflow_path.write_text(warning_workflow_content.strip())
+
+        # Test 1: No max-warnings limit (should exit with code 0 for warnings)
+        result = self.run_cli(project_root)
+        assert result.returncode == 0  # Standard behavior: warnings return 0
+        # Should show either ⚠ or at least mention warnings in the output
+        output_lower = result.stdout.lower()
+        assert "⚠" in result.stdout or "warning" in output_lower
+
+        # Test 2: max-warnings=5 (above actual warning count, should pass)
+        result = self.run_cli(project_root, extra_args=["--max-warnings", "5"])
+        assert result.returncode == 0
+        output_lower = result.stdout.lower()
+        assert "⚠" in result.stdout or "warning" in output_lower
+
+        # Test 3: max-warnings=3 (equal to warning count, should pass) 
+        result = self.run_cli(project_root, extra_args=["--max-warnings", "3"])
+        assert result.returncode == 0
+        output_lower = result.stdout.lower()
+        assert "⚠" in result.stdout or "warning" in output_lower
+
+        # Test 4: max-warnings=2 (below warning count, should fail)
+        result = self.run_cli(project_root, extra_args=["--max-warnings", "2"])
+        assert result.returncode == 1  # Should exit with error code when warnings exceed limit
+        output_lower = result.stdout.lower()
+        assert "⚠" in result.stdout or "warning" in output_lower
+
+        # Test 5: max-warnings=0 (no warnings allowed, should fail)
+        result = self.run_cli(project_root, extra_args=["--max-warnings", "0"])  
+        assert result.returncode == 1
+        output_lower = result.stdout.lower()
+        assert "⚠" in result.stdout or "warning" in output_lower

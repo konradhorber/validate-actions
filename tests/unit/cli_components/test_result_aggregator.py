@@ -1,9 +1,11 @@
 """Unit tests for result aggregation."""
 
+import sys
 from pathlib import Path
 
-from validate_actions.cli_components.result_aggregator import StandardResultAggregator
+from validate_actions.cli_components.result_aggregator import MaxWarningsResultAggregator, StandardResultAggregator
 from validate_actions.domain_model.primitives import Pos
+from validate_actions.globals.cli_config import CLIConfig
 from validate_actions.globals.problems import Problem, ProblemLevel, Problems
 from validate_actions.globals.validation_result import ValidationResult
 
@@ -11,9 +13,13 @@ from validate_actions.globals.validation_result import ValidationResult
 class TestStandardResultAggregator:
     """Unit tests for StandardResultAggregator."""
 
+    def _create_test_config(self) -> CLIConfig:
+        """Create a test CLI configuration."""
+        return CLIConfig(fix=False, max_warnings=sys.maxsize)
+
     def test_empty_aggregator_initial_state(self):
         """Test that empty aggregator has correct initial state."""
-        aggregator = StandardResultAggregator()
+        aggregator = StandardResultAggregator(self._create_test_config())
 
         assert aggregator.get_total_errors() == 0
         assert aggregator.get_total_warnings() == 0
@@ -23,7 +29,7 @@ class TestStandardResultAggregator:
 
     def test_add_result_with_errors(self):
         """Test adding a result with errors."""
-        aggregator = StandardResultAggregator()
+        aggregator = StandardResultAggregator(self._create_test_config())
 
         # Create a result with errors
         problems = Problems()
@@ -49,7 +55,7 @@ class TestStandardResultAggregator:
 
     def test_add_result_with_warnings(self):
         """Test adding a result with warnings."""
-        aggregator = StandardResultAggregator()
+        aggregator = StandardResultAggregator(self._create_test_config())
 
         # Create a result with warnings
         problems = Problems()
@@ -72,11 +78,11 @@ class TestStandardResultAggregator:
         assert aggregator.get_total_errors() == 0
         assert aggregator.get_total_warnings() == 1
         assert aggregator.get_max_level() == ProblemLevel.WAR
-        assert aggregator.get_exit_code() == 2
+        assert aggregator.get_exit_code() == 0
 
     def test_add_multiple_results(self):
         """Test adding multiple results accumulates counts correctly."""
-        aggregator = StandardResultAggregator()
+        aggregator = StandardResultAggregator(self._create_test_config())
 
         # First result with errors
         problems1 = Problems()
@@ -120,7 +126,7 @@ class TestStandardResultAggregator:
 
     def test_add_clean_result(self):
         """Test adding a result with no problems."""
-        aggregator = StandardResultAggregator()
+        aggregator = StandardResultAggregator(self._create_test_config())
 
         clean_problems = Problems()
         result = ValidationResult(
@@ -141,7 +147,7 @@ class TestStandardResultAggregator:
 
     def test_exit_code_precedence(self):
         """Test that exit codes follow correct precedence (errors > warnings > success)."""
-        aggregator = StandardResultAggregator()
+        aggregator = StandardResultAggregator(self._create_test_config())
 
         # Add warnings first
         problems_warning = Problems()
@@ -158,7 +164,7 @@ class TestStandardResultAggregator:
         )
 
         aggregator.add_result(warning_result)
-        assert aggregator.get_exit_code() == 2  # Warnings only
+        assert aggregator.get_exit_code() == 0  # Warnings only (exit code 0)
 
         # Add errors - should override warning exit code
         problems_error = Problems()
@@ -179,7 +185,7 @@ class TestStandardResultAggregator:
 
     def test_max_level_tracking(self):
         """Test that max level is tracked correctly across results."""
-        aggregator = StandardResultAggregator()
+        aggregator = StandardResultAggregator(self._create_test_config())
 
         # Start with clean result
         clean_problems = Problems()
@@ -222,3 +228,136 @@ class TestStandardResultAggregator:
         )
         aggregator.add_result(error_result)
         assert aggregator.get_max_level() == ProblemLevel.ERR
+
+
+class TestMaxWarningsResultAggregator:
+    """Unit tests for MaxWarningsResultAggregator."""
+
+    def _create_test_config(self, max_warnings: int = 2) -> CLIConfig:
+        """Create a test CLI configuration with specific max_warnings."""
+        return CLIConfig(fix=False, max_warnings=max_warnings)
+
+    def test_warnings_below_threshold_return_zero(self):
+        """Test that warnings below threshold return exit code 0."""
+        aggregator = MaxWarningsResultAggregator(self._create_test_config(max_warnings=3))
+
+        # Add 2 warnings (below threshold of 3)
+        problems = Problems()
+        problems.append(
+            Problem(pos=Pos(1, 1, 0), level=ProblemLevel.WAR, desc="Warning 1", rule="warn_rule")
+        )
+        problems.append(
+            Problem(pos=Pos(2, 1, 0), level=ProblemLevel.WAR, desc="Warning 2", rule="warn_rule")
+        )
+
+        result = ValidationResult(
+            file=Path("warnings.yml"),
+            problems=problems,
+            max_level=problems.max_level,
+            error_count=problems.n_error,
+            warning_count=problems.n_warning,
+        )
+
+        aggregator.add_result(result)
+        assert aggregator.get_total_warnings() == 2
+        assert aggregator.get_exit_code() == 0
+
+    def test_warnings_equal_to_threshold_return_zero(self):
+        """Test that warnings equal to threshold return exit code 0."""
+        aggregator = MaxWarningsResultAggregator(self._create_test_config(max_warnings=2))
+
+        # Add exactly 2 warnings (equal to threshold)
+        problems = Problems()
+        problems.append(
+            Problem(pos=Pos(1, 1, 0), level=ProblemLevel.WAR, desc="Warning 1", rule="warn_rule")
+        )
+        problems.append(
+            Problem(pos=Pos(2, 1, 0), level=ProblemLevel.WAR, desc="Warning 2", rule="warn_rule")
+        )
+
+        result = ValidationResult(
+            file=Path("warnings.yml"),
+            problems=problems,
+            max_level=problems.max_level,
+            error_count=problems.n_error,
+            warning_count=problems.n_warning,
+        )
+
+        aggregator.add_result(result)
+        assert aggregator.get_total_warnings() == 2
+        assert aggregator.get_exit_code() == 0
+
+    def test_warnings_above_threshold_return_one(self):
+        """Test that warnings above threshold return exit code 1."""
+        aggregator = MaxWarningsResultAggregator(self._create_test_config(max_warnings=1))
+
+        # Add 2 warnings (above threshold of 1)
+        problems = Problems()
+        problems.append(
+            Problem(pos=Pos(1, 1, 0), level=ProblemLevel.WAR, desc="Warning 1", rule="warn_rule")
+        )
+        problems.append(
+            Problem(pos=Pos(2, 1, 0), level=ProblemLevel.WAR, desc="Warning 2", rule="warn_rule")
+        )
+
+        result = ValidationResult(
+            file=Path("warnings.yml"),
+            problems=problems,
+            max_level=problems.max_level,
+            error_count=problems.n_error,
+            warning_count=problems.n_warning,
+        )
+
+        aggregator.add_result(result)
+        assert aggregator.get_total_warnings() == 2
+        assert aggregator.get_exit_code() == 1
+
+    def test_errors_always_return_one_regardless_of_warning_threshold(self):
+        """Test that errors always return exit code 1, regardless of warning count."""
+        aggregator = MaxWarningsResultAggregator(self._create_test_config(max_warnings=10))
+
+        # Add error (should always return 1)
+        problems = Problems()
+        problems.append(
+            Problem(pos=Pos(1, 1, 0), level=ProblemLevel.ERR, desc="Error", rule="err_rule")
+        )
+
+        result = ValidationResult(
+            file=Path("error.yml"),
+            problems=problems,
+            max_level=problems.max_level,
+            error_count=problems.n_error,
+            warning_count=problems.n_warning,
+        )
+
+        aggregator.add_result(result)
+        assert aggregator.get_exit_code() == 1
+
+    def test_mixed_errors_and_warnings_return_one(self):
+        """Test that mixed errors and warnings always return exit code 1."""
+        aggregator = MaxWarningsResultAggregator(self._create_test_config(max_warnings=1))
+
+        # Add both warnings (above threshold) and errors
+        problems = Problems()
+        problems.append(
+            Problem(pos=Pos(1, 1, 0), level=ProblemLevel.WAR, desc="Warning 1", rule="warn_rule")
+        )
+        problems.append(
+            Problem(pos=Pos(2, 1, 0), level=ProblemLevel.WAR, desc="Warning 2", rule="warn_rule")
+        )
+        problems.append(
+            Problem(pos=Pos(3, 1, 0), level=ProblemLevel.ERR, desc="Error", rule="err_rule")
+        )
+
+        result = ValidationResult(
+            file=Path("mixed.yml"),
+            problems=problems,
+            max_level=problems.max_level,
+            error_count=problems.n_error,
+            warning_count=problems.n_warning,
+        )
+
+        aggregator.add_result(result)
+        assert aggregator.get_total_warnings() == 2
+        assert aggregator.get_total_errors() == 1
+        assert aggregator.get_exit_code() == 1

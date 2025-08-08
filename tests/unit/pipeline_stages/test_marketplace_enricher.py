@@ -28,7 +28,7 @@ jobs:
         unknown_action_problems = [
             p
             for p in problems.problems
-            if "unknown" in p.desc.lower() and p.rule == "marketplace-enricher"
+            if "unknown" in p.desc.lower() and p.rule == "marketplace"
         ]
         assert len(unknown_action_problems) >= 1
         assert unknown_action_problems[0].level == ProblemLevel.WAR

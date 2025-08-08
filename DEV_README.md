@@ -28,6 +28,9 @@ poetry run validate-actions .github/workflows/ci.yml
 
 # Run with auto-fix enabled
 poetry run validate-actions --fix
+
+# Run with warning limits
+poetry run validate-actions --max-warnings 5
 ```
 
 ---
