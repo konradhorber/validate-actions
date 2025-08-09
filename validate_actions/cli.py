@@ -1,113 +1,112 @@
 import sys
+from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import List, Optional
 
-import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from validate_actions.problems import Problem, ProblemLevel, Problems
-from validate_actions.validator import Validator
+from validate_actions.cli_components.output_formatter import ColoredFormatter, OutputFormatter
+from validate_actions.cli_components.result_aggregator import (
+    MaxWarningsResultAggregator,
+    ResultAggregator,
+    StandardResultAggregator,
+)
+from validate_actions.cli_components.validation_service import (
+    StandardValidationService,
+    ValidationService,
+)
+from validate_actions.globals.cli_config import CLIConfig
+from validate_actions.globals.validation_result import ValidationResult
+from validate_actions.globals.web_fetcher import DefaultWebFetcher
 
 
-class CLI:
-    STYLE = {
-        ProblemLevel.NON: {"color_bold": "\033[1;92m", "color": "\033[92m", "sign": "✓"},
-        ProblemLevel.ERR: {"color_bold": "\033[1;31m", "color": "\033[31m", "sign": "✗"},
-        ProblemLevel.WAR: {"color_bold": "\033[1;33m", "color": "\033[33m", "sign": "⚠"},
-    }
-    DEF_STYLE = {
-        "format_end": "\033[0m",
-        "neutral": "\033[2m",
-    }
+class CLI(ABC):
+    """Interface for CLI implementations."""
 
-    def start(self, fix: bool, workflow_file: Optional[str] = None) -> None:
-        if workflow_file:
-            self.run_single_file(Path(workflow_file), fix)
+    @abstractmethod
+    def run(self) -> int:
+        """
+        Run the CLI and return exit code.
+
+        Returns:
+            int: Exit code (0=success, 1=errors, 2=warnings only)
+        """
+        pass
+
+
+class StandardCLI(CLI):
+    """
+    Standard CLI implementation with separated concerns.
+
+    Coordinates validation using pluggable components:
+    - OutputFormatter: handles display formatting
+    - ResultAggregator: collects and summarizes results
+    - ValidationService: runs the validation pipeline
+    """
+
+    def __init__(
+        self,
+        config: CLIConfig,
+        formatter: Optional[OutputFormatter] = None,
+        aggregator: Optional[ResultAggregator] = None,
+        validation_service: Optional[ValidationService] = None,
+    ):
+        """
+        Initialize CLI with configuration and optional component overrides.
+
+        Args:
+            config: CLI configuration (fix mode, workflow file, GitHub token)
+            formatter: Output formatter (defaults to ColoredFormatter)
+            aggregator: Result aggregator (defaults to StandardResultAggregator)
+            validation_service: Validation service (defaults to StandardValidationService)
+        """
+        self.config = config
+        self.formatter = formatter or ColoredFormatter()
+        if config.max_warnings < sys.maxsize:
+            aggregator = MaxWarningsResultAggregator(config)
+        self.aggregator = aggregator or StandardResultAggregator(config)
+        self.validation_service = validation_service or StandardValidationService(
+            DefaultWebFetcher(github_token=config.github_token)
+        )
+
+    def run(self) -> int:
+        """Main CLI execution method.
+
+        Orchestrates the complete validation process, including file discovery,
+        validation execution, result collection, and output formatting.
+
+        Validates either a single workflow file (if specified in config) or
+        discovers and validates all workflow files in the .github/workflows/
+        directory.
+
+        Returns:
+            int: Exit code indicating validation results:
+                - 0: Success (no errors)
+                - 1: Errors found
+                - 2: Warnings only (when not suppressed)
+
+        Examples:
+            Single file validation:
+                cli = StandardCLI(config_with_file)
+                exit_code = cli.run()
+
+            Directory validation:
+                cli = StandardCLI(config_without_file)
+                exit_code = cli.run()
+        """
+        if self.config.workflow_file:
+            return self._run_single_file(Path(self.config.workflow_file))
         else:
-            project_root = self.find_workflows()
-            if not project_root:
-                print(
-                    f'{self.DEF_STYLE["neutral"]}Could not find .github/workflows directory. '
-                    f"Please run from your project root or create the directory structure: "
-                    f".github/workflows/{self.DEF_STYLE['format_end']}"
-                )
-                raise typer.Exit(1)
-            directory = project_root / ".github/workflows"
-            self.run_directory(directory, fix)
+            return self._run_directory()
 
-    def find_workflows(self, marker=".github"):
-        start_dir = Path.cwd()
-        for directory in [start_dir] + list(start_dir.parents)[:2]:
-            if (directory / marker).is_dir():
-                return directory
-        return None
-
-    def run_directory(self, directory: Path, fix: bool) -> None:
-        # Validate directory exists and is accessible
-        if not self._validate_directory(directory):
-            print(
-                f'{self.DEF_STYLE["neutral"]}Directory {directory} is not accessible or '
-                f'does not exist.{self.DEF_STYLE["format_end"]}'
-            )
-            raise typer.Exit(1)
-
-        max_level = ProblemLevel.NON
-        total_errors = 0
-        total_warnings = 0
-
-        prob_level: ProblemLevel
-        files = list(directory.glob("*.yml")) + list(directory.glob("*.yaml"))
-
-        # Validate that we found workflow files
-        if not files:
-            print(
-                f'{self.DEF_STYLE["neutral"]}No workflow files (*.yml, *.yaml) found in '
-                f"{directory}. Create workflow files or check the directory path."
-                f'{self.DEF_STYLE["format_end"]}'
-            )
-            raise typer.Exit(1)
-
-        # Filter out files we can't read
-        valid_files = [f for f in files if self._validate_file(f)]
-        if not valid_files:
-            print(
-                f'{self.DEF_STYLE["neutral"]}No readable workflow files found in {directory}.'
-                f'{self.DEF_STYLE["format_end"]}'
-            )
-            raise typer.Exit(1)
-        for file in valid_files:
-            with Progress(
-                SpinnerColumn(),
-                TextColumn("[progress.description]{task.description}"),
-                transient=True,
-            ) as progress:
-                progress.add_task(description=f"Validating {file.name}...", total=None)
-                prob_level, n_errors, n_warnings = self.run(file, fix)
-            max_level = ProblemLevel(max(max_level.value, prob_level.value))
-            total_errors += n_errors
-            total_warnings += n_warnings
-
-        self.show_end_msg(max_level, total_errors, total_warnings)
-
-        match max_level:
-            case ProblemLevel.NON:
-                return_code = 0
-            case ProblemLevel.WAR:
-                return_code = 2
-            case ProblemLevel.ERR:
-                return_code = 1
-            case _:
-                raise ValueError(f"Invalid problem level: {max_level}")
-
-        sys.exit(return_code)
-
-    def run_single_file(self, file: Path, fix: bool) -> None:
+    def _run_single_file(self, file: Path) -> int:
+        """Validate a single workflow file."""
         if not self._validate_file(file):
             print(
-                f'{self.DEF_STYLE["neutral"]}File {file} is not accessible, does not exist, '
-                f'or is not a valid YAML workflow file.{self.DEF_STYLE["format_end"]}'
+                f"File {file} is not accessible, does not exist, "
+                f"or is not a valid YAML workflow file."
             )
-            raise typer.Exit(1)
+            return 1
 
         with Progress(
             SpinnerColumn(),
@@ -115,84 +114,86 @@ class CLI:
             transient=True,
         ) as progress:
             progress.add_task(description=f"Validating {file.name}...", total=None)
-            prob_level, n_errors, n_warnings = self.run(file, fix)
+            result = self.validation_service.validate_file(file, self.config)
 
-        self.show_end_msg(prob_level, n_errors, n_warnings)
+        self.aggregator.add_result(result)
+        self._display_result(result)
+        self._display_summary()
 
-        match prob_level:
-            case ProblemLevel.NON:
-                return_code = 0
-            case ProblemLevel.WAR:
-                return_code = 2
-            case ProblemLevel.ERR:
-                return_code = 1
-            case _:
-                raise ValueError(f"Invalid problem level: {prob_level}")
+        return self.aggregator.get_exit_code()
 
-        sys.exit(return_code)
-
-    def run(self, file: Path, fix: bool) -> Tuple[ProblemLevel, int, int]:
-        problems = Validator.run(file, fix)
-
-        problems.sort()
-
-        self.show_problems(problems, file)
-
-        return problems.max_level, problems.n_error, problems.n_warning
-
-    def show_problems(self, problems: Problems, file: Path) -> None:
-        print()
-        print(f"\033[4m{file}\033[0m")
-
-        for problem in problems.problems:
-            print(self.standard_color(problem, file))
-
-        if problems.max_level == ProblemLevel.NON:
+    def _run_directory(self) -> int:
+        """Validate all workflow files in the standard .github/workflows directory."""
+        project_root = self._find_workflows_directory()
+        if not project_root:
             print(
-                f'  {self.DEF_STYLE["neutral"]}{self.STYLE[ProblemLevel.NON]["sign"]} All checks '
-                f"passed\033[0m"
+                "Could not find .github/workflows directory. "
+                "Please run from your project root or create the directory structure: "
+                ".github/workflows/"
             )
+            return 1
 
-    def standard_color(self, problem: Problem, filename: Path) -> str:
-        line = (
-            f'  {self.DEF_STYLE["neutral"]}{problem.pos.line + 1}:{problem.pos.col + 1}'
-            f'{self.DEF_STYLE["format_end"]}'
-        )
-        line += max(20 - len(line), 0) * " "
-        war = ProblemLevel.WAR
-        err = ProblemLevel.ERR
-        non = ProblemLevel.NON
-        if problem.level == war:
-            level_str = "warning"
-            line += f'{self.STYLE[war]["color"]}{level_str}{self.DEF_STYLE["format_end"]}'
-        elif problem.level == err:
-            level_str = "error"
-            line += f'{self.STYLE[err]["color"]}{level_str}{self.DEF_STYLE["format_end"]}'
-        elif problem.level == non:
-            level_str = "fixed"
-            line += f'{self.STYLE[non]["color"]}{level_str}{self.DEF_STYLE["format_end"]}'
-        line += max(38 - len(line), 0) * " "
-        line += problem.desc
-        if problem.rule:
-            line += f'  {self.DEF_STYLE["neutral"]}({problem.rule}){self.DEF_STYLE["format_end"]}'
-        return line
+        directory = project_root / ".github/workflows"
+        files = self._find_workflow_files(directory)
 
-    def show_end_msg(self, max_level: ProblemLevel, n_error: int, n_warning: int) -> None:
-        style = self.STYLE[max_level]
+        if not files:
+            print(
+                f"No workflow files (*.yml, *.yaml) found in {directory}. "
+                f"Create workflow files or check the directory path."
+            )
+            return 1
 
-        print()
+        valid_files = [f for f in files if self._validate_file(f)]
+        if not valid_files:
+            print(f"No readable workflow files found in {directory}.")
+            return 1
+
+        for file in valid_files:
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                transient=True,
+            ) as progress:
+                progress.add_task(description=f"Validating {file.name}...", total=None)
+                result = self.validation_service.validate_file(file, self.config)
+
+            self.aggregator.add_result(result)
+            self._display_result(result)
+
+        self._display_summary()
+        return self.aggregator.get_exit_code()
+
+    def _display_result(self, result: ValidationResult) -> None:
+        """Display validation results for a single file."""
+        print(self.formatter.format_file_header(result.file))
+
+        if result.problems.problems:
+            for problem in result.problems.problems:
+                print(self.formatter.format_problem(problem))
+        else:
+            print(self.formatter.format_no_problems())
+
+    def _display_summary(self) -> None:
+        """Display final summary of all validation results."""
         print(
-            f'{style["color_bold"]}{style["sign"]} {n_error+n_warning} problems '
-            f'({n_error} errors, {n_warning} warnings){self.DEF_STYLE["format_end"]}'
+            self.formatter.format_summary(
+                self.aggregator.get_total_errors(),
+                self.aggregator.get_total_warnings(),
+                self.aggregator.get_max_level(),
+            )
         )
-        print()
 
-    def _validate_directory(self, directory: Path) -> bool:
-        """Validate that directory exists and is accessible."""
-        try:
-            return directory.exists() and directory.is_dir()
-        except (OSError, PermissionError):
-            return False
+    def _find_workflows_directory(self, marker: str = ".github") -> Optional[Path]:
+        """Find the project root containing .github directory."""
+        start_dir = Path.cwd()
+        for directory in [start_dir] + list(start_dir.parents)[:2]:
+            if (directory / marker).is_dir():
+                return directory
+        return None
+
+    def _find_workflow_files(self, directory: Path) -> List[Path]:
+        """Find all YAML workflow files in a directory."""
+        return list(directory.glob("*.yml")) + list(directory.glob("*.yaml"))
 
     def _validate_file(self, file_path: Path) -> bool:
         """Validate that file exists, is readable, and has correct extension."""
@@ -210,7 +211,6 @@ class CLI:
             # Quick check that file is not empty and starts reasonably
             with open(file_path, "r", encoding="utf-8") as f:
                 first_line = f.readline()
-                # Very basic check - should not be empty and contain some content
                 return len(first_line.strip()) > 0
 
         except (OSError, PermissionError, UnicodeDecodeError):
