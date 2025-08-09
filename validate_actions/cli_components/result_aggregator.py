@@ -78,7 +78,7 @@ class MaxWarningsResultAggregator(ResultAggregator):
         self._total_errors += result.error_count
         self._total_warnings += result.warning_count
         self._max_level = ProblemLevel(max(self._max_level.value, result.max_level.value))
-        if self._max_level == ProblemLevel.WAR:
+        if self._total_warnings > self._max_warnings:
             self._max_level = ProblemLevel.ERR
 
     def get_exit_code(self) -> int:
