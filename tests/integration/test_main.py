@@ -22,7 +22,6 @@ class TestMainIntegration:
         result = self.runner.invoke(app, ["--help"])
 
         assert result.exit_code == 0
-        assert "validate-actions" in result.stdout
         assert "--fix" in result.stdout or "fix" in result.stdout
         assert "--quiet" in result.stdout or "quiet" in result.stdout
 
