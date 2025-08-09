@@ -24,15 +24,21 @@ class DefaultStepsBuilder(StepsBuilder):
         self.shared_components_builder = shared_components_builder
 
     def build(
-        self, steps_in: List[Dict[ast.String, Any]], local_contexts: Contexts
+        self,
+        steps_in: List[Dict[ast.String, Any]],
+        local_contexts: Contexts,
+        container: Optional[ast.Container] = None
     ) -> List[ast.Step]:
         steps_out: List[ast.Step] = []
         for step in steps_in:
-            steps_out.append(self.__build_step(step, local_contexts))
+            steps_out.append(self.__build_step(step, local_contexts, container))
         return steps_out
 
     def __build_step(
-        self, step_token_tree: Dict[ast.String, Any], local_contexts: Contexts
+        self,
+        step_token_tree: Dict[ast.String, Any],
+        local_contexts: Contexts,
+        container: Optional[ast.Container]
     ) -> ast.Step:
         pos: Pos
         id_ = None
@@ -77,10 +83,11 @@ class DefaultStepsBuilder(StepsBuilder):
                     for with_key, with_value in step_token_tree[key].items():
                         with_key_str = with_key.string
 
-                        if with_key_str == "args":
-                            with_args_ = with_value
-                        elif with_key_str == "entrypoint":
-                            with_entrypoint_ = with_value
+                        if container is not None and with_key_str in ("args", "entrypoint"):
+                            if with_key_str == "args":
+                                with_args_ = with_value
+                            else:  # must be "entrypoint"
+                                with_entrypoint_ = with_value
                         else:
                             with_[with_key] = with_value
                 case "env":

@@ -111,7 +111,7 @@ class DefaultJobsBuilder(JobsBuilder):
                 case "defaults":
                     defaults_ = self.shared_components_builder.build_defaults(job_dict[key])
                 case "steps":
-                    steps_ = self.steps_builder.build(job_dict[key], local_contexts)
+                    steps_ = self.steps_builder.build(job_dict[key], local_contexts, container_)
                 case "timeout-minutes":
                     timeout_minutes_ = job_dict[key]
                 case "strategy":
