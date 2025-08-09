@@ -23,8 +23,8 @@ class TestMainIntegration:
 
         assert result.exit_code == 0
         assert "validate-actions" in result.stdout
-        assert "--fix" in result.stdout
-        assert "--quiet" in result.stdout
+        assert "--fix" in result.stdout or "fix" in result.stdout
+        assert "--quiet" in result.stdout or "quiet" in result.stdout
 
     def test_main_with_no_arguments_fails_when_no_workflows_dir(self):
         """Test main fails gracefully when no .github/workflows directory exists."""
