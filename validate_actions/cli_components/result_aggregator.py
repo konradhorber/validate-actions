@@ -15,13 +15,6 @@ class ResultAggregator(ABC):
         self._total_warnings = 0
         self._max_level = ProblemLevel.NON
 
-    def add_result(self, result: ValidationResult) -> None:
-        """Add a validation result and update aggregated stats."""
-        self._results.append(result)
-        self._total_errors += result.error_count
-        self._total_warnings += result.warning_count
-        self._max_level = ProblemLevel(max(self._max_level.value, result.max_level.value))
-
     def get_total_errors(self) -> int:
         """Get total errors across all files."""
         return self._total_errors
@@ -39,6 +32,11 @@ class ResultAggregator(ABC):
         return self._results.copy()
 
     @abstractmethod
+    def add_result(self, result: ValidationResult) -> None:
+        """Add a validation result and update aggregated stats."""
+        pass
+
+    @abstractmethod
     def get_exit_code(self) -> int:
         """Get appropriate exit code based on results."""
         pass
@@ -46,6 +44,13 @@ class ResultAggregator(ABC):
 
 class StandardResultAggregator(ResultAggregator):
     """Standard implementation with exit code 0 for any warnings and 1 for errors."""
+
+    def add_result(self, result: ValidationResult) -> None:
+        """Add a validation result and update aggregated stats."""
+        self._results.append(result)
+        self._total_errors += result.error_count
+        self._total_warnings += result.warning_count
+        self._max_level = ProblemLevel(max(self._max_level.value, result.max_level.value))
 
     def get_exit_code(self) -> int:
         """Get exit code based on problem levels."""
@@ -66,6 +71,15 @@ class MaxWarningsResultAggregator(ResultAggregator):
     def __init__(self, cli_config: CLIConfig) -> None:
         super().__init__(cli_config)
         self._max_warnings = cli_config.max_warnings
+
+    def add_result(self, result: ValidationResult) -> None:
+        """Add a validation result and update aggregated stats."""
+        self._results.append(result)
+        self._total_errors += result.error_count
+        self._total_warnings += result.warning_count
+        self._max_level = ProblemLevel(max(self._max_level.value, result.max_level.value))
+        if self._max_level == ProblemLevel.WAR:
+            self._max_level = ProblemLevel.ERR
 
     def get_exit_code(self) -> int:
         """Get exit code based on problem levels and max warnings limit."""
