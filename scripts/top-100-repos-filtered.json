@@ -1,0 +1,422 @@
+[
+  {
+    "name": "freeCodeCamp",
+    "url": "https://github.com/freeCodeCamp/freeCodeCamp",
+    "owner": "freeCodeCamp",
+    "repo": "freeCodeCamp"
+  },
+  {
+    "name": "awesome",
+    "url": "https://github.com/sindresorhus/awesome",
+    "owner": "sindresorhus",
+    "repo": "awesome"
+  },
+  {
+    "name": "free-programming-books",
+    "url": "https://github.com/EbookFoundation/free-programming-books",
+    "owner": "EbookFoundation",
+    "repo": "free-programming-books"
+  },
+  {
+    "name": "public-apis",
+    "url": "https://github.com/public-apis/public-apis",
+    "owner": "public-apis",
+    "repo": "public-apis"
+  },
+  {
+    "name": "coding-interview-university",
+    "url": "https://github.com/jwasham/coding-interview-university",
+    "owner": "jwasham",
+    "repo": "coding-interview-university"
+  },
+  {
+    "name": "project-based-learning",
+    "url": "https://github.com/practical-tutorials/project-based-learning",
+    "owner": "practical-tutorials",
+    "repo": "project-based-learning"
+  },
+  {
+    "name": "react",
+    "url": "https://github.com/facebook/react",
+    "owner": "facebook",
+    "repo": "react"
+  },
+  {
+    "name": "vue",
+    "url": "https://github.com/vuejs/vue",
+    "owner": "vuejs",
+    "repo": "vue"
+  },
+  {
+    "name": "Python",
+    "url": "https://github.com/TheAlgorithms/Python",
+    "owner": "TheAlgorithms",
+    "repo": "Python"
+  },
+  {
+    "name": "javascript-algorithms",
+    "url": "https://github.com/trekhleb/javascript-algorithms",
+    "owner": "trekhleb",
+    "repo": "javascript-algorithms"
+  },
+  {
+    "name": "tensorflow",
+    "url": "https://github.com/tensorflow/tensorflow",
+    "owner": "tensorflow",
+    "repo": "tensorflow"
+  },
+  {
+    "name": "computer-science",
+    "url": "https://github.com/ossu/computer-science",
+    "owner": "ossu",
+    "repo": "computer-science"
+  },
+  {
+    "name": "the-book-of-secret-knowledge",
+    "url": "https://github.com/trimstray/the-book-of-secret-knowledge",
+    "owner": "trimstray",
+    "repo": "the-book-of-secret-knowledge"
+  },
+  {
+    "name": "ohmyzsh",
+    "url": "https://github.com/ohmyzsh/ohmyzsh",
+    "owner": "ohmyzsh",
+    "repo": "ohmyzsh"
+  },
+  {
+    "name": "vscode",
+    "url": "https://github.com/microsoft/vscode",
+    "owner": "microsoft",
+    "repo": "vscode"
+  },
+  {
+    "name": "bootstrap",
+    "url": "https://github.com/twbs/bootstrap",
+    "owner": "twbs",
+    "repo": "bootstrap"
+  },
+  {
+    "name": "flutter",
+    "url": "https://github.com/flutter/flutter",
+    "owner": "flutter",
+    "repo": "flutter"
+  },
+  {
+    "name": "gitignore",
+    "url": "https://github.com/github/gitignore",
+    "owner": "github",
+    "repo": "gitignore"
+  },
+  {
+    "name": "JavaGuide",
+    "url": "https://github.com/Snailclimb/JavaGuide",
+    "owner": "Snailclimb",
+    "repo": "JavaGuide"
+  },
+  {
+    "name": "ollama",
+    "url": "https://github.com/ollama/ollama",
+    "owner": "ollama",
+    "repo": "ollama"
+  },
+  {
+    "name": "awesome-go",
+    "url": "https://github.com/avelino/awesome-go",
+    "owner": "avelino",
+    "repo": "awesome-go"
+  },
+  {
+    "name": "transformers",
+    "url": "https://github.com/huggingface/transformers",
+    "owner": "huggingface",
+    "repo": "transformers"
+  },
+  {
+    "name": "javascript",
+    "url": "https://github.com/airbnb/javascript",
+    "owner": "airbnb",
+    "repo": "javascript"
+  },
+  {
+    "name": "youtube-dl",
+    "url": "https://github.com/ytdl-org/youtube-dl",
+    "owner": "ytdl-org",
+    "repo": "youtube-dl"
+  },
+  {
+    "name": "next.js",
+    "url": "https://github.com/vercel/next.js",
+    "owner": "vercel",
+    "repo": "next.js"
+  },
+  {
+    "name": "awesome-chatgpt-prompts",
+    "url": "https://github.com/f/awesome-chatgpt-prompts",
+    "owner": "f",
+    "repo": "awesome-chatgpt-prompts"
+  },
+  {
+    "name": "go",
+    "url": "https://github.com/golang/go",
+    "owner": "golang",
+    "repo": "go"
+  },
+  {
+    "name": "tech-interview-handbook",
+    "url": "https://github.com/yangshun/tech-interview-handbook",
+    "owner": "yangshun",
+    "repo": "tech-interview-handbook"
+  },
+  {
+    "name": "scrcpy",
+    "url": "https://github.com/Genymobile/scrcpy",
+    "owner": "Genymobile",
+    "repo": "scrcpy"
+  },
+  {
+    "name": "30-seconds-of-code",
+    "url": "https://github.com/Chalarangelo/30-seconds-of-code",
+    "owner": "Chalarangelo",
+    "repo": "30-seconds-of-code"
+  },
+  {
+    "name": "react-native",
+    "url": "https://github.com/facebook/react-native",
+    "owner": "facebook",
+    "repo": "react-native"
+  },
+  {
+    "name": "PowerToys",
+    "url": "https://github.com/microsoft/PowerToys",
+    "owner": "microsoft",
+    "repo": "PowerToys"
+  },
+  {
+    "name": "yt-dlp",
+    "url": "https://github.com/yt-dlp/yt-dlp",
+    "owner": "yt-dlp",
+    "repo": "yt-dlp"
+  },
+  {
+    "name": "electron",
+    "url": "https://github.com/electron/electron",
+    "owner": "electron",
+    "repo": "electron"
+  },
+  {
+    "name": "kubernetes",
+    "url": "https://github.com/kubernetes/kubernetes",
+    "owner": "kubernetes",
+    "repo": "kubernetes"
+  },
+  {
+    "name": "langchain",
+    "url": "https://github.com/langchain-ai/langchain",
+    "owner": "langchain-ai",
+    "repo": "langchain"
+  },
+  {
+    "name": "d3",
+    "url": "https://github.com/d3/d3",
+    "owner": "d3",
+    "repo": "d3"
+  },
+  {
+    "name": "three.js",
+    "url": "https://github.com/mrdoob/three.js",
+    "owner": "mrdoob",
+    "repo": "three.js"
+  },
+  {
+    "name": "axios",
+    "url": "https://github.com/axios/axios",
+    "owner": "axios",
+    "repo": "axios"
+  },
+  {
+    "name": "TypeScript",
+    "url": "https://github.com/microsoft/TypeScript",
+    "owner": "microsoft",
+    "repo": "TypeScript"
+  },
+  {
+    "name": "excalidraw",
+    "url": "https://github.com/excalidraw/excalidraw",
+    "owner": "excalidraw",
+    "repo": "excalidraw"
+  },
+  {
+    "name": "nodebestpractices",
+    "url": "https://github.com/goldbergyoni/nodebestpractices",
+    "owner": "goldbergyoni",
+    "repo": "nodebestpractices"
+  },
+  {
+    "name": "deno",
+    "url": "https://github.com/denoland/deno",
+    "owner": "denoland",
+    "repo": "deno"
+  },
+  {
+    "name": "create-react-app",
+    "url": "https://github.com/facebook/create-react-app",
+    "owner": "facebook",
+    "repo": "create-react-app"
+  },
+  {
+    "name": "godot",
+    "url": "https://github.com/godotengine/godot",
+    "owner": "godotengine",
+    "repo": "godot"
+  },
+  {
+    "name": "terminal",
+    "url": "https://github.com/microsoft/terminal",
+    "owner": "microsoft",
+    "repo": "terminal"
+  },
+  {
+    "name": "DeepSeek-V3",
+    "url": "https://github.com/deepseek-ai/DeepSeek-V3",
+    "owner": "deepseek-ai",
+    "repo": "DeepSeek-V3"
+  },
+  {
+    "name": "angular",
+    "url": "https://github.com/angular/angular",
+    "owner": "angular",
+    "repo": "angular"
+  },
+  {
+    "name": "langflow",
+    "url": "https://github.com/langflow-ai/langflow",
+    "owner": "langflow-ai",
+    "repo": "langflow"
+  },
+  {
+    "name": "frp",
+    "url": "https://github.com/fatedier/frp",
+    "owner": "fatedier",
+    "repo": "frp"
+  },
+  {
+    "name": "material-ui",
+    "url": "https://github.com/mui/material-ui",
+    "owner": "mui",
+    "repo": "material-ui"
+  },
+  {
+    "name": "iptv",
+    "url": "https://github.com/iptv-org/iptv",
+    "owner": "iptv-org",
+    "repo": "iptv"
+  },
+  {
+    "name": "Awesome-Hacking",
+    "url": "https://github.com/Hack-with-Github/Awesome-Hacking",
+    "owner": "Hack-with-Github",
+    "repo": "Awesome-Hacking"
+  },
+  {
+    "name": "ant-design",
+    "url": "https://github.com/ant-design/ant-design",
+    "owner": "ant-design",
+    "repo": "ant-design"
+  },
+  {
+    "name": "tauri",
+    "url": "https://github.com/tauri-apps/tauri",
+    "owner": "tauri-apps",
+    "repo": "tauri"
+  },
+  {
+    "name": "generative-ai-for-beginners",
+    "url": "https://github.com/microsoft/generative-ai-for-beginners",
+    "owner": "microsoft",
+    "repo": "generative-ai-for-beginners"
+  },
+  {
+    "name": "thefuck",
+    "url": "https://github.com/nvbn/thefuck",
+    "owner": "nvbn",
+    "repo": "thefuck"
+  },
+  {
+    "name": "clean-code-javascript",
+    "url": "https://github.com/ryanmcdermott/clean-code-javascript",
+    "owner": "ryanmcdermott",
+    "repo": "clean-code-javascript"
+  },
+  {
+    "name": "ui",
+    "url": "https://github.com/shadcn-ui/ui",
+    "owner": "shadcn-ui",
+    "repo": "ui"
+  },
+  {
+    "name": "HowToCook",
+    "url": "https://github.com/Anduin2017/HowToCook",
+    "owner": "Anduin2017",
+    "repo": "HowToCook"
+  },
+  {
+    "name": "puppeteer",
+    "url": "https://github.com/puppeteer/puppeteer",
+    "owner": "puppeteer",
+    "repo": "puppeteer"
+  },
+  {
+    "name": "Web-Dev-For-Beginners",
+    "url": "https://github.com/microsoft/Web-Dev-For-Beginners",
+    "owner": "microsoft",
+    "repo": "Web-Dev-For-Beginners"
+  },
+  {
+    "name": "DeepSeek-R1",
+    "url": "https://github.com/deepseek-ai/DeepSeek-R1",
+    "owner": "deepseek-ai",
+    "repo": "DeepSeek-R1"
+  },
+  {
+    "name": "vue-element-admin",
+    "url": "https://github.com/PanJiaChen/vue-element-admin",
+    "owner": "PanJiaChen",
+    "repo": "vue-element-admin"
+  },
+  {
+    "name": "tailwindcss",
+    "url": "https://github.com/tailwindlabs/tailwindcss",
+    "owner": "tailwindlabs",
+    "repo": "tailwindcss"
+  },
+  {
+    "name": "fastapi",
+    "url": "https://github.com/fastapi/fastapi",
+    "owner": "fastapi",
+    "repo": "fastapi"
+  },
+  {
+    "name": "every-programmer-should-know",
+    "url": "https://github.com/mtdvio/every-programmer-should-know",
+    "owner": "mtdvio",
+    "repo": "every-programmer-should-know"
+  },
+  {
+    "name": "storybook",
+    "url": "https://github.com/storybookjs/storybook",
+    "owner": "storybookjs",
+    "repo": "storybook"
+  },
+  {
+    "name": "supabase",
+    "url": "https://github.com/supabase/supabase",
+    "owner": "supabase",
+    "repo": "supabase"
+  },
+  {
+    "name": "whisper",
+    "url": "https://github.com/openai/whisper",
+    "owner": "openai",
+    "repo": "whisper"
+  }
+]

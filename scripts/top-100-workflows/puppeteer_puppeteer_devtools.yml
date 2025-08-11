@@ -1,0 +1,77 @@
+name: DevTools CI
+
+# Declare default permissions as read only.
+permissions: read-all
+
+on:
+  pull_request:
+    types: [labeled]
+
+concurrency:
+  group: devtools-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build-puppeteer:
+    name: Build Puppeteer
+    runs-on: ubuntu-latest
+    if: contains(github.event.label.name, 'devtools')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          cache: npm
+          node-version-file: '.nvmrc'
+      - name: Install dependencies
+        run: npm ci
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: true
+      - name: Build Puppeteer
+        run: |
+          npm run build -w @puppeteer/browsers
+          npm run build -w puppeteer-core
+          npm run build -w puppeteer
+      - name: Pack Puppeteer
+        run: |
+          npm pack -w @puppeteer/browsers
+          npm pack -w puppeteer-core
+          npm pack -w puppeteer
+      - name: Upload Puppeteer build
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: puppeteer-build
+          if-no-files-found: error
+          path: puppeteer-*.tgz
+
+  devtools-tests:
+    name: DevTools tests
+    needs: build-puppeteer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Puppeteer build
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: puppeteer-build
+      - name: Disable AppArmor
+        run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
+      - name: Checkout depot_tools
+        run: git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+      - name: Add depot_tools to path
+        run: echo $(realpath depot_tools) >> $GITHUB_PATH
+      - name: Fetch devtools-frontend
+        run: fetch devtools-frontend
+      - name: Sync gclient
+        working-directory: devtools-frontend
+        run: gclient sync
+      - name: Install Puppeteer
+        working-directory: devtools-frontend
+        run: |
+          npm install ../puppeteer-browsers*.tgz ../puppeteer-core*.tgz
+      - name: Generate targets
+        working-directory: devtools-frontend
+        run: gn gen out/Default --args='devtools_skip_typecheck=true'
+      - name: Run tests
+        working-directory: devtools-frontend
+        run: npm run auto-e2etest
