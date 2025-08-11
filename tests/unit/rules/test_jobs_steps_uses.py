@@ -1,8 +1,5 @@
-import os
 import tempfile
 from pathlib import Path
-
-import requests
 
 from tests.conftest import parse_workflow_string
 from validate_actions import Problem, ProblemLevel
@@ -195,17 +192,10 @@ class TestJobsStepsUses:
             steps:
               - uses: actions/checkout
         """
-        url = "https://api.github.com/repos/actions/checkout/tags"
-        token = os.getenv("GH_TOKEN")
-        header = {}
-        if token:
-            header = {"Authorization": f"token {token}"}
-        try:
-            response = requests.get(url, headers=header)
-        except requests.RequestException as e:
-            assert False, f"Request error for {url}: {e}"
 
-        version = response.json()[0]["name"]
+        # The TestWebFetcher in conftest.py returns "v4.2.2" as the latest
+        # version for actions/checkout
+        version = "v4.2.2"
         workflow_string_with_version = workflow_string_without_version.replace(
             "uses: actions/checkout", f"uses: actions/checkout@{version}"
         )
