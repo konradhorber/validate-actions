@@ -46,7 +46,7 @@ def test_official_workflows_validate_without_errors(workflow_files: List[Path]):
     failed_workflows = []
     
     for workflow_file in workflow_files:
-        cmd = ["poetry", "run", "validate-actions", "--quiet", str(workflow_file)]
+        cmd = ["python", "-m", "validate_actions.main", "--quiet", str(workflow_file)]
         
         result = subprocess.run(
             cmd,
