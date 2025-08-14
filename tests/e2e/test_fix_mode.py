@@ -97,7 +97,7 @@ class TestFixMode:
 
         # Should still fail because issues are not fixable
         assert result.returncode == 1
-        assert "✗" in result.stdout
+        assert "error" in result.stdout
 
     def test_fix_mode_preserves_file_structure(self, temp_project):
         """Test that auto-fix preserves the overall structure of the workflow file."""

@@ -1,6 +1,6 @@
 [project]
 name = "validate-actions"
-version = "0.1.17"
+version = "0.1.18"
 description = "CLI for github actions workflow validation"
 authors = [
     {name = "konradhorber",email = "konrad.horber@gmail.com"}
@@ -12,6 +12,7 @@ dependencies = [
     "pyyaml (>=6.0.2,<7.0.0)",
     "requests (>=2.32.3,<3.0.0)",
     "python-dotenv (>=1.1.1,<2.0.0)",
+    "rich (>=13.0.0,<14.0.0)",
 ]
 
 [tool.poetry]

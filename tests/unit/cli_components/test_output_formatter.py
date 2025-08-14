@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from validate_actions.cli_components.output_formatter import ColoredFormatter
+from validate_actions.cli_components.output_formatter import ColoredFormatter, RichFormatter
 from validate_actions.domain_model.primitives import Pos
 from validate_actions.globals.problems import Problem, ProblemLevel
 
@@ -127,3 +127,151 @@ class TestColoredFormatter:
 
         assert "0" in summary or "no" in summary.lower()
         assert "\033[1;92m" in summary  # bold green for success
+
+
+class TestRichFormatter:
+    """Unit tests for RichFormatter output formatting with Rich styling."""
+
+    def test_format_file_header(self):
+        """Test file header formatting includes emoji and path."""
+        formatter = RichFormatter()
+        file_path = Path("/test/workflow.yml")
+
+        header = formatter.format_file_header(file_path)
+
+        assert str(file_path) in header
+        assert "📄" in header  # file emoji
+        assert header.startswith("\n")  # starts with newline
+
+    def test_format_problem_error(self):
+        """Test error problem formatting includes position, level, and description."""
+        formatter = RichFormatter()
+        problem = Problem(
+            pos=Pos(10, 5, 150),
+            level=ProblemLevel.ERR,
+            desc="Invalid action reference",
+            rule="test_rule",
+        )
+
+        formatted = formatter.format_problem(problem)
+
+        assert "11:6" in formatted  # line:col (1-based)
+        assert "Invalid action reference" in formatted
+        assert "test_rule" in formatted
+        assert "✕" in formatted  # error symbol
+        assert "error" in formatted  # error text
+
+    def test_format_problem_warning(self):
+        """Test warning problem formatting uses warning symbols."""
+        formatter = RichFormatter()
+        problem = Problem(
+            pos=Pos(5, 10, 75),
+            level=ProblemLevel.WAR,
+            desc="Outdated action version",
+            rule="version_check",
+        )
+
+        formatted = formatter.format_problem(problem)
+
+        assert "6:11" in formatted  # line:col (1-based)
+        assert "Outdated action version" in formatted
+        assert "version_check" in formatted
+        assert "⚠" in formatted  # warning symbol
+        assert "warning" in formatted  # warning text
+
+    def test_format_problem_fixed(self):
+        """Test fixed problem formatting uses success symbols."""
+        formatter = RichFormatter()
+        problem = Problem(
+            pos=Pos(1, 1, 0),
+            level=ProblemLevel.NON,
+            desc="Fixed issue",
+            rule="auto_fix",
+        )
+
+        formatted = formatter.format_problem(problem)
+
+        assert "2:2" in formatted  # line:col (1-based)
+        assert "Fixed issue" in formatted
+        assert "auto_fix" in formatted
+        assert "✓" in formatted  # success symbol
+        assert "fixed" in formatted  # fixed text
+
+    def test_format_problem_without_rule_display(self):
+        """Test problem formatting displays rule information correctly."""
+        formatter = RichFormatter()
+        problem = Problem(
+            pos=Pos(1, 1, 0),
+            level=ProblemLevel.ERR,
+            desc="General issue",
+            rule="general_check",
+        )
+
+        formatted = formatter.format_problem(problem)
+
+        assert "General issue" in formatted
+        assert "2:2" in formatted  # line:col (1-based)
+        assert "general_check" in formatted
+        assert "(" in formatted and ")" in formatted  # Should contain parentheses for rule
+
+    def test_format_no_problems(self):
+        """Test success message formatting when no problems found."""
+        formatter = RichFormatter()
+
+        message = formatter.format_no_problems()
+
+        assert "All checks passed" in message
+        assert "✓" in message  # success symbol
+
+    def test_format_summary_errors_only(self):
+        """Test summary formatting when only errors are present."""
+        formatter = RichFormatter()
+
+        summary = formatter.format_summary(
+            total_errors=3, total_warnings=0, max_level=ProblemLevel.ERR
+        )
+
+        assert "3" in summary
+        assert "error" in summary.lower()
+        assert "✕" in summary  # error symbol
+        assert "Validation completed" in summary
+
+    def test_format_summary_warnings_only(self):
+        """Test summary formatting when only warnings are present."""
+        formatter = RichFormatter()
+
+        summary = formatter.format_summary(
+            total_errors=0, total_warnings=2, max_level=ProblemLevel.WAR
+        )
+
+        assert "2" in summary
+        assert "warning" in summary.lower()
+        assert "⚠" in summary  # warning symbol
+        assert "Validation completed" in summary
+
+    def test_format_summary_mixed(self):
+        """Test summary formatting with both errors and warnings."""
+        formatter = RichFormatter()
+
+        summary = formatter.format_summary(
+            total_errors=2, total_warnings=5, max_level=ProblemLevel.ERR
+        )
+
+        assert "2" in summary
+        assert "5" in summary
+        assert "error" in summary.lower()
+        assert "warning" in summary.lower()
+        assert "✕" in summary  # Should use error symbol for max level
+        assert "7" in summary or "issue" in summary  # total count
+
+    def test_format_summary_no_issues(self):
+        """Test summary formatting when no issues are found."""
+        formatter = RichFormatter()
+
+        summary = formatter.format_summary(
+            total_errors=0, total_warnings=0, max_level=ProblemLevel.NON
+        )
+
+        assert "successfully" in summary.lower() or "no issues" in summary.lower()
+        assert "✓" in summary  # success symbol
+        assert "Validation completed" in summary

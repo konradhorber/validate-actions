@@ -69,7 +69,7 @@ class TestE2E:
         result = self.run_cli(project_root)
 
         assert result.returncode == 1
-        assert "✗" in result.stdout  # Error indicator
+        assert "error" in result.stdout  # Error indicator
 
     def test_multiple_workflow_files(self, temp_project):
         """Test validation with multiple workflow files."""
@@ -197,7 +197,7 @@ class TestE2E:
         # Should fail due to invalid needs reference
         assert result.returncode == 1
         assert "needs-validation.yml" in result.stdout
-        assert "✗" in result.stdout  # Error indicator
+        assert "error" in result.stdout  # Error indicator
 
         # Should detect missing job reference
         assert "missing-job" in result.stdout or "does not exist" in result.stdout.lower()
@@ -226,7 +226,7 @@ class TestE2E:
         # Should fail due to circular dependencies
         assert result.returncode == 1
         assert "circular-deps.yml" in result.stdout
-        assert "✗" in result.stdout  # Error indicator
+        assert "error" in result.stdout  # Error indicator
 
         # Should detect circular dependency
         output_lower = result.stdout.lower()
@@ -252,7 +252,7 @@ class TestE2E:
         # Should fail or warn due to outdated actions
         assert result.returncode == 0  # warning
         assert "outdated-actions.yml" in result.stdout
-        assert "✗" in result.stdout or "⚠" in result.stdout  # Error or warning indicator
+        assert "error" in result.stdout or "warning" in result.stdout  # Error or warning indicator
 
         # Should detect outdated versions
         output_lower = result.stdout.lower()

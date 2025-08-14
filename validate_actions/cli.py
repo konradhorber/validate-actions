@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from validate_actions.cli_components.output_formatter import ColoredFormatter, OutputFormatter
+from validate_actions.cli_components.output_formatter import OutputFormatter, RichFormatter
 from validate_actions.cli_components.result_aggregator import (
     MaxWarningsResultAggregator,
     ResultAggregator,
@@ -56,12 +56,12 @@ class StandardCLI(CLI):
 
         Args:
             config: CLI configuration (fix mode, workflow file, GitHub token)
-            formatter: Output formatter (defaults to ColoredFormatter)
+            formatter: Output formatter (defaults to RichFormatter)
             aggregator: Result aggregator (defaults to StandardResultAggregator)
             validation_service: Validation service (defaults to StandardValidationService)
         """
         self.config = config
-        self.formatter = formatter or ColoredFormatter()
+        self.formatter = formatter or RichFormatter()
         if config.max_warnings < sys.maxsize:
             aggregator = MaxWarningsResultAggregator(config)
         self.aggregator = aggregator or StandardResultAggregator(config)
