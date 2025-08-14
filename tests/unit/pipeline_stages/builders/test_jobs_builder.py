@@ -939,3 +939,36 @@ class TestJobsBuilder:
 
         job2 = workflow_out.jobs_["job2"]
         assert job2.contexts.jobs is None
+
+    def test_strategy_matrix_exclude(self):
+        """Test matrix strategy with exclude functionality."""
+        workflow_string = """
+        on: push
+        jobs:
+          example_matrix:
+            strategy:
+              matrix:
+                os: [ubuntu-latest, windows-latest]
+                node: [14, 16]
+                exclude:
+                  - os: ubuntu-latest
+                    node: 14
+            runs-on: ${{ matrix.os }}
+            steps:
+              - uses: actions/setup-node@v4
+        """
+        workflow_out, problems = parse_workflow_string(workflow_string)
+        assert problems.problems == []
+
+        strategy = workflow_out.jobs_["example_matrix"].strategy_
+        combinations = strategy.combinations
+        assert len(combinations) == 3  # 4 original - 1 excluded
+
+        parsed_combinations = []
+        for combo_dict in combinations:
+            parsed_combo = {k.string: v.string for k, v in combo_dict.items()}
+            parsed_combinations.append(parsed_combo)
+
+        # Should not contain the excluded combination
+        excluded_combo = {"os": "ubuntu-latest", "node": "14"}
+        assert excluded_combo not in parsed_combinations

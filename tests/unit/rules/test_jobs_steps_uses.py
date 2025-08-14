@@ -382,6 +382,35 @@ class TestJobsStepsUses:
         outdated_warnings = [p for p in result if "outdated" in p.desc.lower()]
         assert len(outdated_warnings) == 0
 
+    def test_commit_sha_with_invalid_parsed_version_returns_early(self):
+        """Test that commit SHA with invalid parsed version returns early without warnings"""
+        workflow_string = """
+    name: test
+    on: push
+    jobs:
+      build:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout
+            uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+    """
+        workflow, problems = parse_workflow_string(workflow_string)
+        rule = JobsStepsUses(workflow, NoFixer())
+
+        # Mock _parse_semantic_version to return None (invalid version)
+        original_parse = rule._parse_semantic_version
+        rule._parse_semantic_version = lambda version: None
+
+        gen = rule.check()
+        result = list(gen)
+
+        # Restore original method
+        rule._parse_semantic_version = original_parse
+
+        # Should find only generic commit SHA warning, not specific outdated version warning
+        outdated_warnings = [p for p in result if "outdated" in p.desc.lower()]
+        assert len(outdated_warnings) == 0  # No specific outdated version warning generated
+
     def test_action_without_version_ignored_by_outdated_check(self):
         """Test that actions without version specs are ignored by outdated check"""
         workflow_string = """

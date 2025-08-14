@@ -164,3 +164,81 @@ class TestProblems:
 
         assert len(problems1.problems) == 1
         assert len(problems2.problems) == 0
+
+    def test_problems_extend(self):
+        """Test extending problems collection with another problems collection."""
+        problems1 = Problems()
+        problems2 = Problems()
+        pos1 = Pos(1, 1, 1)
+        pos2 = Pos(2, 2, 20)
+
+        # Add problems to first collection
+        error1 = Problem(pos1, ProblemLevel.ERR, "Error 1", "rule1")
+        warning1 = Problem(pos2, ProblemLevel.WAR, "Warning 1", "rule2")
+        problems1.append(error1)
+        problems1.append(warning1)
+
+        # Add problems to second collection
+        error2 = Problem(pos1, ProblemLevel.ERR, "Error 2", "rule3")
+        warning2 = Problem(pos2, ProblemLevel.WAR, "Warning 2", "rule4")
+        non_problem = Problem(pos1, ProblemLevel.NON, "Fixed", "rule5")
+        problems2.append(error2)
+        problems2.append(warning2)
+        problems2.append(non_problem)
+
+        # Extend first with second
+        problems1.extend(problems2)
+
+        # Check counts were properly combined
+        assert len(problems1.problems) == 5
+        assert problems1.n_error == 2  # error1 + error2
+        assert problems1.n_warning == 2  # warning1 + warning2
+        assert problems1.max_level == ProblemLevel.ERR
+
+        # Check all problems were added
+        assert error1 in problems1.problems
+        assert warning1 in problems1.problems
+        assert error2 in problems1.problems
+        assert warning2 in problems1.problems
+        assert non_problem in problems1.problems
+
+    def test_problems_remove(self):
+        """Test removing problems and updating counts."""
+        problems = Problems()
+        pos1 = Pos(1, 1, 1)
+        pos2 = Pos(2, 2, 20)
+
+        # Add multiple problems
+        error = Problem(pos1, ProblemLevel.ERR, "Error", "rule1")
+        warning = Problem(pos2, ProblemLevel.WAR, "Warning", "rule2")
+        non_problem = Problem(pos1, ProblemLevel.NON, "Fixed", "rule3")
+
+        problems.append(error)
+        problems.append(warning)
+        problems.append(non_problem)
+
+        assert len(problems.problems) == 3
+        assert problems.n_error == 1
+        assert problems.n_warning == 1
+        assert problems.max_level == ProblemLevel.ERR
+
+        # Remove the error
+        problems.remove(error)
+        assert len(problems.problems) == 2
+        assert problems.n_error == 0
+        assert problems.n_warning == 1
+        assert error not in problems.problems
+
+        # Remove the warning
+        problems.remove(warning)
+        assert len(problems.problems) == 1
+        assert problems.n_error == 0
+        assert problems.n_warning == 0
+        assert warning not in problems.problems
+
+        # Remove the non-problem (shouldn't affect counts)
+        problems.remove(non_problem)
+        assert len(problems.problems) == 0
+        assert problems.n_error == 0
+        assert problems.n_warning == 0
+        assert problems.max_level == ProblemLevel.NON  # Reset when empty

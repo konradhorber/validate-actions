@@ -156,3 +156,70 @@ class TestSharedComponentsBuilderDefaults:
 
         assert result is None
         assert problems.n_error == 1
+
+
+class TestSharedComponentsBuilderConcurrency:
+    """Unit tests for concurrency building."""
+
+    def test_build_concurrency_with_unknown_keys_reports_error(self):
+        """Test that unknown keys in concurrency generate errors with proper position."""
+        problems = Problems()
+        builder = DefaultSharedComponentsBuilder(problems)
+
+        concurrency_dict = {
+            ast.String("group", Pos(1, 1, 0)): ast.String("test-group", Pos(1, 8, 7)),
+            ast.String("unknown-key", Pos(2, 1, 20)): ast.String("value", Pos(2, 13, 32)),
+        }
+
+        result = builder.build_concurrency(
+            ast.String("concurrency", Pos(0, 0, 0)), concurrency_dict
+        )
+
+        assert isinstance(result, ast.Concurrency)
+        assert problems.n_error == 1
+        # Check that error has the position of the unknown key
+        assert problems.problems[0].pos.line == 2
+        assert problems.problems[0].pos.col == 1
+        assert problems.problems[0].pos.idx == 20
+
+    def test_build_concurrency_with_invalid_cancel_in_progress_string_reports_error(self):
+        """Test that non-expression string for cancel-in-progress generates error."""
+        problems = Problems()
+        builder = DefaultSharedComponentsBuilder(problems)
+
+        concurrency_dict = {
+            ast.String("group", Pos(1, 1, 0)): ast.String("test-group", Pos(1, 8, 7)),
+            ast.String("cancel-in-progress", Pos(2, 1, 20)): ast.String(
+                "not-an-expression", Pos(2, 20, 39), expr=False
+            ),
+        }
+
+        result = builder.build_concurrency(
+            ast.String("concurrency", Pos(0, 0, 0)), concurrency_dict
+        )
+
+        assert result is not None
+        assert result.cancel_in_progress_ is None
+        assert problems.n_error == 1
+        # Check that error has the position of the invalid cancel-in-progress
+        assert problems.problems[0].pos.line == 2
+        assert problems.problems[0].pos.col == 20
+        assert problems.problems[0].pos.idx == 39
+
+    def test_build_concurrency_with_invalid_cancel_in_progress_type_reports_error(self):
+        """Test that invalid type for cancel-in-progress generates error."""
+        problems = Problems()
+        builder = DefaultSharedComponentsBuilder(problems)
+
+        concurrency_dict = {
+            ast.String("group", Pos(1, 1, 0)): ast.String("test-group", Pos(1, 8, 7)),
+            ast.String("cancel-in-progress", Pos(2, 1, 20)): 123,  # Invalid type
+        }
+
+        result = builder.build_concurrency(
+            ast.String("concurrency", Pos(0, 0, 0)), concurrency_dict
+        )
+
+        assert result is not None
+        assert result.cancel_in_progress_ is None
+        assert problems.n_error == 1

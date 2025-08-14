@@ -27,6 +27,12 @@ pythonpath = [
   "validate_actions"
 ]
 
+[tool.coverage.run]
+omit = [
+    "scripts/*",
+    "tests/*",
+]
+
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
 types-pyyaml = "^6.0.12.20250402"
