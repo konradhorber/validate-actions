@@ -139,8 +139,8 @@ class TestRichFormatter:
 
         header = formatter.format_file_header(file_path)
 
-        assert str(file_path) in header
-        assert "📄" in header  # file emoji
+        assert "test/workflow.yml" in header
+        assert "📁" in header  # file emoji
         assert header.startswith("\n")  # starts with newline
 
     def test_format_problem_error(self):

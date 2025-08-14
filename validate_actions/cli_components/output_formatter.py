@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
 from rich.text import Text
 
 from validate_actions.globals.problems import Problem, ProblemLevel
@@ -109,36 +107,36 @@ class ColoredFormatter(OutputFormatter):
 class RichFormatter(OutputFormatter):
     """
     Modern Rich-based formatter with clean, minimalist styling.
-    
+
     Features:
     - Clean typography with subtle colors
     - Consistent spacing and alignment
     - Modern icons and visual hierarchy
     - Responsive layout that works in any terminal width
     """
-    
-    def __init__(self, console: Console = None):
-        """Initialize with optional Rich console."""
-        self.console = console or Console()
-        
+
+    def __init__(self):
+        """Initialize with Rich console."""
+        self.console = Console()
+
         # Modern color palette - subtle and professional
         self.colors = {
             ProblemLevel.NON: "bright_green",
-            ProblemLevel.ERR: "bright_red", 
+            ProblemLevel.ERR: "bright_red",
             ProblemLevel.WAR: "yellow",
             "muted": "bright_black",
             "accent": "cyan",
-            "text": "white"
+            "text": "white",
         }
-        
+
         # Modern icons
         self.icons = {
             ProblemLevel.NON: "✓",
-            ProblemLevel.ERR: "✕", 
+            ProblemLevel.ERR: "✕",
             ProblemLevel.WAR: "⚠",
-            "file": "📁"
+            "file": "📁",
         }
-    
+
     def format_file_header(self, file: Path) -> str:
         """Format clean file header with modern styling."""
         # Truncate path to show only filename and at most 2 levels up
@@ -147,102 +145,122 @@ class RichFormatter(OutputFormatter):
             display_path = str(Path(*parts[-3:]))  # Take last 2 dirs + filename
         else:
             display_path = str(file)
-        
+
         # Create file header with icon and clean typography
         header_text = Text()
         header_text.append(f"{self.icons['file']} ", style=self.colors["muted"])
         header_text.append(display_path, style=f"bold {self.colors['accent']}")
-        
+
         # Use console to render to string
         with self.console.capture() as capture:
             self.console.print(header_text)
         return f"\n{capture.get()}"
-    
+
     def format_problem(self, problem: Problem) -> str:
         """Format problem with clean typography and smart alignment."""
         # Build the line with Rich styling
         line = Text()
-        
+
         # Position (muted, right-aligned in a fixed width)
         position = f"{problem.pos.line + 1}:{problem.pos.col + 1}"
         line.append(f"{position:>8} ", style=self.colors["muted"])
-        
+
         # Level indicator with icon
         level_color = self.colors.get(problem.level, self.colors["text"])
         level_name = self._get_level_name(problem.level)
         icon = self.icons.get(problem.level, "•")
-        
+
         line.append(f"{icon} ", style=level_color)
         line.append(f"{level_name:<7} ", style=f"{level_color}")
-        
+
         # Description
         line.append(str(problem.desc), style=self.colors["text"])
-        
+
         # Rule name (muted, if present)
         if problem.rule:
             line.append(f"  ({problem.rule})", style=self.colors["muted"])
-        
+
         # Render to string
         with self.console.capture() as capture:
             self.console.print(line)
         return capture.get().rstrip()
-    
+
     def format_no_problems(self) -> str:
         """Format success message with clean styling."""
         success_text = Text()
-        success_text.append(f"  {self.icons[ProblemLevel.NON]} ", style=self.colors[ProblemLevel.NON])
+        success_text.append(
+            f"  {self.icons[ProblemLevel.NON]} ", style=self.colors[ProblemLevel.NON]
+        )
         success_text.append("All checks passed", style=f"bold {self.colors[ProblemLevel.NON]}")
-        
+
         with self.console.capture() as capture:
             self.console.print(success_text)
         return capture.get()
-    
+
     def format_summary(
         self, total_errors: int, total_warnings: int, max_level: ProblemLevel
     ) -> str:
         """Format modern summary with visual hierarchy."""
         total_problems = total_errors + total_warnings
-        
+
         if total_problems == 0:
             # Clean success summary
             summary = Text()
-            summary.append(f"\n{self.icons[ProblemLevel.NON]} ", style=self.colors[ProblemLevel.NON])
-            summary.append("Validation completed successfully", style=f"bold {self.colors[ProblemLevel.NON]}")
+            summary.append(
+                f"\n{self.icons[ProblemLevel.NON]} ", style=self.colors[ProblemLevel.NON]
+            )
+            summary.append(
+                "Validation completed successfully", style=f"bold {self.colors[ProblemLevel.NON]}"
+            )
             summary.append(" - no issues found\n", style=self.colors["muted"])
         else:
             # Create a clean summary table
             summary = Text()
             summary.append("\n")
-            
+
             # Main status line
             icon = self.icons.get(max_level, "•")
             color = self.colors.get(max_level, self.colors["text"])
-            
+
             summary.append(f"{icon} ", style=color)
             summary.append("Validation completed", style=f"bold {color}")
-            summary.append(f" - {total_problems} issue{'s' if total_problems != 1 else ''} found", style=color)
-            
+            issue_text = f" - {total_problems} issue"
+            if total_problems != 1:
+                issue_text += "s"
+            issue_text += " found"
+            summary.append(issue_text, style=color)
+
             # Breakdown
             if total_errors > 0:
-                summary.append(f"\n  {self.icons[ProblemLevel.ERR]} ", style=self.colors[ProblemLevel.ERR])
-                summary.append(f"{total_errors} error{'s' if total_errors != 1 else ''}", style=self.colors[ProblemLevel.ERR])
-            
+                summary.append(
+                    f"\n  {self.icons[ProblemLevel.ERR]} ", style=self.colors[ProblemLevel.ERR]
+                )
+                error_text = f"{total_errors} error"
+                if total_errors != 1:
+                    error_text += "s"
+                summary.append(error_text, style=self.colors[ProblemLevel.ERR])
+
             if total_warnings > 0:
-                summary.append(f"\n  {self.icons[ProblemLevel.WAR]} ", style=self.colors[ProblemLevel.WAR])
-                summary.append(f"{total_warnings} warning{'s' if total_warnings != 1 else ''}", style=self.colors[ProblemLevel.WAR])
-            
+                summary.append(
+                    f"\n  {self.icons[ProblemLevel.WAR]} ", style=self.colors[ProblemLevel.WAR]
+                )
+                warning_text = f"{total_warnings} warning"
+                if total_warnings != 1:
+                    warning_text += "s"
+                summary.append(warning_text, style=self.colors[ProblemLevel.WAR])
+
             summary.append("\n")
-        
+
         # Render to string
         with self.console.capture() as capture:
             self.console.print(summary)
         return capture.get()
-    
+
     def _get_level_name(self, level: ProblemLevel) -> str:
         """Get display name for problem level."""
         level_names = {
             ProblemLevel.WAR: "warning",
-            ProblemLevel.ERR: "error", 
-            ProblemLevel.NON: "fixed"
+            ProblemLevel.ERR: "error",
+            ProblemLevel.NON: "fixed",
         }
         return level_names.get(level, "unknown")
