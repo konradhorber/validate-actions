@@ -4,12 +4,16 @@ import validate_actions.domain_model.ast as ast
 from validate_actions.domain_model.contexts import Contexts
 from validate_actions.domain_model.primitives import Pos, String
 from validate_actions.globals.problems import Problem, ProblemLevel, Problems
-from validate_actions.pipeline_stages.builders.events_builder import DefaultEventsBuilder as EventsBuilder
+from validate_actions.pipeline_stages.builders.events_builder import (
+    DefaultEventsBuilder as EventsBuilder,
+)
 from validate_actions.pipeline_stages.builders.interfaces import (
     SharedComponentsBuilder,
     WorkflowBuilder,
 )
-from validate_actions.pipeline_stages.builders.jobs_builder import DefaultJobsBuilder as JobsBuilder
+from validate_actions.pipeline_stages.builders.jobs_builder import (
+    DefaultJobsBuilder as JobsBuilder,
+)
 
 
 class DefaultWorkflowBuilder(WorkflowBuilder):

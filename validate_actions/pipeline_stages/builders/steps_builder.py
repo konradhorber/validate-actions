@@ -27,7 +27,7 @@ class DefaultStepsBuilder(StepsBuilder):
         self,
         steps_in: List[Dict[ast.String, Any]],
         local_contexts: Contexts,
-        container: Optional[ast.Container] = None
+        container: Optional[ast.Container] = None,
     ) -> List[ast.Step]:
         steps_out: List[ast.Step] = []
         for step in steps_in:
@@ -38,7 +38,7 @@ class DefaultStepsBuilder(StepsBuilder):
         self,
         step_token_tree: Dict[ast.String, Any],
         local_contexts: Contexts,
-        container: Optional[ast.Container]
+        container: Optional[ast.Container],
     ) -> ast.Step:
         pos: Pos
         id_ = None

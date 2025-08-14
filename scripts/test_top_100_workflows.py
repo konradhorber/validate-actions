@@ -105,7 +105,8 @@ class Top100WorkflowTester:
             if repo:
                 # Look for files starting with repo name and containing workflow name
                 matching_files = [
-                    f for f in all_workflows
+                    f
+                    for f in all_workflows
                     if f.name.startswith(f"{repo}_") and specific_workflow in f.name
                 ]
                 if matching_files:
@@ -146,10 +147,10 @@ class Top100WorkflowTester:
     def _extract_repo_name(self, filename: str) -> str:
         """Extract repository name from filename prefix."""
         # Files are now named like: facebook_react_ci.yml
-        parts = filename.split('_')
+        parts = filename.split("_")
         if len(parts) >= 2:
             # Take first two parts as repo name (handles cases like ant-design_ant-design)
-            return '_'.join(parts[:2])
+            return "_".join(parts[:2])
         return parts[0] if parts else "unknown"
 
     def test_single_workflow(self, file_path: Path, repo_name: str) -> WorkflowTestResult:
@@ -165,7 +166,7 @@ class Top100WorkflowTester:
                 workflow_file=str(file_path),
                 fix=False,
                 github_token=os.getenv("GH_TOKEN"),
-                max_warnings=sys.maxsize
+                max_warnings=sys.maxsize,
             )
 
             # Use StandardCLI to validate the single file
@@ -185,6 +186,7 @@ class Top100WorkflowTester:
             self.logger.error(f"Exception processing {repo_name}/{file_path.name}: {e}")
             if self.debug:
                 import traceback
+
                 self.logger.debug(traceback.format_exc())
 
         result.processing_time = time.time() - start_time
@@ -205,12 +207,10 @@ class Top100WorkflowTester:
         self,
         workflows_dir: Path,
         specific_workflow: Optional[str] = None,
-        repo: Optional[str] = None
+        repo: Optional[str] = None,
     ) -> List[WorkflowTestResult]:
         """Run tests on selected workflows."""
-        workflow_files = self.get_workflow_files(
-            workflows_dir, specific_workflow, repo
-        )
+        workflow_files = self.get_workflow_files(workflows_dir, specific_workflow, repo)
 
         if not workflow_files:
             self.logger.error("No workflow files found to test")
@@ -305,14 +305,14 @@ class Top100WorkflowTester:
         if summary["by_repo"]:
             print("Results by repository (top 10 by total workflows):")
             sorted_repos = sorted(
-                summary["by_repo"].items(),
-                key=lambda x: x[1]["total"],
-                reverse=True
+                summary["by_repo"].items(), key=lambda x: x[1]["total"], reverse=True
             )[:10]
             for repo_name, stats in sorted_repos:
-                print(f"  {repo_name}: {stats['total']} workflows "
-                      f"({stats['pass']} pass, {stats['warn']} warn, "
-                      f"{stats['fail']} fail, {stats['exception']} exception)")
+                print(
+                    f"  {repo_name}: {stats['total']} workflows "
+                    f"({stats['pass']} pass, {stats['warn']} warn, "
+                    f"{stats['fail']} fail, {stats['exception']} exception)"
+                )
 
         if summary["most_problematic"]:
             print("\nMost problematic workflows (top 15):")

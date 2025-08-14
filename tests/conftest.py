@@ -122,8 +122,8 @@ def parse_workflow_string(
         problems_instance = problems.Problems()
         yaml_parser = parser.PyYAMLParser(problems_instance)
         contexts_instance = contexts.Contexts()
-        shared_components_builder_instance = shared_components_builder.DefaultSharedComponentsBuilder(
-            problems_instance
+        shared_components_builder_instance = (
+            shared_components_builder.DefaultSharedComponentsBuilder(problems_instance)
         )
         events_builder_instance = events_builder.DefaultEventsBuilder(problems_instance)
         steps_builder_instance = steps_builder.DefaultStepsBuilder(

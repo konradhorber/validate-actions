@@ -22,7 +22,9 @@ class TestE2E:
             workflows_dir.mkdir(parents=True)
             yield temp_project_root, workflows_dir
 
-    def run_cli(self, cwd: Path, fix: bool = False, extra_args: List[str] = None) -> subprocess.CompletedProcess:
+    def run_cli(
+        self, cwd: Path, fix: bool = False, extra_args: List[str] = None
+    ) -> subprocess.CompletedProcess:
         """Run the validate-actions CLI command."""
         project_root = Path(__file__).parent.parent.parent
 
@@ -288,7 +290,7 @@ jobs:
           path: node_modules
           key: cache-key
 """
-        
+
         warning_workflow_path = workflows_dir / "warnings.yml"
         warning_workflow_path.write_text(warning_workflow_content.strip())
 
@@ -305,7 +307,7 @@ jobs:
         output_lower = result.stdout.lower()
         assert "⚠" in result.stdout or "warning" in output_lower
 
-        # Test 3: max-warnings=3 (equal to warning count, should pass) 
+        # Test 3: max-warnings=3 (equal to warning count, should pass)
         result = self.run_cli(project_root, extra_args=["--max-warnings", "3"])
         assert result.returncode == 0
         output_lower = result.stdout.lower()
@@ -318,7 +320,7 @@ jobs:
         assert "⚠" in result.stdout or "warning" in output_lower
 
         # Test 5: max-warnings=0 (no warnings allowed, should fail)
-        result = self.run_cli(project_root, extra_args=["--max-warnings", "0"])  
+        result = self.run_cli(project_root, extra_args=["--max-warnings", "0"])
         assert result.returncode == 1
         output_lower = result.stdout.lower()
         assert "⚠" in result.stdout or "warning" in output_lower

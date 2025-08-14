@@ -6,7 +6,11 @@ orchestrate the pipeline.
 """
 
 from .output_formatter import ColoredFormatter, OutputFormatter
-from .result_aggregator import MaxWarningsResultAggregator, ResultAggregator, StandardResultAggregator
+from .result_aggregator import (
+    MaxWarningsResultAggregator,
+    ResultAggregator,
+    StandardResultAggregator,
+)
 from .validation_service import StandardValidationService, ValidationService
 
 __all__ = [

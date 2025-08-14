@@ -19,7 +19,7 @@ Example:
 
 from .cli import CLI, StandardCLI
 from .globals import Problem, ProblemLevel, Problems, ValidationResult
-from .pipeline import Pipeline, DefaultPipeline
+from .pipeline import DefaultPipeline, Pipeline
 
 
 # High-level validation function for library usage

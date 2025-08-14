@@ -43,7 +43,7 @@ jobs:
         assert ref == should_be
 
     def test_flow_mapping_value_token_parsing(self):
-        """Test flow mapping parsing handles ValueToken with ScalarToken, FlowMappingStartToken, and FlowSequenceStartToken."""
+        """Test flow mapping parsing handles ValueToken with various token types."""
         # Test with scalar value
         workflow_string = """
 on: push
@@ -57,7 +57,7 @@ jobs:
         workflow, problems = parse_workflow_string(workflow_string)
         with_value = workflow.jobs_["test-job"].steps_[0].exec.with_["ref"]
         assert with_value.string == "main"
-        
+
         # Test with nested flow mapping
         workflow_string = """
 on: push
@@ -71,7 +71,7 @@ jobs:
         workflow, problems = parse_workflow_string(workflow_string)
         config_value = workflow.jobs_["test-job"].steps_[0].exec.with_["config"]["timeout"]
         assert config_value == 30
-        
+
         # Test with flow sequence
         workflow_string = """
 on: push

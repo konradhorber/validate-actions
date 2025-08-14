@@ -26,9 +26,7 @@ jobs:
 
         # Check that marketplace enricher generates warnings for unknown actions
         unknown_action_problems = [
-            p
-            for p in problems.problems
-            if "unknown" in p.desc.lower() and p.rule == "marketplace"
+            p for p in problems.problems if "unknown" in p.desc.lower() and p.rule == "marketplace"
         ]
         assert len(unknown_action_problems) >= 1
         assert unknown_action_problems[0].level == ProblemLevel.WAR

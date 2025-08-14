@@ -42,7 +42,9 @@ class DefaultPipeline(Pipeline):
 
         self.parser = pipeline_stages.PyYAMLParser(self.problems)
         self.builder = pipeline_stages.DefaultBuilder(self.problems)
-        self.marketplace_enricher = pipeline_stages.DefaultMarketPlaceEnricher(web_fetcher, self.problems)
+        self.marketplace_enricher = pipeline_stages.DefaultMarketPlaceEnricher(
+            web_fetcher, self.problems
+        )
         self.job_orderer = pipeline_stages.DefaultJobOrderer(self.problems)
         self.validator = pipeline_stages.ExtensibleValidator(self.problems, self.fixer)
 

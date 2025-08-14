@@ -3,7 +3,10 @@
 import sys
 from pathlib import Path
 
-from validate_actions.cli_components.result_aggregator import MaxWarningsResultAggregator, StandardResultAggregator
+from validate_actions.cli_components.result_aggregator import (
+    MaxWarningsResultAggregator,
+    StandardResultAggregator,
+)
 from validate_actions.domain_model.primitives import Pos
 from validate_actions.globals.cli_config import CLIConfig
 from validate_actions.globals.problems import Problem, ProblemLevel, Problems

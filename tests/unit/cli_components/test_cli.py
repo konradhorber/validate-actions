@@ -18,33 +18,37 @@ class TestCLI:
             github_dir = temp_path / ".github"
             workflows_dir = github_dir / "workflows"
             workflows_dir.mkdir(parents=True)
-            
+
             # Create test workflow files
             workflow1 = workflows_dir / "test1.yml"
             workflow2 = workflows_dir / "test2.yaml"
-            workflow1.write_text("name: test1\non: push\njobs:\n  test:\n    runs-on: ubuntu-latest")
-            workflow2.write_text("name: test2\non: pull_request\njobs:\n  test:\n    runs-on: ubuntu-latest")
-            
+            workflow1.write_text(
+                "name: test1\non: push\njobs:\n  test:\n    runs-on: ubuntu-latest"
+            )
+            workflow2.write_text(
+                "name: test2\non: pull_request\njobs:\n  test:\n    runs-on: ubuntu-latest"
+            )
+
             # Create CLI instance with mocked dependencies
             config = CLIConfig(workflow_file=None, github_token="test", fix=False)
             formatter = Mock()
             aggregator = Mock()
             aggregator.get_exit_code.return_value = 0
             validation_service = Mock()
-            
+
             # Create mock validation results
             problems = Problems()
             result1 = ValidationResult(workflow1, problems, 0, 0, 0)
             result2 = ValidationResult(workflow2, problems, 0, 0, 0)
             validation_service.validate_file.side_effect = [result1, result2]
-            
+
             cli = StandardCLI(config, formatter, aggregator, validation_service)
-            
+
             # Mock the directory finding to return our temp directory
-            with patch.object(cli, '_find_workflows_directory', return_value=temp_path):
-                with patch('builtins.print') as mock_print:  # Suppress progress output
+            with patch.object(cli, "_find_workflows_directory", return_value=temp_path):
+                with patch("builtins.print"):  # Suppress progress output
                     exit_code = cli._run_directory()
-            
+
             # Assertions
             assert exit_code == 0
             assert validation_service.validate_file.call_count == 2

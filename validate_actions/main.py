@@ -1,4 +1,5 @@
 """Main CLI entry point for validate-actions."""
+
 import os
 import sys
 
@@ -35,7 +36,7 @@ def main(
         max_warnings=max_warnings,
         workflow_file=workflow_file,
         github_token=os.getenv("GH_TOKEN"),
-        no_warnings=quiet
+        no_warnings=quiet,
     )
 
     cli: CLI = StandardCLI(config)

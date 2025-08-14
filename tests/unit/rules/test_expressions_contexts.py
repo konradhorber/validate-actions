@@ -30,12 +30,12 @@ jobs:
   example_job:
     name: Generate output
     runs-on: ubuntu-latest
-    
+
     # Map the job outputs to step outputs
     outputs:
       output1: ${{ steps.step1.outputs.firstword }}
       output2: ${{ steps.step2.outputs.secondword }}
-    
+
     steps:
     - id: step1
       run: echo "firstword=hello" >> $GITHUB_OUTPUT
@@ -67,12 +67,12 @@ jobs:
   example_job:
     name: Generate output
     runs-on: ubuntu-latest
-    
+
     # Map the job outputs to step outputs
     outputs:
       output1: ${{ steps.step1.outputs.firstword }}
       output2: ${{ steps.step2.outputs.secondword }}
-    
+
     steps:
     - id: step1
       run: echo "firstword=hello" >> $GITHUB_OUTPUT
@@ -227,7 +227,7 @@ jobs:
                 REPOSITORY_VAR: ${{ vars.REPOSITORY_VAR }}
                 ORGANIZATION_VAR: ${{ vars.ORGANIZATION_VAR }}
                 OVERRIDE_VAR: ${{ vars.OVERRIDE_VAR }}
-                
+
             - name: ${{ vars.HELLO_WORLD_STEP }}
               if: ${{ vars.HELLO_WORLD_ENABLED == 'true' }}
               uses: actions/hello-world-javascript-action@main

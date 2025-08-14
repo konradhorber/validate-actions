@@ -28,7 +28,9 @@ class DefaultBuilder(Builder):
         contexts = Contexts()
         self.shared_components_builder = DefaultSharedComponentsBuilder(problems)
         self.events_builder = DefaultEventsBuilder(problems)
-        self.steps_builder = DefaultStepsBuilder(problems, contexts, self.shared_components_builder)
+        self.steps_builder = DefaultStepsBuilder(
+            problems, contexts, self.shared_components_builder
+        )
         self.jobs_builder = DefaultJobsBuilder(
             problems, self.steps_builder, contexts, self.shared_components_builder
         )
