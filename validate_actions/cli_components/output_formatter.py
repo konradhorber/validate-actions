@@ -136,15 +136,22 @@ class RichFormatter(OutputFormatter):
             ProblemLevel.NON: "✓",
             ProblemLevel.ERR: "✕", 
             ProblemLevel.WAR: "⚠",
-            "file": "📄"
+            "file": "📁"
         }
     
     def format_file_header(self, file: Path) -> str:
         """Format clean file header with modern styling."""
+        # Truncate path to show only filename and at most 2 levels up
+        parts = file.parts
+        if len(parts) > 3:  # More than 2 directories + filename
+            display_path = str(Path(*parts[-3:]))  # Take last 2 dirs + filename
+        else:
+            display_path = str(file)
+        
         # Create file header with icon and clean typography
         header_text = Text()
         header_text.append(f"{self.icons['file']} ", style=self.colors["muted"])
-        header_text.append(str(file), style=f"bold {self.colors['accent']}")
+        header_text.append(display_path, style=f"bold {self.colors['accent']}")
         
         # Use console to render to string
         with self.console.capture() as capture:
