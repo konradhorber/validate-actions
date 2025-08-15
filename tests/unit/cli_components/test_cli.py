@@ -34,24 +34,22 @@ class TestCLI:
             formatter = Mock()
             aggregator = Mock()
             aggregator.get_exit_code.return_value = 0
-            validation_service = Mock()
 
             # Create mock validation results
             problems = Problems()
             result1 = ValidationResult(workflow1, problems, 0, 0, 0)
             result2 = ValidationResult(workflow2, problems, 0, 0, 0)
-            validation_service.validate_file.side_effect = [result1, result2]
 
-            cli = StandardCLI(config, formatter, aggregator, validation_service)
+            cli = StandardCLI(config, formatter, aggregator)
 
-            # Mock the directory finding to return our temp directory
+            # Mock the directory finding and validation method to return our temp directory
             with patch.object(cli, "_find_workflows_directory", return_value=temp_path):
-                with patch("builtins.print"):  # Suppress progress output
-                    exit_code = cli._run_directory()
+                with patch.object(cli, "_validate_file_with_pipeline", side_effect=[result1, result2]):
+                    with patch("builtins.print"):  # Suppress progress output
+                        exit_code = cli._run_directory()
 
             # Assertions
             assert exit_code == 0
-            assert validation_service.validate_file.call_count == 2
             assert aggregator.add_result.call_count == 2
             aggregator.add_result.assert_any_call(result1)
             aggregator.add_result.assert_any_call(result2)
@@ -86,8 +84,8 @@ jobs:
             from validate_actions.pipeline import DefaultPipeline
 
             web_fetcher = DefaultWebFetcher(github_token=os.getenv("GH_TOKEN"))
-            pipeline = DefaultPipeline(web_fetcher, NoFixer())
-            problems = pipeline.process(temp_file_path)
+            pipeline = DefaultPipeline(temp_file_path, web_fetcher, NoFixer())
+            problems = pipeline.process()
         finally:
             temp_file_path.unlink(missing_ok=True)
 

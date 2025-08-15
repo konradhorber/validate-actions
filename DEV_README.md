@@ -64,8 +64,7 @@ validate_actions/
 │
 ├── cli_components/          # CLI building blocks
 │   ├── output_formatter.py    # Colored terminal output
-│   ├── result_aggregator.py   # Result collection and summarization  
-│   └── validation_service.py  # File discovery and validation coordination
+│   └── result_aggregator.py   # Result collection and summarization
 │
 ├── domain_model/           # Core domain types and AST
 │   ├── ast.py                 # GitHub Actions workflow AST nodes

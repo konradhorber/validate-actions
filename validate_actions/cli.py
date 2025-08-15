@@ -11,13 +11,11 @@ from validate_actions.cli_components.result_aggregator import (
     ResultAggregator,
     StandardResultAggregator,
 )
-from validate_actions.cli_components.validation_service import (
-    StandardValidationService,
-    ValidationService,
-)
 from validate_actions.globals.cli_config import CLIConfig
+from validate_actions.globals.fixer import BaseFixer, NoFixer
 from validate_actions.globals.validation_result import ValidationResult
 from validate_actions.globals.web_fetcher import DefaultWebFetcher
+from validate_actions.pipeline import DefaultPipeline
 
 
 class CLI(ABC):
@@ -41,7 +39,7 @@ class StandardCLI(CLI):
     Coordinates validation using pluggable components:
     - OutputFormatter: handles display formatting
     - ResultAggregator: collects and summarizes results
-    - ValidationService: runs the validation pipeline
+    - Pipeline creation: creates pipelines for each file
     """
 
     def __init__(
@@ -49,7 +47,6 @@ class StandardCLI(CLI):
         config: CLIConfig,
         formatter: Optional[OutputFormatter] = None,
         aggregator: Optional[ResultAggregator] = None,
-        validation_service: Optional[ValidationService] = None,
     ):
         """
         Initialize CLI with configuration and optional component overrides.
@@ -58,16 +55,15 @@ class StandardCLI(CLI):
             config: CLI configuration (fix mode, workflow file, GitHub token)
             formatter: Output formatter (defaults to RichFormatter)
             aggregator: Result aggregator (defaults to StandardResultAggregator)
-            validation_service: Validation service (defaults to StandardValidationService)
         """
         self.config = config
         self.formatter = formatter or RichFormatter()
         if config.max_warnings < sys.maxsize:
             aggregator = MaxWarningsResultAggregator(config)
         self.aggregator = aggregator or StandardResultAggregator(config)
-        self.validation_service = validation_service or StandardValidationService(
-            DefaultWebFetcher(github_token=config.github_token)
-        )
+
+        # Create web fetcher (reusable across files)
+        self.web_fetcher = DefaultWebFetcher(github_token=config.github_token)
 
     def run(self) -> int:
         """Main CLI execution method.
@@ -114,7 +110,7 @@ class StandardCLI(CLI):
             transient=True,
         ) as progress:
             progress.add_task(description=f"Validating {file.name}...", total=None)
-            result = self.validation_service.validate_file(file, self.config)
+            result = self._validate_file_with_pipeline(file)
 
         self.aggregator.add_result(result)
         self._display_result(result)
@@ -155,7 +151,7 @@ class StandardCLI(CLI):
                 transient=True,
             ) as progress:
                 progress.add_task(description=f"Validating {file.name}...", total=None)
-                result = self.validation_service.validate_file(file, self.config)
+                result = self._validate_file_with_pipeline(file)
 
             self.aggregator.add_result(result)
             self._display_result(result)
@@ -215,3 +211,37 @@ class StandardCLI(CLI):
 
         except (OSError, PermissionError, UnicodeDecodeError):
             return False
+
+    def _create_pipeline(self, file: Path) -> DefaultPipeline:
+        """Create a new pipeline instance with file-specific fixer."""
+        fixer = BaseFixer(file) if self.config.fix else NoFixer()
+        return DefaultPipeline(file, self.web_fetcher, fixer)
+
+    def _validate_file_with_pipeline(self, file: Path) -> ValidationResult:
+        """Validate a single workflow file using a pipeline and return results."""
+        pipeline = self._create_pipeline(file)
+        problems = pipeline.process()
+        problems.sort()
+
+        # Filter out warnings if quiet mode is enabled
+        if self.config.no_warnings:
+            problems = self._filter_warnings(problems)
+
+        return ValidationResult(
+            file=file,
+            problems=problems,
+            max_level=problems.max_level,
+            error_count=problems.n_error,
+            warning_count=problems.n_warning,
+        )
+
+    def _filter_warnings(self, problems):
+        """Filter out warning-level problems and recalculate stats."""
+        from validate_actions.globals.problems import ProblemLevel, Problems
+
+        filtered = Problems()
+        for problem in problems.problems:
+            if problem.level != ProblemLevel.WAR:
+                filtered.append(problem)
+
+        return filtered

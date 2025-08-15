@@ -12,16 +12,16 @@ from validate_actions.pipeline import Pipeline
 class SimplePipeline(Pipeline):
     """Pipeline with only parser, builder, and validator stages."""
 
-    def __init__(self):
+    def __init__(self, file: Path):
         fixer = NoFixer()
-        super().__init__(fixer)
+        super().__init__(file, fixer)
 
         self.parser = pipeline_stages.PyYAMLParser(self.problems)
         self.builder = pipeline_stages.DefaultBuilder(self.problems)
         self.validator = pipeline_stages.ExtensibleValidator(self.problems, self.fixer)
 
-    def process(self, path: Path) -> Problems:
-        dict_result = self.parser.process(path)
+    def process(self) -> Problems:
+        dict_result = self.parser.process(self.file)
         workflow = self.builder.process(dict_result)
         problems = self.validator.process(workflow)
         return problems
@@ -62,8 +62,8 @@ jobs:
 
         try:
             # Process with simple pipeline
-            pipeline = SimplePipeline()
-            problems = pipeline.process(temp_file_path)
+            pipeline = SimplePipeline(temp_file_path)
+            problems = pipeline.process()
 
             # Should not have any problems
             assert problems is not None
@@ -100,8 +100,8 @@ jobs:
             temp_file_path = Path(temp_file.name)
 
         try:
-            pipeline = SimplePipeline()
-            problems = pipeline.process(temp_file_path)
+            pipeline = SimplePipeline(temp_file_path)
+            problems = pipeline.process()
 
             # Should process without critical errors
             assert problems is not None

@@ -1,33 +1,30 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from pathlib import Path
 
 from validate_actions import pipeline_stages
 from validate_actions.globals.fixer import Fixer
 from validate_actions.globals.problems import Problems
-from validate_actions.globals.process_stage import ProcessStage
 from validate_actions.globals.web_fetcher import WebFetcher
 
 
-class Pipeline(ProcessStage[Path, Problems]):
+class Pipeline(ABC):
     """
-    Interface for Validator classes.
+    Abstract pipeline for validating a specific workflow file.
 
-    Classes implementing this interface should provide a `run` method
-    to validate workflow files and return problems found.
+    Each pipeline instance is bound to a specific file and contains
+    all the necessary components to process that file through the
+    validation stages.
     """
 
-    def __init__(self, fixer: Fixer) -> None:
-        self.problems: Problems = Problems()
+    def __init__(self, file: Path, fixer: Fixer) -> None:
+        self.file = file
         self.fixer = fixer
+        self.problems: Problems = Problems()
 
     @abstractmethod
-    def process(self, file: Path) -> Problems:
+    def process(self) -> Problems:
         """
-        Validate a workflow file and return problems found.
-
-        Args:
-            file (Path): Path to the workflow file to validate.
-            fix (bool): Whether to attempt automatic fixes for detected problems.
+        Process the workflow file and return problems found.
 
         Returns:
             Problems: A collection of problems found during validation.
@@ -36,8 +33,8 @@ class Pipeline(ProcessStage[Path, Problems]):
 
 
 class DefaultPipeline(Pipeline):
-    def __init__(self, web_fetcher: WebFetcher, fixer: Fixer):
-        super().__init__(fixer)
+    def __init__(self, file: Path, web_fetcher: WebFetcher, fixer: Fixer):
+        super().__init__(file, fixer)
         self.web_fetcher = web_fetcher
 
         self.parser = pipeline_stages.PyYAMLParser(self.problems)
@@ -48,8 +45,8 @@ class DefaultPipeline(Pipeline):
         self.job_orderer = pipeline_stages.DefaultJobOrderer(self.problems)
         self.validator = pipeline_stages.ExtensibleValidator(self.problems, self.fixer)
 
-    def process(self, path: Path) -> Problems:
-        dict = self.parser.process(path)
+    def process(self) -> Problems:
+        dict = self.parser.process(self.file)
         workflow = self.builder.process(dict)
         workflow = self.marketplace_enricher.process(workflow)
         workflow = self.job_orderer.process(workflow)
