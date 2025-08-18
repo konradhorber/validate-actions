@@ -85,7 +85,7 @@ class StepsIOMatch(Rule):
         job: ast.Job,
     ) -> Generator[Problem, None, None]:
         if not isinstance(step.exec, ast.ExecAction):
-            return  # TODO check for run exec type
+            return
 
         # Use the new ActionMetadata if available
         if step.exec.metadata is None:

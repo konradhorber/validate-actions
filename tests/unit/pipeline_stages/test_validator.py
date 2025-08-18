@@ -65,7 +65,8 @@ class TestExtensibleValidator:
             """
             rules:
               expressions-contexts: validate_actions.rules.expressions_contexts:ExpressionsContexts
-              action-metadata: validate_actions.rules.action_metadata:ActionMetadata
+              action-version: validate_actions.rules.action_version:ActionVersion
+              action-input: validate_actions.rules.action_input:ActionInput
         """
         )
 
@@ -84,7 +85,7 @@ class TestExtensibleValidator:
             # Load rules from config
             rules = validator._load_rules_from_config(workflow)
 
-            assert len(rules) == 2
+            assert len(rules) == 3
             assert all(isinstance(rule, Rule) for rule in rules)
         finally:
             os.unlink(config_path)
