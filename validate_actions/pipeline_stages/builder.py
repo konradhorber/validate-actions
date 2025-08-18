@@ -16,8 +16,23 @@ from validate_actions.pipeline_stages.builders.workflow_builder import DefaultWo
 
 
 class Builder(ProcessStage[Dict[String, Any], Workflow]):
+    """Abstract base class for workflow AST builders.
+
+    The Builder stage transforms parsed YAML data into a structured AST
+    representation that can be used for validation and analysis.
+    """
+
     @abstractmethod
     def process(self, workflow_dict: Dict[String, Any]) -> Workflow:
+        """Build a workflow AST from parsed YAML data.
+
+        Args:
+            workflow_dict: Dictionary representation of the parsed workflow YAML,
+                         with String keys preserving position information
+
+        Returns:
+            Workflow: Complete AST representation of the GitHub Actions workflow
+        """
         pass
 
 
