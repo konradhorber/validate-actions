@@ -95,7 +95,7 @@ validate_actions/
 └── rules/                  # Validation rule implementations
     ├── rule.py               # Base Rule class and interfaces
     ├── expressions_contexts.py  # GitHub context validation
-    ├── jobs_steps_uses.py    # Action usage and version validation
+    ├── action_metadata.py    # Action usage and version validation
     ├── steps_io_match.py     # Step input/output validation
     └── rules.yml             # Rule configuration metadata
 ```

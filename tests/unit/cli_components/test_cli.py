@@ -94,7 +94,7 @@ jobs:
 
         assert len(problems_list) == 4
         rule_event = "events-syntax-error"
-        rule_input = "jobs-steps-uses"
+        rule_input = "action-metadata"
         assert problems_list[0].rule == rule_event
         assert problems_list[1].rule == rule_input
         assert problems_list[1].level == ProblemLevel.WAR

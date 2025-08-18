@@ -5,10 +5,10 @@ from tests.conftest import parse_workflow_string
 from validate_actions import Problem, ProblemLevel
 from validate_actions.globals import fixer
 from validate_actions.globals.fixer import NoFixer
-from validate_actions.rules.jobs_steps_uses import JobsStepsUses
+from validate_actions.rules.action_metadata import ActionMetadata
 
 
-class TestJobsStepsUses:
+class TestActionMetadata:
     # with
     def test_action_without_version_spec_warning(self):
         workflow_string = """
@@ -22,14 +22,14 @@ class TestJobsStepsUses:
             uses: actions/checkout
     """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = JobsStepsUses(workflow, NoFixer())
+        rule = ActionMetadata(workflow, NoFixer())
         gen = rule.check()
         result = list(gen)
 
         # Should have a warning about missing version specification
         version_warnings = [p for p in result if "Using specific version" in p.desc]
         assert len(version_warnings) == 1
-        assert version_warnings[0].rule == "jobs-steps-uses"
+        assert version_warnings[0].rule == "action-metadata"
         assert version_warnings[0].level == ProblemLevel.WAR
 
     # region required inputs
@@ -149,12 +149,12 @@ class TestJobsStepsUses:
               status: 'test'
     """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = JobsStepsUses(workflow, NoFixer())
+        rule = ActionMetadata(workflow, NoFixer())
         gen = rule.check()
         result = list(gen)
         assert len(result) == 1
         assert isinstance(result[0], Problem)
-        assert result[0].rule == "jobs-steps-uses"
+        assert result[0].rule == "action-metadata"
         assert result[0].pos.line == 7
         assert result[0].desc == "8398a7/action-slack@v3 uses unknown input: wrong_input"
 
@@ -172,12 +172,12 @@ class TestJobsStepsUses:
               wrong_input: 'test'
     """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = JobsStepsUses(workflow, NoFixer())
+        rule = ActionMetadata(workflow, NoFixer())
         gen = rule.check()
         result = list(gen)
         assert len(result) == 1
         assert isinstance(result[0], Problem)
-        assert result[0].rule == "jobs-steps-uses"
+        assert result[0].rule == "action-metadata"
         assert result[0].pos.line == 7
         assert result[0].desc == "8398a7/action-slack@v3 uses unknown input: wrong_input"
 
@@ -210,7 +210,7 @@ class TestJobsStepsUses:
 
             workflow_obj, initial_problems = parse_workflow_string(workflow_string_without_version)
             fix = fixer.BaseFixer(temp_file_path)
-            rule = JobsStepsUses(workflow_obj, fix)
+            rule = ActionMetadata(workflow_obj, fix)
             problems_after_fix = list(rule.check())
             # Apply the batched fixes
             fix.flush()
@@ -226,17 +226,17 @@ class TestJobsStepsUses:
     def throws_single_error(self, workflow_string: str):
         workflow, problems = parse_workflow_string(workflow_string)
         fixy = fixer.BaseFixer(Path(tempfile.gettempdir()))
-        rule = JobsStepsUses(workflow, fixy)
+        rule = ActionMetadata(workflow, fixy)
         gen = rule.check()
         result = list(gen)
         assert len(result) == 1
         assert isinstance(result[0], Problem)
-        assert result[0].rule == "jobs-steps-uses"
+        assert result[0].rule == "action-metadata"
 
     def throws_no_error(self, workflow_string: str):
         workflow, problems = parse_workflow_string(workflow_string)
         fixy = fixer.BaseFixer(Path(tempfile.gettempdir()))
-        rule = JobsStepsUses(workflow, fixy)
+        rule = ActionMetadata(workflow, fixy)
         gen = rule.check()
         result = list(gen)
         assert result == []
@@ -255,7 +255,7 @@ class TestJobsStepsUses:
             uses: actions/checkout@v3
     """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = JobsStepsUses(workflow, NoFixer())
+        rule = ActionMetadata(workflow, NoFixer())
         gen = rule.check()
         result = list(gen)
 
@@ -263,7 +263,7 @@ class TestJobsStepsUses:
         outdated_warnings = [p for p in result if "outdated" in p.desc.lower()]
         assert len(outdated_warnings) == 1
         assert outdated_warnings[0].level == ProblemLevel.WAR
-        assert outdated_warnings[0].rule == "jobs-steps-uses"
+        assert outdated_warnings[0].rule == "action-metadata"
         assert "v3" in outdated_warnings[0].desc
 
     def test_outdated_minor_version_v4_1_when_v4_2_available(self):
@@ -279,7 +279,7 @@ class TestJobsStepsUses:
             uses: actions/checkout@v4.1
     """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = JobsStepsUses(workflow, NoFixer())
+        rule = ActionMetadata(workflow, NoFixer())
         gen = rule.check()
         result = list(gen)
 
@@ -287,7 +287,7 @@ class TestJobsStepsUses:
         outdated_warnings = [p for p in result if "outdated" in p.desc.lower()]
         assert len(outdated_warnings) == 1
         assert outdated_warnings[0].level == ProblemLevel.WAR
-        assert outdated_warnings[0].rule == "jobs-steps-uses"
+        assert outdated_warnings[0].rule == "action-metadata"
         assert "v4.1" in outdated_warnings[0].desc
 
     def test_outdated_patch_version_v4_2_1_when_v4_2_2_available(self):
@@ -303,7 +303,7 @@ class TestJobsStepsUses:
             uses: actions/checkout@v4.2.1
     """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = JobsStepsUses(workflow, NoFixer())
+        rule = ActionMetadata(workflow, NoFixer())
         gen = rule.check()
         result = list(gen)
 
@@ -311,7 +311,7 @@ class TestJobsStepsUses:
         outdated_warnings = [p for p in result if "outdated" in p.desc.lower()]
         assert len(outdated_warnings) == 1
         assert outdated_warnings[0].level == ProblemLevel.WAR
-        assert outdated_warnings[0].rule == "jobs-steps-uses"
+        assert outdated_warnings[0].rule == "action-metadata"
         assert "v4.2.1" in outdated_warnings[0].desc
 
     def test_v4_resolves_to_latest_v4_x_x(self):
@@ -327,7 +327,7 @@ class TestJobsStepsUses:
             uses: actions/checkout@v4
     """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = JobsStepsUses(workflow, NoFixer())
+        rule = ActionMetadata(workflow, NoFixer())
         gen = rule.check()
         result = list(gen)
 
@@ -348,7 +348,7 @@ class TestJobsStepsUses:
             uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
     """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = JobsStepsUses(workflow, NoFixer())
+        rule = ActionMetadata(workflow, NoFixer())
         gen = rule.check()
         result = list(gen)
 
@@ -358,7 +358,7 @@ class TestJobsStepsUses:
         ]
         assert len(outdated_warnings) == 1
         assert outdated_warnings[0].level == ProblemLevel.WAR
-        assert outdated_warnings[0].rule == "jobs-steps-uses"
+        assert outdated_warnings[0].rule == "action-metadata"
         assert "SHA" in outdated_warnings[0].desc
 
     def test_current_latest_version_no_warning(self):
@@ -374,7 +374,7 @@ class TestJobsStepsUses:
             uses: actions/checkout@v4.2.2
     """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = JobsStepsUses(workflow, NoFixer())
+        rule = ActionMetadata(workflow, NoFixer())
         gen = rule.check()
         result = list(gen)
 
@@ -395,7 +395,7 @@ class TestJobsStepsUses:
             uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
     """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = JobsStepsUses(workflow, NoFixer())
+        rule = ActionMetadata(workflow, NoFixer())
 
         # Mock _parse_semantic_version to return None (invalid version)
         original_parse = rule._parse_semantic_version
@@ -424,7 +424,7 @@ class TestJobsStepsUses:
             uses: actions/checkout
     """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = JobsStepsUses(workflow, NoFixer())
+        rule = ActionMetadata(workflow, NoFixer())
         gen = rule.check()
         result = list(gen)
 
@@ -452,7 +452,7 @@ class TestJobsStepsUses:
             uses: actions/cache@v2
     """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = JobsStepsUses(workflow, NoFixer())
+        rule = ActionMetadata(workflow, NoFixer())
         gen = rule.check()
         result = list(gen)
 
@@ -473,7 +473,7 @@ class TestJobsStepsUses:
             uses: private-org/private-action@v1.0.0
     """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = JobsStepsUses(workflow, NoFixer())
+        rule = ActionMetadata(workflow, NoFixer())
         gen = rule.check()
         list(gen)  # Consume generator
 
@@ -502,7 +502,7 @@ class TestJobsStepsUses:
 
             workflow_obj, initial_problems = parse_workflow_string(workflow_string_outdated)
             fix = fixer.BaseFixer(temp_file_path)
-            rule = JobsStepsUses(workflow_obj, fix)
+            rule = ActionMetadata(workflow_obj, fix)
             problems_after_fix = list(rule.check())
             # Apply the batched fixes
             fix.flush()
@@ -523,10 +523,10 @@ class TestJobsStepsUses:
 
 
 class TestUtilityMethods:
-    """Test utility methods of JobsStepsUses class"""
+    """Test utility methods of ActionMetadata class"""
 
     def setup_method(self):
-        """Setup a JobsStepsUses instance for testing utility methods"""
+        """Setup a ActionMetadata instance for testing utility methods"""
         workflow_string = """
         name: test
         on: push
@@ -537,7 +537,7 @@ class TestUtilityMethods:
               - uses: actions/checkout@v4
         """
         workflow, _ = parse_workflow_string(workflow_string)
-        self.rule = JobsStepsUses(workflow, NoFixer())
+        self.rule = ActionMetadata(workflow, NoFixer())
 
     def test_parse_semantic_version_full(self):
         """Test parsing full semantic versions"""

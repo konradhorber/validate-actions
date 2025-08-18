@@ -7,7 +7,7 @@
 #
 # Built-in Rules:
 # - expressions-contexts: Validates GitHub Actions context references
-# - jobs-steps-uses: Validates action usage, versions, and inputs  
+# - action-metadata: Validates action usage, versions, and inputs  
 # - steps-io-match: Validates step input/output references
 #
 # To create custom rules:
@@ -36,5 +36,5 @@
 
 rules:
   expressions-contexts: validate_actions.rules.expressions_contexts:ExpressionsContexts
-  jobs-steps-uses: validate_actions.rules.jobs_steps_uses:JobsStepsUses
+  action-metadata: validate_actions.rules.action_metadata:ActionMetadata
   steps-io-match: validate_actions.rules.steps_io_match:StepsIOMatch

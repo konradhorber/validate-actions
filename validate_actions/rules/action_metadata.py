@@ -22,7 +22,7 @@ from validate_actions.globals.problems import Problem, ProblemLevel
 from validate_actions.rules.rule import Rule
 
 
-class JobsStepsUses(Rule):
+class ActionMetadata(Rule):
     """Validates the 'uses:' field specifications in workflow steps.
 
     This rule checks GitHub Actions workflow steps that reference external actions
@@ -37,7 +37,7 @@ class JobsStepsUses(Rule):
     - Provides auto-fix capabilities for version updates
     """
 
-    NAME = "jobs-steps-uses"
+    NAME = "action-metadata"
 
     # ====================
     # MAIN VALIDATION METHODS

@@ -6,13 +6,13 @@ and input/output matching.
 """
 
 from .expressions_contexts import ExpressionsContexts
-from .jobs_steps_uses import JobsStepsUses
+from .action_metadata import ActionMetadata
 from .rule import Rule
 from .steps_io_match import StepsIOMatch
 
 __all__ = [
     "ExpressionsContexts",
-    "JobsStepsUses",
+    "ActionMetadata",
     "Rule",
     "StepsIOMatch",
 ]
