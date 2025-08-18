@@ -95,8 +95,9 @@ validate_actions/
 └── rules/                  # Validation rule implementations
     ├── rule.py               # Base Rule class and interfaces
     ├── expressions_contexts.py  # GitHub context validation
-    ├── action_metadata.py    # Action usage and version validation
-    ├── steps_io_match.py     # Step input/output validation
+    ├── action_version.py     # Action version validation
+    ├── action_input.py       # Action input validation
+    ├── action_output.py      # Step input/output validation
     └── rules.yml             # Rule configuration metadata
 ```
 
@@ -264,9 +265,10 @@ from validate_actions.rules.my_new_rule import MyNewRule
 
 class ExtensibleValidator(IValidator):
     ACTIONS_ERROR_RULES = [
-        ExpressionsContextsRule,
-        JobsStepsUsesRule,
-        StepsIOMatchRule,
+        ExpressionsContexts,
+        ActionVersion,
+        ActionInput,
+        ActionOutput,
         MyNewRule,  # Add your rule here
     ]
 ```

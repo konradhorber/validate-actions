@@ -1,16 +1,3 @@
-"""Validates GitHub Actions workflow action version specifications.
-
-This module provides validation rules for GitHub Actions workflow steps that use
-the 'uses:' field to reference external actions. It validates:
-
-- Action version specifications (recommends version pinning)
-- Outdated action versions with auto-fix capabilities
-- Semantic version comparison and resolution
-
-The validation helps ensure workflows use current, secure action versions
-to prevent security vulnerabilities and compatibility issues.
-"""
-
 import re
 from typing import Generator, List, Optional, Tuple
 

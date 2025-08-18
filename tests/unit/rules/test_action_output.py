@@ -3,10 +3,10 @@
 from tests.conftest import parse_workflow_string
 from validate_actions.globals.fixer import NoFixer
 from validate_actions.globals.problems import Problem, ProblemLevel
-from validate_actions.rules.steps_io_match import StepsIOMatch
+from validate_actions.rules.action_output import ActionOutput
 
 
-class TestStepsIOMatch:
+class TestActionOutput:
     def test_no_io_match(self):
         workflow_string = """
         name: 'Test Steps IO Match with uses'
@@ -29,12 +29,12 @@ class TestStepsIOMatch:
                 path: ${{ steps.step1.outputs.some_output }}  # Reference to output from a uses step (which doesn't exist)
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = StepsIOMatch(workflow, NoFixer())
+        rule = ActionOutput(workflow, NoFixer())
         gen = rule.check()
         result = list(gen)
         assert len(result) == 1
         assert isinstance(result[0], Problem)
-        assert result[0].rule == "steps-io-match"
+        assert result[0].rule == "action-output"
         assert result[0].level == ProblemLevel.ERR
         assert result[0].desc == "'some_output' not as 'outputs' in 'step1'"
         assert result[0].pos.line == 18
@@ -61,7 +61,7 @@ class TestStepsIOMatch:
                 path: ${{ steps.step1.outputs.ref }}
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = StepsIOMatch(workflow, NoFixer())
+        rule = ActionOutput(workflow, NoFixer())
         gen = rule.check()
         result = list(gen)
         assert len(result) == 0
@@ -88,12 +88,12 @@ class TestStepsIOMatch:
                 path: ${{ steps.stepOne.outputs.ref }}
         """
         workflow, problems = parse_workflow_string(workflow_string)
-        rule = StepsIOMatch(workflow, NoFixer())
+        rule = ActionOutput(workflow, NoFixer())
         gen = rule.check()
         result = list(gen)
         assert len(result) == 1
         assert isinstance(result[0], Problem)
-        assert result[0].rule == "steps-io-match"
+        assert result[0].rule == "action-output"
         assert result[0].level == ProblemLevel.ERR
         assert (
             result[0].desc

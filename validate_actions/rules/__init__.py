@@ -6,15 +6,15 @@ and input/output matching.
 """
 
 from .action_input import ActionInput
+from .action_output import ActionOutput
 from .action_version import ActionVersion
 from .expressions_contexts import ExpressionsContexts
 from .rule import Rule
-from .steps_io_match import StepsIOMatch
 
 __all__ = [
     "ExpressionsContexts",
     "ActionVersion",
     "ActionInput",
     "Rule",
-    "StepsIOMatch",
+    "ActionOutput",
 ]

@@ -1,16 +1,3 @@
-"""Validates GitHub Actions workflow action input specifications.
-
-This module provides validation rules for GitHub Actions workflow steps that use
-the 'uses:' field to reference external actions. It validates:
-
-- Required and optional input validation
-- Ensures all required inputs are provided
-- Validates that only defined inputs are used
-
-The validation helps ensure workflows properly configure action inputs
-to prevent runtime failures and improve workflow reliability.
-"""
-
 from typing import Generator, List
 
 from validate_actions.domain_model.ast import ExecAction
