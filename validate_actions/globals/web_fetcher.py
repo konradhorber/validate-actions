@@ -1,20 +1,3 @@
-"""Web fetching utilities with caching and retry logic.
-
-This module provides a robust HTTP client implementation specifically designed
-for fetching GitHub Actions metadata and other web resources. It includes:
-
-- Response caching to avoid redundant requests
-- Configurable retry logic with exponential backoff
-- Timeout handling for network operations
-- Clean abstraction through the WebFetcher interface
-
-Typical usage:
-    fetcher = WebFetcher(max_retries=3, request_timeout=10)
-    response = fetcher.fetch('https://api.github.com/repos/actions/checkout')
-    if response:
-        data = response.json()
-"""
-
 import time
 from abc import ABC, abstractmethod
 from typing import Dict, Optional
