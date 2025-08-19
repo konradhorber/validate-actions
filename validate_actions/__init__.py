@@ -36,9 +36,9 @@ def validate_workflow(filepath: str, fix: bool = False) -> Problems:
     from pathlib import Path
 
     from .globals.fixer import BaseFixer, NoFixer
-    from .globals.web_fetcher import DefaultWebFetcher
+    from .globals.web_fetcher import CachedWebFetcher
 
-    web_fetcher = DefaultWebFetcher()
+    web_fetcher = CachedWebFetcher()
     fixer = BaseFixer(Path(filepath)) if fix else NoFixer()
     pipeline = DefaultPipeline(web_fetcher, fixer)
 

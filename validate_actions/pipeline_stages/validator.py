@@ -37,7 +37,7 @@ class ExtensibleValidator(Validator):
     Example config file (rules/rules.yml):
         rules:
           expressions-contexts: validate_actions.rules.expressions_contexts:ExpressionsContexts
-          jobs-steps-uses: validate_actions.rules.jobs_steps_uses:JobsStepsUses
+          action-metadata: validate_actions.rules.action_metadata:ActionMetadata
           custom-rule: my_package.rules.custom:MyCustomRule
 
     Usage:

@@ -44,7 +44,9 @@ class TestCLI:
 
             # Mock the directory finding and validation method to return our temp directory
             with patch.object(cli, "_find_workflows_directory", return_value=temp_path):
-                with patch.object(cli, "_validate_file_with_pipeline", side_effect=[result1, result2]):
+                with patch.object(
+                    cli, "_validate_file_with_pipeline", side_effect=[result1, result2]
+                ):
                     with patch("builtins.print"):  # Suppress progress output
                         exit_code = cli._run_directory()
 
@@ -80,10 +82,10 @@ jobs:
 
         try:
             from validate_actions.globals.fixer import NoFixer
-            from validate_actions.globals.web_fetcher import DefaultWebFetcher
+            from validate_actions.globals.web_fetcher import CachedWebFetcher
             from validate_actions.pipeline import DefaultPipeline
 
-            web_fetcher = DefaultWebFetcher(github_token=os.getenv("GH_TOKEN"))
+            web_fetcher = CachedWebFetcher(github_token=os.getenv("GH_TOKEN"))
             pipeline = DefaultPipeline(temp_file_path, web_fetcher, NoFixer())
             problems = pipeline.process()
         finally:
@@ -94,9 +96,10 @@ jobs:
 
         assert len(problems_list) == 4
         rule_event = "events-syntax-error"
-        rule_input = "jobs-steps-uses"
+        rule_version = "action-version"  # Version problems
+        rule_input = "action-input"  # Input problems
         assert problems_list[0].rule == rule_event
-        assert problems_list[1].rule == rule_input
+        assert problems_list[1].rule == rule_version
         assert problems_list[1].level == ProblemLevel.WAR
         assert problems_list[2].rule == rule_input
         assert problems_list[3].rule == rule_input

@@ -1,17 +1,3 @@
-"""Validates GitHub Actions workflow step 'uses:' specifications.
-
-This module provides validation rules for GitHub Actions workflow steps that use
-the 'uses:' field to reference external actions. It validates:
-
-- Action version specifications (recommends version pinning)
-- Outdated action versions with auto-fix capabilities
-- Required and optional input validation
-- Semantic version comparison and resolution
-
-The validation helps ensure workflows use current, secure action versions
-and proper input specifications to prevent runtime failures.
-"""
-
 import re
 from typing import Generator, List, Optional, Tuple
 
@@ -22,37 +8,35 @@ from validate_actions.globals.problems import Problem, ProblemLevel
 from validate_actions.rules.rule import Rule
 
 
-class JobsStepsUses(Rule):
-    """Validates the 'uses:' field specifications in workflow steps.
+class ActionVersion(Rule):
+    """Validates the version specifications in workflow action 'uses:' fields.
 
     This rule checks GitHub Actions workflow steps that reference external actions
-    via the 'uses:' field. It validates version specifications, checks for outdated
-    versions, and ensures proper input/output declarations.
+    via the 'uses:' field. It validates version specifications and checks for outdated
+    versions.
 
     Key validations:
     - Warns when actions don't specify version tags
     - Detects outdated action versions (supports semantic versioning and commit SHAs)
-    - Validates required inputs are provided
-    - Checks that only defined inputs are used
     - Provides auto-fix capabilities for version updates
     """
 
-    NAME = "jobs-steps-uses"
+    NAME = "action-version"
 
     # ====================
     # MAIN VALIDATION METHODS
     # ====================
 
     def check(self) -> Generator[Problem, None, None]:
-        """Validates all actions in the workflow.
+        """Validates all actions in the workflow for version issues.
 
         Iterates through all workflow jobs and their steps, collecting
         ExecAction instances (steps that use the 'uses:' field) and
-        validates them for version specifications and input requirements.
+        validates them for version specifications.
 
         Yields:
             Problem: Problems found during validation including version
-                warnings, missing inputs, and undefined input usage.
+                warnings and outdated version issues.
         """
         actions = []
         for job in self.workflow.jobs_.values():
@@ -66,33 +50,19 @@ class JobsStepsUses(Rule):
         self,
         actions: List[ExecAction],
     ) -> Generator[Problem, None, None]:
-        """Validates each action individually for version and input issues.
+        """Validates each action individually for version issues.
 
-        Processes each ExecAction to check version specifications and validate
-        input requirements against the action's metadata (if available).
+        Processes each ExecAction to check version specifications.
 
         Args:
             actions: List of ExecAction instances to validate.
 
         Yields:
-            Problem: Problems found including version warnings, missing required
-                inputs, and usage of undefined inputs.
+            Problem: Problems found including version warnings and outdated versions.
         """
         for action in actions:
             yield from self._not_using_version_spec(action)
             yield from self._is_outdated_version(action)
-
-            required_inputs = action.metadata.required_inputs if action.metadata else []
-            possible_inputs = action.metadata.possible_inputs if action.metadata else []
-
-            if len(action.with_) == 0:
-                if len(required_inputs) == 0:
-                    continue
-                else:
-                    yield from self._misses_required_input(action, required_inputs)
-            else:
-                yield from self._check_required_inputs(action, required_inputs)
-                yield from self._uses_non_defined_input(action, possible_inputs)
 
     # ====================
     # VERSION VALIDATION METHODS
@@ -182,80 +152,6 @@ class JobsStepsUses(Rule):
             # Graceful handling of expected errors during version checking
             # Network issues, parsing errors, or malformed version data
             return
-
-    # ====================
-    # INPUT VALIDATION METHODS
-    # ====================
-
-    def _misses_required_input(
-        self, action: ExecAction, required_inputs: List[str]
-    ) -> Generator[Problem, None, None]:
-        """Generates an error problem for missing required inputs.
-
-        This is a helper method that creates a formatted error message
-        listing all required inputs for an action.
-
-        Args:
-            action: The action missing required inputs.
-            required_inputs: List of all required input names.
-
-        Yields:
-            Problem: Error problem with formatted list of required inputs.
-        """
-        prettyprint_required_inputs = ", ".join(required_inputs)
-        yield Problem(
-            action.pos,
-            ProblemLevel.ERR,
-            (f"{action.uses_.string} requires inputs: " f"{prettyprint_required_inputs}"),
-            self.NAME,
-        )
-
-    def _check_required_inputs(
-        self, action: ExecAction, required_inputs: List[str]
-    ) -> Generator[Problem, None, None]:
-        """Validates that all required inputs for an action are provided.
-
-        Iterates through all required inputs and checks if they are present
-        in the action's 'with:' section. Generates problems for missing inputs.
-
-        Args:
-            action: The action to validate.
-            required_inputs: List of required input names for this action.
-
-        Yields:
-            Problem: Error problems for each missing required input.
-        """
-        if not required_inputs:
-            return
-
-        for required_input in required_inputs:
-            if required_input not in action.with_:
-                yield from self._misses_required_input(action, required_inputs)
-
-    def _uses_non_defined_input(
-        self, action: ExecAction, possible_inputs: List[str]
-    ) -> Generator[Problem, None, None]:
-        """
-        Checks if an action uses inputs that are not defined in its metadata.
-
-        Args:
-            action (ExecAction): The action to validate.
-            possible_inputs (List[str]): The list of possible inputs.
-
-        Yields:
-            Problem: Error if undefined inputs are used.
-        """
-        if not possible_inputs:
-            return
-
-        for action_input in action.with_:
-            if action_input not in possible_inputs:
-                yield Problem(
-                    action.pos,
-                    ProblemLevel.ERR,
-                    f"{action.uses_.string} uses unknown input: {action_input.string}",
-                    self.NAME,
-                )
 
     # ====================
     # UTILITY METHODS

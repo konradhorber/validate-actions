@@ -1,6 +1,6 @@
 [project]
 name = "validate-actions"
-version = "0.1.21"
+version = "1.0.0"
 description = "CLI for github actions workflow validation"
 authors = [
     {name = "konradhorber",email = "konrad.horber@gmail.com"}
@@ -32,6 +32,7 @@ pythonpath = [
 omit = [
     "scripts/*",
     "tests/*",
+    "*/__init__.py",
 ]
 
 [tool.poetry.group.dev.dependencies]

@@ -6,15 +6,39 @@ from validate_actions.globals.problems import Problem, ProblemLevel
 from validate_actions.rules.rule import Rule
 
 
-class StepsIOMatch(Rule):
-    NAME = "steps-io-match"
+class ActionOutput(Rule):
+    """
+    Validates step output references in workflow expressions.
+
+    This rule ensures that when steps reference outputs from other steps using
+    the `steps.<step-id>.outputs.<output-name>` syntax, both the step and the
+    output exist and are accessible.
+    """
+
+    NAME = "action-output"
 
     def check(self) -> Generator[Problem, None, None]:
+        """
+        Check all jobs for invalid step output references.
+
+        Yields:
+            Problem: Issues with step output references
+        """
         jobs: Dict[ast.String, ast.Job] = self.workflow.jobs_
         for job in jobs.values():
             yield from self.__check_job(job, contexts=self.workflow.contexts)
 
     def __check_job(self, job: ast.Job, contexts: Contexts) -> Generator[Problem, None, None]:
+        """
+        Check all steps in a job for invalid output references.
+
+        Args:
+            job: The job to check
+            contexts: Workflow contexts for expression validation
+
+        Yields:
+            Problem: Issues with step output references in this job
+        """
         for step in job.steps_:
             yield from self.__check_step_inputs(
                 step,
@@ -25,6 +49,17 @@ class StepsIOMatch(Rule):
     def __check_step_inputs(
         self, step: ast.Step, job: ast.Job, contexts: Contexts
     ) -> Generator[Problem, None, None]:
+        """
+        Check step inputs for invalid output references.
+
+        Args:
+            step: The step to check
+            job: The job containing this step
+            contexts: Workflow contexts for expression validation
+
+        Yields:
+            Problem: Issues with step output references in step inputs
+        """
         exec: ast.Exec = step.exec
         if not isinstance(exec, ast.ExecAction):
             return
@@ -56,6 +91,16 @@ class StepsIOMatch(Rule):
         ref: ast.Expression,
         job: ast.Job,
     ) -> Generator[Problem, None, None]:
+        """
+        Check if the referenced step exists in the job.
+
+        Args:
+            ref: The expression referencing the step
+            job: The job to search for the step
+
+        Yields:
+            Problem: Issues if the referenced step doesn't exist
+        """
         referenced_step_id = ref.parts[1]
         for step in job.steps_:
             if referenced_step_id == step.id_:
@@ -84,8 +129,19 @@ class StepsIOMatch(Rule):
         step: ast.Step,
         job: ast.Job,
     ) -> Generator[Problem, None, None]:
+        """
+        Check if the referenced output exists in the step's action metadata.
+
+        Args:
+            ref: The expression referencing the step output
+            step: The step being referenced
+            job: The job containing the step
+
+        Yields:
+            Problem: Issues if the referenced output doesn't exist
+        """
         if not isinstance(step.exec, ast.ExecAction):
-            return  # TODO check for run exec type
+            return
 
         # Use the new ActionMetadata if available
         if step.exec.metadata is None:

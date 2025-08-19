@@ -5,14 +5,16 @@ GitHub Actions workflows, including context validation, action usage validation,
 and input/output matching.
 """
 
+from .action_input import ActionInput
+from .action_output import ActionOutput
+from .action_version import ActionVersion
 from .expressions_contexts import ExpressionsContexts
-from .jobs_steps_uses import JobsStepsUses
 from .rule import Rule
-from .steps_io_match import StepsIOMatch
 
 __all__ = [
     "ExpressionsContexts",
-    "JobsStepsUses",
+    "ActionVersion",
+    "ActionInput",
     "Rule",
-    "StepsIOMatch",
+    "ActionOutput",
 ]
