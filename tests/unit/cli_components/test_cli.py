@@ -82,10 +82,10 @@ jobs:
 
         try:
             from validate_actions.globals.fixer import NoFixer
-            from validate_actions.globals.web_fetcher import DefaultWebFetcher
+            from validate_actions.globals.web_fetcher import CachedWebFetcher
             from validate_actions.pipeline import DefaultPipeline
 
-            web_fetcher = DefaultWebFetcher(github_token=os.getenv("GH_TOKEN"))
+            web_fetcher = CachedWebFetcher(github_token=os.getenv("GH_TOKEN"))
             pipeline = DefaultPipeline(temp_file_path, web_fetcher, NoFixer())
             problems = pipeline.process()
         finally:

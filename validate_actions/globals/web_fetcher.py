@@ -6,7 +6,7 @@ import requests
 
 
 class WebFetcher(ABC):
-    """Abstract interface for web fetching with caching capabilities.
+    """Abstract interface for web fetching.
 
     This interface defines the contract for HTTP clients used throughout
     the validate-actions tool.
@@ -18,10 +18,6 @@ class WebFetcher(ABC):
         >>> response = fetcher.fetch('https://example.com/api/data')
         >>> if response and response.status_code == 200:
         ...     data = response.json()
-
-        Cache management:
-
-        >>> fetcher.clear_cache()  # Clear all cached responses
     """
 
     @abstractmethod
@@ -37,18 +33,8 @@ class WebFetcher(ABC):
         """
         pass
 
-    @abstractmethod
-    def clear_cache(self) -> None:
-        """Clear all cached HTTP responses.
 
-        This method removes all entries from the internal response cache,
-        forcing subsequent fetch() calls to make fresh HTTP requests.
-        Useful for testing or when you need to ensure fresh data.
-        """
-        pass
-
-
-class DefaultWebFetcher(WebFetcher):
+class CachedWebFetcher(WebFetcher):
     """Implementation of WebFetcher with caching and retry logic.
 
     This implementation provides robust HTTP fetching with the following features:

@@ -14,7 +14,7 @@ from validate_actions.cli_components.result_aggregator import (
 from validate_actions.globals.cli_config import CLIConfig
 from validate_actions.globals.fixer import BaseFixer, NoFixer
 from validate_actions.globals.validation_result import ValidationResult
-from validate_actions.globals.web_fetcher import DefaultWebFetcher
+from validate_actions.globals.web_fetcher import CachedWebFetcher
 from validate_actions.pipeline import DefaultPipeline
 
 
@@ -63,7 +63,7 @@ class StandardCLI(CLI):
         self.aggregator = aggregator or StandardResultAggregator(config)
 
         # Create web fetcher (reusable across files)
-        self.web_fetcher = DefaultWebFetcher(github_token=config.github_token)
+        self.web_fetcher = CachedWebFetcher(github_token=config.github_token)
 
     def run(self) -> int:
         """Main CLI execution method.
