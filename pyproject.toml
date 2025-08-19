@@ -32,6 +32,7 @@ pythonpath = [
 omit = [
     "scripts/*",
     "tests/*",
+    "*/__init__.py",
 ]
 
 [tool.poetry.group.dev.dependencies]
