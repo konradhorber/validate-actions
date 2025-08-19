@@ -1,4 +1,4 @@
-name: Build, test, and publish to TestPyPI on push
+name: Build, test, and publish to PyPI on push
 
 on:
   push:
@@ -28,5 +28,5 @@ jobs:
 
       - name: Publish to PyPI
         run: |
-          poetry config pypi-token.validate-actions ${{ secrets.TEST_PYPI_TOKEN }}
-          poetry publish --build -r validate-actions
+          poetry config pypi-token.pypi ${{ secrets.TEST_PYPI_TOKEN }}
+          poetry publish --build

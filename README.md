@@ -15,11 +15,8 @@ Catch configuration errors, typos, and best practice violations in your GitHub A
 ### Installation
 
 ```bash
-# Install from PyPI (coming soon)
+# Install from PyPI
 pip install validate-actions
-
-# Or install from test PyPI
-pip install -i https://test.pypi.org/simple/ validate-actions
 ```
 
 ### Basic Usage
