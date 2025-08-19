@@ -178,3 +178,7 @@ cython_debug/
 # .vscode
 .vscode/
 *.local.md
+
+# report
+results.json
+report/*
