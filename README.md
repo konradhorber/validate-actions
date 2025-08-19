@@ -31,27 +31,8 @@ validate-actions .github/workflows/ci.yml
 # Auto-fix issues where possible
 validate-actions --fix
 
-# Suppress warnings, show only errors
-validate-actions --quiet
-
-# Limit maximum warnings before exit code 1
-validate-actions --max-warnings 10
-```
-
-### Library Usage
-
-```python
-from validate_actions import validate_workflow
-
-# Validate a workflow file
-problems = validate_workflow('path/to/workflow.yml')
-
-# Check for issues
-for problem in problems.problems:
-    print(f"{problem.level.name}: {problem.desc} at line {problem.pos.line}")
-
-# Auto-fix issues
-problems = validate_workflow('path/to/workflow.yml', fix=True)
+# More options
+validate-actions --help
 ```
 
 ---
