@@ -18,6 +18,16 @@ class MarketPlaceEnricher(ProcessStage[ast.Workflow, ast.Workflow]):
     workflow AST with action input/output information and version data.
     """
 
+    def __init__(self, web_fetcher: WebFetcher, problems: Problems) -> None:
+        """Initialize the marketplace enricher.
+
+        Args:
+            web_fetcher: Web fetcher for making HTTP requests
+            problems: Collection to append validation problems to
+        """
+        self._web_fetcher = web_fetcher
+        self._problems = problems
+
     @abstractmethod
     def process(self, workflow: ast.Workflow) -> ast.Workflow:
         """Enrich workflow with marketplace metadata.
@@ -46,8 +56,7 @@ class DefaultMarketPlaceEnricher(MarketPlaceEnricher):
             web_fetcher: Web fetcher for making HTTP requests
             problems: Collection to append validation problems to
         """
-        self._web_fetcher = web_fetcher
-        self._problems = problems
+        super().__init__(web_fetcher, problems)
         self._RULE_NAME = "marketplace"
 
     def process(self, workflow: Workflow) -> Workflow:
