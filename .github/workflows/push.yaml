@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -26,8 +26,7 @@ jobs:
       - name: Run tests
         run: poetry run pytest
 
-      - name: Publish to TestPyPI
+      - name: Publish to PyPI
         run: |
-          poetry config repositories.validate-actions https://test.pypi.org/legacy/
           poetry config pypi-token.validate-actions ${{ secrets.TEST_PYPI_TOKEN }}
           poetry publish --build -r validate-actions
