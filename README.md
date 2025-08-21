@@ -38,7 +38,7 @@ validate-actions --help
 ---
 
 ## How it works
-<video controls src="demo.mov" title="Title"></video>
+![alt text](demo.gif)
 
 ---
 
