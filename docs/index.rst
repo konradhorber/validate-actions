@@ -1,3 +1,5 @@
+validate-actions documentation
+=================================================
 .. automodule:: validate_actions
 
 .. autosummary::
