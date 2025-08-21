@@ -1,3 +1,4 @@
+"""Default implementation of a builder for components on varying levels (workflow, job, step)."""
 import copy
 import dataclasses
 from numbers import Number
@@ -10,6 +11,7 @@ from validate_actions.pipeline_stages.builders.interfaces import SharedComponent
 
 
 class DefaultSharedComponentsBuilder(SharedComponentsBuilder):
+    """Default implementation of a builder for components on varying levels (workflow, job, step)."""
     def __init__(self, problems: Problems) -> None:
         self.problems = problems
         self.RULE_NAME = "syntax-error"

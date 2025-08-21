@@ -1,3 +1,4 @@
+"""Interface for GitHub Actions workflow validation rules."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

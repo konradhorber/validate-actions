@@ -1,3 +1,4 @@
+"""Fixer module for applying changes to YAML workflow files."""
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Dict, List
@@ -7,20 +8,20 @@ from validate_actions.globals.problems import Problem, ProblemLevel
 
 class Fixer(ABC):
     """Abstract base for applying fixes to YAML workflow files."""
-    
+
     @abstractmethod
     def edit_yaml_at_position(
         self, idx: int, old_text: str, new_text: str, problem: Problem, new_problem_desc: str
     ) -> Problem:
         """Queue an edit to replace text at a specific character position.
-        
+
         Args:
             idx: Character index where replacement starts
             old_text: Text to be replaced (for validation)
             new_text: Replacement text
             problem: Problem instance to update
             new_problem_desc: New description for the fixed problem
-            
+
         Returns:
             Updated problem instance
         """
@@ -34,6 +35,7 @@ class Fixer(ABC):
 
 class BaseFixer(Fixer):
     """Default fixer that batches edits and applies them on flush."""
+
     file_path: Path
     pending_edits: List[Dict[str, Any]]
 
@@ -45,14 +47,14 @@ class BaseFixer(Fixer):
         self, idx: int, old_text: str, new_text: str, problem: Problem, new_problem_desc: str
     ) -> Problem:
         """Queue an edit for later application and mark problem as fixed.
-        
+
         Args:
             idx: Character index where replacement starts
             old_text: Text to be replaced (for validation)
             new_text: Replacement text
             problem: Problem instance to update
             new_problem_desc: New description for the fixed problem
-            
+
         Returns:
             Updated problem instance with NON level
         """
@@ -118,14 +120,14 @@ class NoFixer(Fixer):
         self, idx: int, old_text: str, new_text: str, problem: Problem, new_problem_desc: str
     ) -> Problem:
         """No-op implementation that returns the problem unchanged.
-        
+
         Args:
             idx: Character index (ignored)
             old_text: Text to be replaced (ignored)
             new_text: Replacement text (ignored)
             problem: Problem instance to return
             new_problem_desc: New description (ignored)
-            
+
         Returns:
             Unmodified problem instance
         """

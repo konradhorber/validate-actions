@@ -1,3 +1,4 @@
+"""Default implementation of a builder for jobs."""
 import copy
 import itertools
 from typing import Any, Dict, List, Optional, Set
@@ -25,6 +26,7 @@ from validate_actions.pipeline_stages.builders.steps_builder import (
 
 
 class DefaultJobsBuilder(JobsBuilder):
+    """Default implementation of a builder for jobs"""
     def __init__(
         self,
         problems: Problems,

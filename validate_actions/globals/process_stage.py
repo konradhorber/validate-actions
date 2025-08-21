@@ -1,3 +1,4 @@
+"""Defines basic interface of pipeline stages."""
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 

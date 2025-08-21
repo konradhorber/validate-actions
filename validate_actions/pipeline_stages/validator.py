@@ -1,3 +1,4 @@
+"""Validator coordinating rules and fixer."""
 import importlib
 import os
 from abc import abstractmethod
@@ -13,6 +14,7 @@ from validate_actions.rules.rule import Rule
 
 
 class Validator(ProcessStage[ast.Workflow, Problems]):
+    """Validates GitHub Actions workflows by applying complex checks."""
     @abstractmethod
     def process(self, workflow: ast.Workflow) -> Problems:
         """Validate the given workflow and return any problems found.

@@ -1,3 +1,4 @@
+"""Primitive building blocks for creating a GHA ast."""
 from dataclasses import dataclass, field
 from typing import List
 

@@ -3,7 +3,9 @@
 import tempfile
 from pathlib import Path
 
-from validate_actions import pipeline_stages
+from validate_actions.pipeline_stages.parser import PyYAMLParser
+from validate_actions.pipeline_stages.builder import DefaultBuilder
+from validate_actions.pipeline_stages.validator import ExtensibleValidator
 from validate_actions.globals.fixer import NoFixer
 from validate_actions.globals.problems import Problems
 from validate_actions.pipeline import Pipeline
@@ -16,9 +18,9 @@ class SimplePipeline(Pipeline):
         fixer = NoFixer()
         super().__init__(file, fixer)
 
-        self.parser = pipeline_stages.PyYAMLParser(self.problems)
-        self.builder = pipeline_stages.DefaultBuilder(self.problems)
-        self.validator = pipeline_stages.ExtensibleValidator(self.problems, self.fixer)
+        self.parser = PyYAMLParser(self.problems)
+        self.builder = DefaultBuilder(self.problems)
+        self.validator = ExtensibleValidator(self.problems, self.fixer)
 
     def process(self) -> Problems:
         dict_result = self.parser.process(self.file)

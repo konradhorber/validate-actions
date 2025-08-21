@@ -235,5 +235,6 @@ Built with:
 - [Typer](https://typer.tiangolo.com/) for the CLI interface
 - [Rich](https://rich.readthedocs.io/) for beautiful terminal output
 - [python-dotenv](https://github.com/theskumar/python-dotenv) for environment variable management  
+- [sphinx](https://github.com/sphinx-doc/sphinx) for docs generation
 
 Inspired by tools like ESLint and the GitHub Actions community's need for better workflow validation.

@@ -1,3 +1,4 @@
+"""Default implementation of a builder coordinating workflow construction."""
 from typing import Any, Dict, List, Optional
 
 import validate_actions.domain_model.ast as ast

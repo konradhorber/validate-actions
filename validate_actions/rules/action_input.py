@@ -1,3 +1,4 @@
+"""Validates input specifications in workflow action 'uses:' fields."""
 from typing import Generator, List
 
 from validate_actions.domain_model.ast import ExecAction

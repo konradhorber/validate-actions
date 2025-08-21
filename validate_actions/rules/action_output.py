@@ -1,3 +1,4 @@
+"""Validates step output references to previous steps in workflow expressions."""
 from typing import Dict, Generator
 
 from validate_actions.domain_model import ast

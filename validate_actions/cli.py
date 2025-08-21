@@ -1,3 +1,4 @@
+"""CLI interface and standard implementation for validate-actions."""
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path

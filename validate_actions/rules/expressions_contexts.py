@@ -1,3 +1,4 @@
+"""Validates expressions against workflow contexts."""
 import re
 from collections.abc import Mapping, Sequence
 from dataclasses import fields, is_dataclass

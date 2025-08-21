@@ -1,3 +1,4 @@
+"""Holds CLI arguments configuration."""
 import sys
 from dataclasses import dataclass
 from typing import Optional

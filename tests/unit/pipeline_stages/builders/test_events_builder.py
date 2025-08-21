@@ -1,4 +1,5 @@
 import validate_actions
+from validate_actions.globals.problems import Problem
 from tests.conftest import parse_workflow_string
 
 
@@ -211,4 +212,4 @@ class TestEventsBuilder:
         workflow, problems = parse_workflow_string(workflow_string)
         problems = problems.problems
         assert len(problems) == 1
-        assert isinstance(problems[0], validate_actions.Problem)
+        assert isinstance(problems[0], Problem)

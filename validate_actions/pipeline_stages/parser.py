@@ -1,3 +1,4 @@
+"""Parser for YAML files, from input file to Python data structure representation."""
 import copy
 import re
 import sys
@@ -13,17 +14,33 @@ from validate_actions.globals.process_stage import ProcessStage
 
 
 class YAMLParser(ProcessStage[Path, Dict[String, Any]]):
-    """Abstract base class for YAML parser implementations."""
+    """Abstract base class for parsing GitHub Actions workflow YAML files.
+    
+    This parser performs token-level parsing to enable precise position tracking
+    and auto-fixing of workflow files. The parser maintains exact line, column,
+    and character positions for all parsed elements to support:
+    
+    - Validation rule error reporting with precise locations
+    - Auto-fixing of problems using character-level edits
+    - Expression parsing within ${{ }} syntax
+    - Structured AST construction for downstream pipeline stages
+    """
 
     @abstractmethod
     def process(self, file: Path) -> Dict[String, Any]:
-        """Parse a YAML file into a structured representation.
+        """Parse a GitHub Actions workflow YAML file into a structured representation.
+
+        Converts YAML content into a dictionary with String keys that preserve
+        position information for validation and auto-fixing. Handles GitHub
+        Actions-specific constructs including expressions and complex nested
+        structures.
 
         Args:
-            file (Path): Path to the YAML file to parse.
+            file (Path): Path to the GitHub Actions workflow YAML file to parse.
 
         Returns:
-            Dict[String, Any]: The parsed YAML content as a dictionary.
+            Dict[String, Any]: Parsed YAML as dictionary with position-aware String
+                keys and values. Returns empty dict if parsing fails or file is invalid.
         """
         pass
 

@@ -1,3 +1,4 @@
+"""Pipeline stage for enriching workflows with marketplace metadata."""
 from abc import abstractmethod
 from typing import Any, Dict, List, Optional, Tuple
 

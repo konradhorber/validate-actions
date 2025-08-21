@@ -310,20 +310,18 @@ class DefaultJobOrderer(JobOrderer):
 
         return NeedOutputsContext()
 
-
-def parse_job_needs(needs_value) -> List[str]:
-    """Parse job needs field into list of job IDs."""
-    if needs_value is None:
+    def _parse_job_needs(self, needs_value) -> List[str]:
+        """Parse job needs field into list of job IDs."""
+        if needs_value is None:
+            return []
+        if isinstance(needs_value, str):
+            return [needs_value]
+        elif isinstance(needs_value, list):
+            return [str(need) for need in needs_value]
         return []
-    if isinstance(needs_value, str):
-        return [needs_value]
-    elif isinstance(needs_value, list):
-        return [str(need) for need in needs_value]
-    return []
 
-
-def parse_job_condition(if_value) -> Optional[str]:
-    """Parse job if field into condition string."""
-    if if_value is None:
-        return None
-    return str(if_value)
+    def _parse_job_condition(self, if_value) -> Optional[str]:
+        """Parse job if field into condition string."""
+        if if_value is None:
+            return None
+        return str(if_value)

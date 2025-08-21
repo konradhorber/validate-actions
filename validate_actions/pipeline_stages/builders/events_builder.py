@@ -1,3 +1,4 @@
+"""Default implementation of an builder for events."""
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 from validate_actions.domain_model import ast
@@ -6,6 +7,7 @@ from validate_actions.pipeline_stages.builders.interfaces import EventsBuilder
 
 
 class DefaultEventsBuilder(EventsBuilder):
+    """Default implementation of the EventsBuilder interface."""
     def __init__(
         self,
         problems: Problems,

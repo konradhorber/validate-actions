@@ -1,3 +1,4 @@
+"""Aggregates validation results for CLI output. Especially for multiple files."""
 from abc import ABC, abstractmethod
 from typing import List
 

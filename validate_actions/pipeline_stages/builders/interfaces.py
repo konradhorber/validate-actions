@@ -1,3 +1,4 @@
+"""Interfaces for support builders."""
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Union
 
@@ -7,6 +8,7 @@ from validate_actions.globals.process_stage import ProcessStage
 
 
 class SharedComponentsBuilder(ABC):
+    """Builder interface for shared attributes on varying levels (workflow, job, step)."""
     @abstractmethod
     def build_env(self, env_vars: Dict[ast.String, Any]) -> Optional[ast.Env]:
         """Build environment variables from dictionary."""
@@ -39,9 +41,6 @@ class SharedComponentsBuilder(ABC):
 class EventsBuilder(ABC):
     """Builder interface for events (after on keyword in workflow file). Builds
     from parsed workflow data. Doens't parse the file.
-
-    Args:
-        ABC (_type_): is an interface
     """
 
     @abstractmethod
@@ -76,6 +75,7 @@ class StepsBuilder(ABC):
 
 
 class JobsBuilder(ABC):
+    """Builder interface for jobs."""
     @abstractmethod
     def build(self, jobs_dict: Dict[ast.String, Any]) -> Dict[ast.String, ast.Job]:
         """
@@ -85,6 +85,7 @@ class JobsBuilder(ABC):
 
 
 class WorkflowBuilder(ProcessStage[Dict[ast.String, Any], ast.Workflow]):
+    """Builder interface for whole workflow construction from other builders."""
     @abstractmethod
     def process(self, workflow_dict: Dict[ast.String, Any]) -> ast.Workflow:
         """

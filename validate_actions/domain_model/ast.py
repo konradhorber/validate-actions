@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Dict, List, Optional, Union
 
-from validate_actions.domain_model.contexts import Contexts
+from validate_actions.domain_model import contexts
 from validate_actions.domain_model.primitives import Expression, Pos, String
 
 # =============================================================================
@@ -47,7 +47,7 @@ class Workflow:
 
     on_: List["Event"]
     jobs_: Dict["String", "Job"]
-    contexts: Contexts
+    contexts: contexts.Contexts
     name_: Optional[str] = None
     run_name_: Optional[str] = None
     permissions_: "Permissions" = field(default_factory=lambda: Permissions())
@@ -80,7 +80,22 @@ class Permissions:
     Defines fine-grained permissions for different repository scopes.
     Default values are permissive to match GitHub's behavior.
 
-    Note: Some permissions have conflicting documentation between GitHub sources.
+    Attributes:
+        actions_: Permissions for GitHub Actions
+        attestations_: Permissions for attestations
+        checks_: Permissions for checks API
+        contents_: Permissions for repository contents
+        deployments_: Permissions for deployments
+        id_token_: Permissions for ID token generation
+        issues_: Permissions for issues API
+        metadata_: Permissions for repository metadata
+        models_: Permissions for repository models (e.g. code scanning)
+        discussions_: Permissions for discussions API
+        packages_: Permissions for package registry
+        pages_: Permissions for GitHub Pages
+        pull_requests_: Permissions for pull requests API
+        security_events_: Permissions for security events
+        statuses_: Permissions for commit statuses
     """
 
     actions_: "Permission" = Permission.write
@@ -568,7 +583,7 @@ class Job:
     pos: "Pos"
     job_id_: str
     steps_: List["Step"]
-    contexts: Contexts
+    contexts: contexts.Contexts
     name_: Optional["String"] = None
     permissions_: Permissions = field(default_factory=Permissions)
     needs_: Optional[List["String"]] = None
@@ -609,7 +624,7 @@ class Step:
 
     pos: "Pos"
     exec: "Exec"
-    contexts: "Contexts"
+    contexts: contexts.Contexts
     id_: Optional["String"] = None
     if_: Optional["String"] = None
     name_: Optional["String"] = None
@@ -694,55 +709,3 @@ class ExecRun(Exec):
     shell_: Optional["String"] = None
     working_directory_: Optional["String"] = None
 
-
-# =============================================================================
-# PUBLIC API
-# =============================================================================
-
-# Re-export primitives for backward compatibility
-__all__ = [
-    # Primitives (re-exported from primitives module)
-    "Expression",
-    "String",
-    "Pos",
-    # Core workflow structure
-    "Workflow",
-    "Job",
-    "Step",
-    # Step execution types
-    "Exec",
-    "ExecAction",
-    "ExecRun",
-    "ActionMetadata",
-    # Event system
-    "Event",
-    "BranchesFilterEvent",
-    "PathsBranchesFilterEvent",
-    "TagsPathsBranchesFilterEvent",
-    "ScheduleEvent",
-    "WorkflowCallEvent",
-    "WorkflowCallEventInput",
-    "WorkflowCallEventOutput",
-    "WorkflowCallEventSecret",
-    "WorkflowRunEvent",
-    "WorkflowDispatchEvent",
-    "WorkflowDispatchEventInput",
-    "WorkflowInput",
-    # Configuration and settings
-    "Permissions",
-    "Permission",
-    "Defaults",
-    "Shell",
-    "Env",
-    "Concurrency",
-    "RunsOn",
-    "Strategy",
-    "Environment",
-    # Container support
-    "Container",
-    "ContainerCredentials",
-    "Secrets",
-    # Enums
-    "WorkflowCallInputType",
-    "WorkflowDispatchInputType",
-]

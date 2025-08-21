@@ -2,7 +2,7 @@ import tempfile
 from pathlib import Path
 
 from tests.conftest import parse_workflow_string
-from validate_actions import Problem
+from validate_actions.globals.problems import Problem
 from validate_actions.globals import fixer
 from validate_actions.globals.fixer import NoFixer
 from validate_actions.rules.action_input import ActionInput

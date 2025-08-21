@@ -3,7 +3,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from validate_actions import ProblemLevel, Problems
+from validate_actions.globals.problems import ProblemLevel, Problems
 from validate_actions.cli import StandardCLI
 from validate_actions.globals.cli_config import CLIConfig
 from validate_actions.globals.validation_result import ValidationResult

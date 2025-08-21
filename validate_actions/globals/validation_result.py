@@ -1,3 +1,4 @@
+"""Result of validating a single workflow file."""
 from dataclasses import dataclass
 from pathlib import Path
 

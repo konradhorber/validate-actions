@@ -182,3 +182,7 @@ cython_debug/
 # report
 results.json
 report/*
+
+# docs
+docs/_build/*
+docs/_autosummary/*

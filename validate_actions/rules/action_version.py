@@ -1,3 +1,4 @@
+"""Validates version specifications in workflow action 'uses:' fields."""
 import re
 from typing import Generator, List, Optional, Tuple
 

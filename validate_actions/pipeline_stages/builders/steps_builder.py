@@ -1,3 +1,4 @@
+"""Default implementation of a builder for steps."""
 import copy
 from typing import Any, Dict, List, Optional
 
@@ -12,6 +13,7 @@ from validate_actions.pipeline_stages.builders.interfaces import (
 
 
 class DefaultStepsBuilder(StepsBuilder):
+    """Default implementation of a builder for steps."""
     def __init__(
         self,
         problems: Problems,
