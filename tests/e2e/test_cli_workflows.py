@@ -53,7 +53,7 @@ class TestE2E:
         )
         shutil.copy(valid_workflow, workflows_dir / "test.yml")
 
-        result = self.run_cli(project_root)
+        result = self.run_cli(project_root, extra_args=["--quiet"])
 
         assert result.returncode == 0
         assert "✓" in result.stdout  # Success indicator
